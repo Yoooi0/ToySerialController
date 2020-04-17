@@ -1,3 +1,6 @@
 [submodule "lib/vam-debug-utils"]
 	path = lib/vam-debug-utils
 	url = https://github.com/Yoooi0/vam-debug-utils
+[submodule "lib/vam-curve-editor"]
+	path = lib/vam-curve-editor
+	url = https://github.com/Yoooi0/vam-curve-editor

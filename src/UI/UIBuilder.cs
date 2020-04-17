@@ -1,5 +1,8 @@
-﻿using System;
+﻿using CurveEditor;
+using CurveEditor.UI;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -109,10 +112,47 @@ namespace ToySerialController.UI
             return spacer;
         }
 
-        public UICurveEditor CreateCurveEditor(string paramName, float height, bool rightSide = false)
+        public UICurveEditor CreateCurveEditor(float height, bool rightSide = false)
         {
             var container = CreateSpacer(height, rightSide);
-            return new UICurveEditor(this, container, paramName, 510, height);
+
+            UICurveEditor curveEditor = null;
+            var curveEditorButtons = Enumerable.Range(0, 4)
+                .Select(_ => UnityEngine.Object.Instantiate(Plugin.manager.configurableButtonPrefab))
+                .Select(t => t.GetComponent<UIDynamicButton>())
+                .ToList();
+
+            foreach (var b in curveEditorButtons)
+            {
+                b.buttonText.fontSize = 18;
+                b.buttonColor = Color.white;
+            }
+
+            curveEditorButtons[0].label = "Mode";
+            curveEditorButtons[1].label = "In Mode";
+            curveEditorButtons[2].label = "Out Mode";
+            curveEditorButtons[3].label = "Linear";
+
+            curveEditorButtons[0].button.onClick.AddListener(() => curveEditor.ToggleHandleMode());
+            curveEditorButtons[1].button.onClick.AddListener(() => curveEditor.ToggleInHandleMode());
+            curveEditorButtons[2].button.onClick.AddListener(() => curveEditor.ToggleOutHandleMode());
+            curveEditorButtons[3].button.onClick.AddListener(() => curveEditor.SetLinear());
+
+            curveEditor = new UICurveEditor(container, 510, height);
+            return curveEditor;
+        }
+
+        public JSONStorableAnimationCurve CreateCurve(string paramName, UICurveEditor curveEditor, IEnumerable<Keyframe> keyframes = null)
+        {
+            var storable = new JSONStorableAnimationCurve(paramName);
+            if (keyframes != null)
+            {
+                storable.val = new AnimationCurve(keyframes.ToArray());
+                storable.SetDefaultFromCurrent();
+            }
+
+            curveEditor.AddCurve(storable);
+            return storable;
         }
 
         public UIHorizontalGroup CreateHorizontalGroup(float width, float height, Vector2 spacing, int count, Func<int, Transform> itemCreator, bool rightSide = false)

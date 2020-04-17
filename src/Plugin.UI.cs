@@ -33,7 +33,6 @@ namespace ToySerialController
             _group.BlacklistStorable("Device Report");
             _group.BlacklistStorable("Serial Report");
 
-            var xx = _group.CreateCurveEditor("", 300);
             PluginTitle = _group.CreateDisabledButton("Plugin", new Color(0.3f, 0.3f, 0.3f), Color.white);
 
             PresetButtonGroup = _group.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 3, idx => _group.CreateButtonEx());

@@ -1,4 +1,6 @@
-﻿using SimpleJSON;
+﻿using CurveEditor;
+using CurveEditor.UI;
+using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -93,9 +95,16 @@ namespace ToySerialController.UI
             return o;
         }
 
-        public UICurveEditor CreateCurveEditor(string paramName, float height, bool rightSide = false)
+        public UICurveEditor CreateCurveEditor(float height, bool rightSide = false)
         {
-            var storable = _builder.CreateCurveEditor(paramName, height, rightSide);
+            var o = _builder.CreateCurveEditor(height, rightSide);
+            _objects.Add(o);
+            return o;
+        }
+
+        public JSONStorableAnimationCurve CreateCurve(string paramName, UICurveEditor curveEditor, IEnumerable<Keyframe> keyframes = null)
+        {
+            var storable = _builder.CreateCurve(paramName, curveEditor, keyframes);
             _objects.Add(storable);
             return storable;
         }

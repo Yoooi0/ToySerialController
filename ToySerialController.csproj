@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -88,6 +88,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="lib\vam-curve-editor\IStorableAnimationCurve.cs" />
+    <Compile Include="lib\vam-curve-editor\JSONStorableAnimationCurve.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Control\UIColors.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Control\UICurveEditor.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Control\UICurveEditorPoint.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Control\UICurveLine.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Control\UILine.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Utils\InputEventArgs.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Utils\PointerEventArgs.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Utils\UIInputBehaviour.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Utils\UIMouseClickBehaviour.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Utils\UIMouseDragBehaviour.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\Utils\UIRaycastEventsBehaviour.cs" />
+    <Compile Include="lib\vam-curve-editor\Utils\MathUtils.cs" />
     <Compile Include="lib\vam-debug-utils\DebugDraw.cs" />
     <Compile Include="lib\vam-debug-utils\LineDrawer.cs" />
     <Compile Include="src\Config\ConfigManager.cs" />
@@ -103,15 +117,6 @@
     <Compile Include="src\MotionSource\MaleFemaleMotionSource.cs" />
     <Compile Include="src\UI\Control\UIHorizontalGroup.cs" />
     <Compile Include="src\UI\IUIBuilder.cs" />
-    <Compile Include="src\UI\Utils\InputEventArgs.cs" />
-    <Compile Include="src\UI\Utils\PointerEventArgs.cs" />
-    <Compile Include="src\UI\Control\UICurveEditor.cs" />
-    <Compile Include="src\UI\Control\UICurveEditorPoint.cs" />
-    <Compile Include="src\UI\Utils\UIInputBehaviour.cs" />
-    <Compile Include="src\UI\Control\UILine.cs" />
-    <Compile Include="src\UI\Utils\UIMouseClickBehaviour.cs" />
-    <Compile Include="src\UI\Utils\UIMouseDragBehaviour.cs" />
-    <Compile Include="src\UI\Control\UICircle.cs" />
     <Compile Include="src\UI\UIGroup.cs" />
     <Compile Include="src\Device\RSMDevice.cs" />
     <Compile Include="src\Device\TCodeDevice.cs" />
