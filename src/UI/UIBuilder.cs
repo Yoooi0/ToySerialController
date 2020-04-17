@@ -117,28 +117,28 @@ namespace ToySerialController.UI
             var container = CreateSpacer(height, rightSide);
 
             UICurveEditor curveEditor = null;
-            var curveEditorButtons = Enumerable.Range(0, 4)
+            var buttons = Enumerable.Range(0, 4)
                 .Select(_ => UnityEngine.Object.Instantiate(Plugin.manager.configurableButtonPrefab))
                 .Select(t => t.GetComponent<UIDynamicButton>())
                 .ToList();
 
-            foreach (var b in curveEditorButtons)
+            foreach (var b in buttons)
             {
                 b.buttonText.fontSize = 18;
                 b.buttonColor = Color.white;
             }
 
-            curveEditorButtons[0].label = "Mode";
-            curveEditorButtons[1].label = "In Mode";
-            curveEditorButtons[2].label = "Out Mode";
-            curveEditorButtons[3].label = "Linear";
+            buttons[0].label = "Mode";
+            buttons[1].label = "In Mode";
+            buttons[2].label = "Out Mode";
+            buttons[3].label = "Linear";
 
-            curveEditorButtons[0].button.onClick.AddListener(() => curveEditor.ToggleHandleMode());
-            curveEditorButtons[1].button.onClick.AddListener(() => curveEditor.ToggleInHandleMode());
-            curveEditorButtons[2].button.onClick.AddListener(() => curveEditor.ToggleOutHandleMode());
-            curveEditorButtons[3].button.onClick.AddListener(() => curveEditor.SetLinear());
+            buttons[0].button.onClick.AddListener(() => curveEditor.ToggleHandleMode());
+            buttons[1].button.onClick.AddListener(() => curveEditor.ToggleInHandleMode());
+            buttons[2].button.onClick.AddListener(() => curveEditor.ToggleOutHandleMode());
+            buttons[3].button.onClick.AddListener(() => curveEditor.SetLinear());
 
-            curveEditor = new UICurveEditor(container, 510, height);
+            curveEditor = new UICurveEditor(container, 510, height, buttons: buttons);
             return curveEditor;
         }
 
