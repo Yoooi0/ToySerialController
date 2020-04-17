@@ -29,6 +29,7 @@ lib\vam-curve-editor\UI\Control\UILine.cs
 lib\vam-curve-editor\UI\Control\UICurveLine.cs
 lib\vam-curve-editor\UI\Control\UICurveEditor.cs
 lib\vam-curve-editor\UI\Control\UICurveEditorPoint.cs
+lib\vam-curve-editor\UI\Control\UIScrubber.cs
 lib\vam-curve-editor\UI\Utils\UIRaycastEventsBehaviour.cs
 lib\vam-curve-editor\UI\Utils\UIInputBehaviour.cs
 lib\vam-curve-editor\UI\Utils\UIMouseDragBehaviour.cs

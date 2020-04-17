@@ -1,4 +1,6 @@
-﻿using DebugUtils;
+﻿using CurveEditor;
+using CurveEditor.UI;
+using DebugUtils;
 using Leap;
 using System;
 using System.IO.Ports;
@@ -63,11 +65,11 @@ namespace ToySerialController
             var xt = (_xTarget.x - RangeMinXSlider.val) / (RangeMaxXSlider.val - RangeMinXSlider.val);
             var yt = (_xTarget.y + RangeMaxYSlider.val) / (2 * RangeMaxYSlider.val);
             var zt = (_xTarget.z + RangeMaxZSlider.val) / (2 * RangeMaxZSlider.val);
-            var rxt = EvaluateCurve(OutputRXCurveXAxisChooser.val, OutputRXCurve.val);
+            var rxt = EvaluateCurve(OutputRXCurveXAxisChooser.val, OutputRXCurveEditor, OutputRXCurve);
             var ryt = (_rTarget.y + RangeMaxRYSlider.val) / (2 * RangeMaxRYSlider.val);
             var rzt = (_rTarget.z + RangeMaxRZSlider.val) / (2 * RangeMaxRZSlider.val);
-            var v0t = EvaluateCurve(OutputV0CurveXAxisChooser.val, OutputV0Curve.val);
-            var v1t = EvaluateCurve(OutputV1CurveXAxisChooser.val, OutputV1Curve.val);
+            var v0t = EvaluateCurve(OutputV0CurveXAxisChooser.val, OutputV0CurveEditor, OutputV0Curve);
+            var v1t = EvaluateCurve(OutputV1CurveXAxisChooser.val, OutputV1CurveEditor, OutputV1Curve);
 
             xt = Mathf.Clamp01(xt);
             yt = Mathf.Clamp01(yt);
@@ -126,7 +128,7 @@ namespace ToySerialController
             return true;
         }
 
-        private float EvaluateCurve(string xAxisType, AnimationCurve curve)
+        private float EvaluateCurve(string xAxisType, UICurveEditor editor, IStorableAnimationCurve storable)
         {
             var t = _xTarget.x;
             if (xAxisType == "X") t = _xTarget.x;
@@ -134,7 +136,10 @@ namespace ToySerialController
             else if (xAxisType == "RZ") t = Mathf.Abs(_rTarget.z);
             else if (xAxisType == "RY+RZ") t = Mathf.Sqrt(_rTarget.y * _rTarget.y + _rTarget.z * _rTarget.z);
             else if (xAxisType == "X+RY+RZ") t = Mathf.Sqrt(_xTarget.x * _xTarget.x + _rTarget.y * _rTarget.y + _rTarget.z * _rTarget.z);
-            return curve.Evaluate(Mathf.Clamp01(t));
+
+            t = Mathf.Clamp01(t);
+            editor.SetScrubber(storable, t);
+            return storable.val.Evaluate(t);
         }
 
         public abstract void Write(SerialPort serial, Vector3 xCmd, Vector3 rCmd, float[] _vCmd);
