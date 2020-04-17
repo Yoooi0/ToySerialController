@@ -88,6 +88,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="lib\vam-debug-utils\DebugDraw.cs" />
+    <Compile Include="lib\vam-debug-utils\LineDrawer.cs" />
     <Compile Include="src\Config\ConfigManager.cs" />
     <Compile Include="src\Config\IConfigProvider.cs" />
     <Compile Include="src\Device\AbstractGenericDevice.cs" />
@@ -111,7 +113,6 @@
     <Compile Include="src\UI\Utils\UIMouseDragBehaviour.cs" />
     <Compile Include="src\UI\Control\UICircle.cs" />
     <Compile Include="src\UI\UIGroup.cs" />
-    <Compile Include="src\Utils\DebugDraw.cs" />
     <Compile Include="src\Device\RSMDevice.cs" />
     <Compile Include="src\Device\TCodeDevice.cs" />
     <Compile Include="src\Plugin.cs" />
@@ -119,7 +120,6 @@
     <Compile Include="src\UI\IUIProvider.cs" />
     <Compile Include="src\UI\UIBuilder.cs" />
     <Compile Include="src\Utils\Extensions.cs" />
-    <Compile Include="src\Utils\LineDrawer.cs" />
     <Compile Include="src\Utils\MathUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,9 +1,9 @@
-﻿using Leap.Unity;
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
+using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {

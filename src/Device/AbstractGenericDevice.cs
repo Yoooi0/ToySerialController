@@ -1,4 +1,5 @@
-﻿using Leap;
+﻿using DebugUtils;
+using Leap;
 using System;
 using System.IO.Ports;
 using ToySerialController.MotionSource;

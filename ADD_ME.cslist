@@ -27,7 +27,7 @@ src\UI\Utils\UIMouseDragBehaviour.cs
 src\UI\Utils\UIMouseClickBehaviour.cs
 src\UI\Utils\PointerEventArgs.cs
 src\UI\Utils\InputEventArgs.cs
-src\Utils\DebugDraw.cs
-src\Utils\LineDrawer.cs
 src\Utils\Extensions.cs
 src\Utils\MathUtils.cs
+lib\vam-debug-utils\DebugDraw.cs
+lib\vam-debug-utils\LineDrawer.cs

@@ -1,0 +1,3 @@
+[submodule "lib/vam-debug-utils"]
+	path = lib/vam-debug-utils
+	url = https://github.com/Yoooi0/vam-debug-utils

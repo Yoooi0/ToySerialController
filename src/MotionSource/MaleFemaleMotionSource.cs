@@ -5,6 +5,7 @@ using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
+using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {
@@ -80,6 +81,7 @@ namespace ToySerialController.MotionSource
             else
                 _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
+            DebugDraw.Draw();
             DebugDraw.DrawSquare(_penisOrigin.position, _planeNormal, Color.white, 0.33f);
             DebugDraw.DrawTransform(_penisOrigin, 0.15f);
             DebugDraw.DrawLine(ReferencePosition, ReferencePosition + ReferenceUp * ReferenceLength, Color.white);

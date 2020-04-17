@@ -3,7 +3,7 @@ using System.IO.Ports;
 using System.Linq;
 using ToySerialController.Config;
 using ToySerialController.MotionSource;
-using ToySerialController.Utils;
+using DebugUtils;
 
 namespace ToySerialController
 {
