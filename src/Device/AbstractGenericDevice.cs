@@ -1,12 +1,9 @@
 ﻿using CurveEditor;
 using CurveEditor.UI;
 using DebugUtils;
-using Leap;
 using System;
 using System.IO.Ports;
 using ToySerialController.MotionSource;
-using ToySerialController.UI;
-using ToySerialController.Utils;
 using UnityEngine;
 
 namespace ToySerialController

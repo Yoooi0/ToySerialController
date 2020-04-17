@@ -2,7 +2,6 @@ using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
 using ToySerialController.Config;
 using ToySerialController.MotionSource;
 using ToySerialController.UI;
