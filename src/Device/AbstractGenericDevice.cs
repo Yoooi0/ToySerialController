@@ -133,8 +133,9 @@ namespace ToySerialController
             else if (xAxisType == "RZ") t = Mathf.Abs(_rTarget.z);
             else if (xAxisType == "RY+RZ") t = Mathf.Sqrt(_rTarget.y * _rTarget.y + _rTarget.z * _rTarget.z);
             else if (xAxisType == "X+RY+RZ") t = Mathf.Sqrt(_xTarget.x * _xTarget.x + _rTarget.y * _rTarget.y + _rTarget.z * _rTarget.z);
-
             t = Mathf.Clamp01(t);
+
+            editor.showScrubbers = true;
             editor.SetScrubber(storable, t);
             return storable.val.Evaluate(t);
         }
