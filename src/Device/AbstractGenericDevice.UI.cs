@@ -149,6 +149,7 @@ namespace ToySerialController
             OutputRXCurveEditor = builder.CreateCurveEditor(300, true);
             OutputRXCurve = builder.CreateCurve("Device:OutputRXCurve", OutputRXCurveEditor, new List<Keyframe> { new Keyframe(0, 0.5f, 0, 0.5f), new Keyframe(1, 1, 0.5f, 0) });
             OutputRXCurve.SetDefaultFromCurrent();
+            OutputRXCurveEditor.SetValueBounds(OutputRXCurve, Vector2.zero, Vector2.one);
 
             OutputRXCurveXAxisChooser = builder.CreateScrollablePopup("Device:OutputRXCurveXAxis", "Curve X Axis", new List<string> { "X", "RY", "RZ", "RY+RZ", "X+RY+RZ" }, "X", null, true);
             OutputMaxRXSlider = builder.CreateSlider("Device:OutputMaxRX", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
@@ -184,6 +185,7 @@ namespace ToySerialController
             Vibe0Title = builder.CreateDisabledButton("Vibe 0", new Color(0.4f, 0.4f, 0.4f), Color.white, true);
             OutputV0CurveEditor = builder.CreateCurveEditor(300, true);
             OutputV0Curve = builder.CreateCurve("Device:OutputV0Curve", OutputV0CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
+            OutputV0CurveEditor.SetValueBounds(OutputV0Curve, Vector2.zero, Vector2.one);
 
             OutputV0CurveXAxisChooser = builder.CreateScrollablePopup("Device:OutputV0CurveXAxis", "Curve X Axis", new List<string> { "X", "RY", "RZ", "RY+RZ", "X+RY+RZ" }, "X", null, true);
             EnableOverrideV0Toggle = builder.CreateToggle("Device:EnableOverrideV0", "Enable Override", true, true);
@@ -195,6 +197,7 @@ namespace ToySerialController
             Vibe1Title = builder.CreateDisabledButton("Vibe 1", new Color(0.4f, 0.4f, 0.4f), Color.white, true);
             OutputV1CurveEditor = builder.CreateCurveEditor(300, true);
             OutputV1Curve = builder.CreateCurve("Device:OutputV1Curve", OutputV1CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
+            OutputV1CurveEditor.SetValueBounds(OutputV1Curve, Vector2.zero, Vector2.one);
 
             OutputV1CurveXAxisChooser = builder.CreateScrollablePopup("Device:OutputV1CurveXAxis", "Curve X Axis", new List<string> { "X", "RY", "RZ", "RY+RZ", "X+RY+RZ" }, "X", null, true);
             EnableOverrideV1Toggle = builder.CreateToggle("Device:EnableOverrideV1", "Enable Override", true, true);
