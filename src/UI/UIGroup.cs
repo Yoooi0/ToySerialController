@@ -133,7 +133,6 @@ namespace ToySerialController.UI
 
         public void BlacklistStorable(string name) => _storableBlacklist.Add(name);
 
-        //TODO: store/restore horizontal group
         public void StoreConfig(JSONNode config)
         {
             foreach (var s in _objects.OfType<JSONStorableParam>())
