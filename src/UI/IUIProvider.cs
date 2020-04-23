@@ -2,7 +2,7 @@
 {
     public interface IUIProvider
     {
-        void CreateUI(UIBuilder builder);
-        void DestroyUI(UIBuilder builder);
+        void CreateUI(IUIBuilder builder);
+        void DestroyUI(IUIBuilder builder);
     }
 }

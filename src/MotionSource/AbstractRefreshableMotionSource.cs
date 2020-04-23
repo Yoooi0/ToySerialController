@@ -21,14 +21,14 @@ namespace ToySerialController.MotionSource
         public abstract void StoreConfig(JSONNode config);
         public abstract void RestoreConfig(JSONNode config);
 
-        public virtual void CreateUI(UIBuilder builder)
+        public virtual void CreateUI(IUIBuilder builder)
         {
             RefreshButton = builder.CreateButton("Refresh", RefreshButtonCallback);
             RefreshButton.buttonColor = new Color(0, 0.75f, 1f) * 0.8f;
             RefreshButton.textColor = Color.white;
         }
 
-        public virtual void DestroyUI(UIBuilder builder)
+        public virtual void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(RefreshButton);
         }

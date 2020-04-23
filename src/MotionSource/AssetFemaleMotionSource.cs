@@ -30,7 +30,7 @@ namespace ToySerialController.MotionSource
         public override float ReferenceLength => _assetLength;
         public override Vector3 ReferencePlaneNormal => _assetUp;
 
-        public override void CreateUI(UIBuilder builder)
+        public override void CreateUI(IUIBuilder builder)
         {
             _group = new UIGroup(builder);
             AssetChooser = _group.CreatePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
@@ -44,7 +44,7 @@ namespace ToySerialController.MotionSource
             base.CreateUI(builder);
         }
 
-        public override void DestroyUI(UIBuilder builder)
+        public override void DestroyUI(IUIBuilder builder)
         {
             _group.Destroy();
             base.DestroyUI(builder);

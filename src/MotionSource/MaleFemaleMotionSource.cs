@@ -28,7 +28,7 @@ namespace ToySerialController.MotionSource
         public override float ReferenceLength => _penisLength;
         public override Vector3 ReferencePlaneNormal => _planeNormal;
 
-        public override void CreateUI(UIBuilder builder)
+        public override void CreateUI(IUIBuilder builder)
         {
             MaleChooser = builder.CreatePopup("MotionSource:Male", "Select Male", null, null, MaleChooserCallback);
             FindMales();
@@ -36,7 +36,7 @@ namespace ToySerialController.MotionSource
             base.CreateUI(builder);
         }
 
-        public override void DestroyUI(UIBuilder builder)
+        public override void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(MaleChooser);
             base.DestroyUI(builder);

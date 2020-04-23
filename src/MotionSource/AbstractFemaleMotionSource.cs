@@ -22,7 +22,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 TargetPosition => _targetPosition;
         public override Vector3 TargetNormal => _targetNormal;
 
-        public override void CreateUI(UIBuilder builder)
+        public override void CreateUI(IUIBuilder builder)
         {
             var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand" };
             var defaultTarget = targets.First();
@@ -35,7 +35,7 @@ namespace ToySerialController.MotionSource
             base.CreateUI(builder);
         }
 
-        public override void DestroyUI(UIBuilder builder)
+        public override void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(FemaleChooser);
             builder.Destroy(TargetChooser);

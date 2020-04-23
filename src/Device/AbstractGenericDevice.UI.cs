@@ -1,4 +1,4 @@
-﻿using CurveEditor;
+using CurveEditor;
 using CurveEditor.UI;
 using SimpleJSON;
 using System;
@@ -80,7 +80,7 @@ namespace ToySerialController
 
         private UIGroup _group;
 
-        public virtual void CreateUI(UIBuilder builder)
+        public virtual void CreateUI(IUIBuilder builder)
         {
             _group = new UIGroup(builder);
             LimitsButtonGroup = _group.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateButtonEx(), true);
@@ -104,7 +104,7 @@ namespace ToySerialController
             CreateVibe1UI(_group);
         }
 
-        public virtual void DestroyUI(UIBuilder builder) => _group.Destroy();
+        public virtual void DestroyUI(IUIBuilder builder) => _group.Destroy();
         public virtual void StoreConfig(JSONNode config) => _group.StoreConfig(config);
         public virtual void RestoreConfig(JSONNode config) => _group.RestoreConfig(config);
 

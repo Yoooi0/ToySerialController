@@ -27,7 +27,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 TargetPosition => _animationBounds.center + _animationBounds.extents.y * Vector3.up;
         public override Vector3 TargetNormal => Vector3.up;
 
-        public override void CreateUI(UIBuilder builder)
+        public override void CreateUI(IUIBuilder builder)
         {
             AnimationChooser = builder.CreatePopup("MotionSource:Animation", "Select Animation", null, null, AnimationChooserCallback);
 
@@ -36,7 +36,7 @@ namespace ToySerialController.MotionSource
             base.CreateUI(builder);
         }
 
-        public override void DestroyUI(UIBuilder builder)
+        public override void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(AnimationChooser);
             base.DestroyUI(builder);
