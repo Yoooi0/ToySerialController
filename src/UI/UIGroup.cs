@@ -143,7 +143,7 @@ namespace ToySerialController.UI
 
         public void RestoreConfig(JSONNode config)
         {
-            foreach (var s in _objects.OfType<JSONStorableParam>())
+            foreach (var s in _objects.OfType<JSONStorableParam>().ToList())
                 if (!_storableBlacklist.Contains(s.name))
                     config.Restore(s);
         }
