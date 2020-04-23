@@ -14,6 +14,9 @@ namespace ToySerialController.Utils
 
         public static void Store(this JSONNode config, JSONStorableParam storable)
         {
+            if (storable == null)
+                return;
+
             const string dummyNodeName = "Dummy";
 
             var dummyNode = new JSONClass();
@@ -33,6 +36,9 @@ namespace ToySerialController.Utils
 
         public static void Restore(this JSONNode config, JSONStorableParam storable)
         {
+            if (storable == null)
+                return;
+
             const string dummyNodeName = "Dummy";
 
             var dummyNode = new JSONClass();
