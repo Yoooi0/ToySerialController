@@ -260,12 +260,12 @@ namespace ToySerialController
 
         private JSONStorableStringChooser CurveXAxisChooser;
 
-        private UIHorizontalGroup ManualSliderGroup, ManualToggleGroup;
+        private UIHorizontalGroup TimeSliderGroup, TimeToggleGroup;
 
-        private JSONStorableFloat ManualTimeSpanSlider;
-        private JSONStorableFloat ManualScrubberPositionSlider;
-        private JSONStorableBool ManualRunningToggle;
-        private JSONStorableBool ManualLoopingToggle;
+        private JSONStorableFloat TimeSpanSlider;
+        private JSONStorableFloat TimeScrubberSlider;
+        private JSONStorableBool TineRunningToggle;
+        private JSONStorableBool TimeLoopingToggle;
 
         public AbstractGenericDeviceCurveSettings(string name, UICurveEditor editor, JSONStorableAnimationCurve storable)
         {
@@ -276,7 +276,7 @@ namespace ToySerialController
 
         public void CreateUI(IUIBuilder builder)
         {
-            CurveXAxisChooser = builder.CreateScrollablePopup($"Device:{_name}:CurveXAxis", "Curve X Axis", new List<string> { "X", "RY", "RZ", "RY+RZ", "X+RY+RZ", "Manual" }, "X", CurveXAxisChooserCallback, true);
+            CurveXAxisChooser = builder.CreateScrollablePopup($"Device:{_name}:CurveXAxis", "Curve X Axis", new List<string> { "X", "RY", "RZ", "RY+RZ", "X+RY+RZ", "Time" }, "X", CurveXAxisChooserCallback, true);
             _group = new UIGroup(builder);
 
             CurveXAxisChooserCallback("X");
@@ -291,9 +291,9 @@ namespace ToySerialController
         public void StoreConfig(JSONNode config)
         {
             config.Store(CurveXAxisChooser);
-            config.Store(ManualTimeSpanSlider);
-            config.Store(ManualRunningToggle);
-            config.Store(ManualLoopingToggle);
+            config.Store(TimeSpanSlider);
+            config.Store(TineRunningToggle);
+            config.Store(TimeLoopingToggle);
         }
 
         public void RestoreConfig(JSONNode config)
@@ -301,51 +301,51 @@ namespace ToySerialController
             config.Restore(CurveXAxisChooser);
             CurveXAxisChooserCallback(CurveXAxisChooser.val);
 
-            config.Restore(ManualTimeSpanSlider);
-            config.Restore(ManualRunningToggle);
-            config.Restore(ManualLoopingToggle);
+            config.Restore(TimeSpanSlider);
+            config.Restore(TineRunningToggle);
+            config.Restore(TimeLoopingToggle);
         }
 
         protected void CurveXAxisChooserCallback(string val)
         {
             _group.Destroy();
-            if (val == "Manual")
+            if (val == "Time")
             {
                 var baseIndex = CurveXAxisChooser.popup.transform.GetSiblingIndex();
 
-                ManualSliderGroup = _group.CreateHorizontalGroup(510, 125, new Vector2(10, 0), 2, idx => _group.CreateSliderEx(), true);
-                ManualTimeSpanSlider = new JSONStorableFloat($"Device:{_name}:ManualTimeSpan", 1, v =>
+                TimeSliderGroup = _group.CreateHorizontalGroup(510, 125, new Vector2(10, 0), 2, idx => _group.CreateSliderEx(), true);
+                TimeSpanSlider = new JSONStorableFloat($"Device:{_name}:TimeSpan", 1, v =>
                 {
-                    ManualTimeSpanSlider.valNoCallback = Mathf.Round(v);
-                    ManualScrubberPositionSlider.max = Mathf.Round(v);
+                    TimeSpanSlider.valNoCallback = Mathf.Round(v);
+                    TimeScrubberSlider.max = Mathf.Round(v);
                     _editor.SetValueBounds(_storable, Vector2.zero, new Vector2(v, 1));
                 }, 1, 300, true, true);
 
-                ManualScrubberPositionSlider = new JSONStorableFloat($"Device:{_name}:ManualScrubberPosition", 0, 0, ManualTimeSpanSlider.val, true, true);
+                TimeScrubberSlider = new JSONStorableFloat($"Device:{_name}:TimeScrubberPosition", 0, 0, TimeSpanSlider.val, true, true);
 
-                var manualTimeSpanSlider = ManualSliderGroup.items[0].GetComponent<UIDynamicSlider>();
-                manualTimeSpanSlider.Configure("Time Span", ManualTimeSpanSlider.min, ManualTimeSpanSlider.max, ManualTimeSpanSlider.defaultVal, valFormat: "F0", showQuickButtons: false);
-                manualTimeSpanSlider.defaultButtonEnabled = false;
-                ManualTimeSpanSlider.slider = manualTimeSpanSlider.slider;
+                var timeSpanSlider = TimeSliderGroup.items[0].GetComponent<UIDynamicSlider>();
+                timeSpanSlider.Configure("Time Span", TimeSpanSlider.min, TimeSpanSlider.max, TimeSpanSlider.defaultVal, valFormat: "F0", showQuickButtons: false);
+                timeSpanSlider.defaultButtonEnabled = false;
+                TimeSpanSlider.slider = timeSpanSlider.slider;
 
-                var manualScrubberPositionSlider = ManualSliderGroup.items[1].GetComponent<UIDynamicSlider>();
-                manualScrubberPositionSlider.Configure("Scrubber", ManualScrubberPositionSlider.min, ManualScrubberPositionSlider.max, ManualScrubberPositionSlider.defaultVal, valFormat: "F2", showQuickButtons: false);
-                ManualScrubberPositionSlider.slider = manualScrubberPositionSlider.slider;
+                var timeScrubberSlider = TimeSliderGroup.items[1].GetComponent<UIDynamicSlider>();
+                timeScrubberSlider.Configure("Scrubber", TimeScrubberSlider.min, TimeScrubberSlider.max, TimeScrubberSlider.defaultVal, valFormat: "F2", showQuickButtons: false);
+                TimeScrubberSlider.slider = timeScrubberSlider.slider;
 
-                ManualToggleGroup = _group.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateToggleEx(), true);
-                ManualRunningToggle = new JSONStorableBool($"Device:{_name}:ManualRunning", false);
-                ManualLoopingToggle = new JSONStorableBool($"Device:{_name}:ManualLooping", true);
+                TimeToggleGroup = _group.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateToggleEx(), true);
+                TineRunningToggle = new JSONStorableBool($"Device:{_name}:TimeRunning", false);
+                TimeLoopingToggle = new JSONStorableBool($"Device:{_name}:TimeLooping", true);
 
-                var manualRunningToggle = ManualToggleGroup.items[0].GetComponent<UIDynamicToggle>();
-                manualRunningToggle.label = "Running";
-                ManualRunningToggle.toggle = manualRunningToggle.toggle;
+                var timeRunningToggle = TimeToggleGroup.items[0].GetComponent<UIDynamicToggle>();
+                timeRunningToggle.label = "Running";
+                TineRunningToggle.toggle = timeRunningToggle.toggle;
 
-                var manualLoopingToggle = ManualToggleGroup.items[1].GetComponent<UIDynamicToggle>();
-                manualLoopingToggle.label = "Looping";
-                ManualLoopingToggle.toggle = manualLoopingToggle.toggle;
+                var timelLoopingToggle = TimeToggleGroup.items[1].GetComponent<UIDynamicToggle>();
+                timelLoopingToggle.label = "Looping";
+                TimeLoopingToggle.toggle = timelLoopingToggle.toggle;
 
-                ManualSliderGroup.container.transform.SetSiblingIndex(baseIndex + 1);
-                ManualToggleGroup.container.transform.SetSiblingIndex(baseIndex + 2);
+                TimeSliderGroup.container.transform.SetSiblingIndex(baseIndex + 1);
+                TimeToggleGroup.container.transform.SetSiblingIndex(baseIndex + 2);
             }
             else
             {
@@ -362,18 +362,18 @@ namespace ToySerialController
             else if (CurveXAxisChooser.val == "RZ") t = Mathf.Clamp01(Mathf.Abs(rTarget.z));
             else if (CurveXAxisChooser.val == "RY+RZ") t = Mathf.Clamp01(Mathf.Sqrt(rTarget.y * rTarget.y + rTarget.z * rTarget.z));
             else if (CurveXAxisChooser.val == "X+RY+RZ") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.x * xTarget.x + rTarget.y * rTarget.y + rTarget.z * rTarget.z));
-            else if (CurveXAxisChooser.val == "Manual")
+            else if (CurveXAxisChooser.val == "Time")
             {
-                var timeLimit = ManualTimeSpanSlider.val;
-                var time = ManualScrubberPositionSlider.val;
-                if (ManualRunningToggle.val)
+                var timeLimit = TimeSpanSlider.val;
+                var time = TimeScrubberSlider.val;
+                if (TineRunningToggle.val)
                     time += Time.deltaTime;
 
                 if (time > timeLimit)
-                    time = ManualLoopingToggle.val ? 0 : timeLimit;
+                    time = TimeLoopingToggle.val ? 0 : timeLimit;
 
                 t = Mathf.Clamp(time, 0, timeLimit);
-                ManualScrubberPositionSlider.val = t;
+                TimeScrubberSlider.val = t;
             }
 
             _editor.showScrubbers = true;
