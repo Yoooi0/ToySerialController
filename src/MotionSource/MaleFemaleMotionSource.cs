@@ -23,8 +23,8 @@ namespace ToySerialController.MotionSource
 
         public override Vector3 ReferencePosition => _penisOrigin.position;
         public override Vector3 ReferenceUp => _penisOrigin.up;
-        public override Vector3 ReferenceRight => _penisOrigin.right;
-        public override Vector3 ReferenceForward => _penisOrigin.forward;
+        public override Vector3 ReferenceRight => -_penisOrigin.forward;
+        public override Vector3 ReferenceForward => _penisOrigin.right;
         public override float ReferenceLength => _penisLength;
         public override Vector3 ReferencePlaneNormal => _planeNormal;
 
@@ -82,8 +82,8 @@ namespace ToySerialController.MotionSource
                 _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
             DebugDraw.Draw();
-            DebugDraw.DrawSquare(_penisOrigin.position, _planeNormal, Color.white, 0.33f);
-            DebugDraw.DrawTransform(_penisOrigin, 0.15f);
+            DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, Color.white, 0.33f);
+            DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
             DebugDraw.DrawLine(ReferencePosition, ReferencePosition + ReferenceUp * ReferenceLength, Color.white);
             DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
             DebugDraw.DrawLine(TargetPosition, TargetPosition + TargetNormal, Color.blue);
