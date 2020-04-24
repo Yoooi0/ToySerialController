@@ -90,7 +90,7 @@ namespace ToySerialController
             _xCmd.y = Mathf.Lerp(yCmdRaw, _xCmd.y, SmoothingSlider.val);
             _xCmd.z = Mathf.Lerp(zCmdRaw, _xCmd.z, SmoothingSlider.val);
             _rCmd.x = Mathf.Lerp(rxCmdRaw, _rCmd.x, SmoothingSlider.val);
-            _rCmd.y = Mathf.Lerp(ryCmdRaw, _rCmd.z, SmoothingSlider.val);
+            _rCmd.y = Mathf.Lerp(ryCmdRaw, _rCmd.y, SmoothingSlider.val);
             _rCmd.z = Mathf.Lerp(rzCmdRaw, _rCmd.z, SmoothingSlider.val);
             _vCmd[0] = Mathf.Lerp(v0CmdRaw, _vCmd[0], SmoothingSlider.val);
             _vCmd[1] = Mathf.Lerp(v1CmdRaw, _vCmd[1], SmoothingSlider.val);
