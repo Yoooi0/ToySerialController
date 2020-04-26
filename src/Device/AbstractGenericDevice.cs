@@ -1,6 +1,4 @@
-﻿using CurveEditor;
-using CurveEditor.UI;
-using DebugUtils;
+﻿using DebugUtils;
 using System;
 using System.IO.Ports;
 using ToySerialController.MotionSource;
