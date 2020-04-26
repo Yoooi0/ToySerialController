@@ -84,9 +84,8 @@ namespace ToySerialController.MotionSource
             DebugDraw.Draw();
             DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, Color.white, 0.33f);
             DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
-            DebugDraw.DrawLine(ReferencePosition, ReferencePosition + ReferenceUp * ReferenceLength, Color.white);
+            DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
             DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
-            DebugDraw.DrawLine(TargetPosition, TargetPosition + TargetNormal, Color.blue);
 
             return true;
         }

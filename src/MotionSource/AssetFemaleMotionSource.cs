@@ -110,9 +110,9 @@ namespace ToySerialController.MotionSource
             _assetRight = upRotation * transform.right;
             _assetForward = upRotation * transform.forward;
 
-            DebugDraw.DrawLine(ReferencePosition, ReferencePosition + ReferenceUp * ReferenceLength, Color.white);
+            DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
+            DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
             DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
-            DebugDraw.DrawLine(TargetPosition, TargetPosition + TargetNormal, Color.blue);
 
             return true;
         }

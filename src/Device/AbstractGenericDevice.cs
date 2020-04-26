@@ -33,7 +33,7 @@ namespace ToySerialController
 
             Vector3 projectionNormal;
             if (ProjectXChooser.val == "Reference Up") projectionNormal = motionSource.ReferenceUp;
-            else if (ProjectXChooser.val == "Target Up") projectionNormal = motionSource.TargetNormal;
+            else if (ProjectXChooser.val == "Target Up") projectionNormal = motionSource.TargetUp;
             else projectionNormal = diff.normalized;
 
             var diffOnNormal = Vector3.Project(diff, projectionNormal);
@@ -48,8 +48,8 @@ namespace ToySerialController
             _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
 
             // TODO: true target twist 
-            _rTarget.y = Vector3.Dot(motionSource.ReferenceRight, motionSource.TargetNormal);
-            _rTarget.z = Vector3.Dot(motionSource.ReferenceForward, motionSource.TargetNormal);
+            _rTarget.y = Vector3.Dot(motionSource.ReferenceRight, motionSource.TargetUp);
+            _rTarget.z = Vector3.Dot(motionSource.ReferenceForward, motionSource.TargetUp);
 
             for (var i = 0; i < 3; i++)
             {

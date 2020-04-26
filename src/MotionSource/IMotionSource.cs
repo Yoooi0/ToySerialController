@@ -14,7 +14,9 @@ namespace ToySerialController.MotionSource
         Vector3 ReferencePlaneNormal { get; }
 
         Vector3 TargetPosition { get; }
-        Vector3 TargetNormal { get; }
+        Vector3 TargetUp { get; }
+        Vector3 TargetRight { get; }
+        Vector3 TargetForward { get; }
 
         bool Update();
     }

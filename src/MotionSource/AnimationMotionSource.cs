@@ -25,7 +25,9 @@ namespace ToySerialController.MotionSource
         public override Vector3 ReferencePlaneNormal => Vector3.up;
 
         public override Vector3 TargetPosition => _animationBounds.center + _animationBounds.extents.y * Vector3.up;
-        public override Vector3 TargetNormal => Vector3.up;
+        public override Vector3 TargetUp => Vector3.up;
+        public override Vector3 TargetRight => Vector3.right;
+        public override Vector3 TargetForward => Vector3.forward;
 
         public override void CreateUI(IUIBuilder builder)
         {
@@ -78,7 +80,7 @@ namespace ToySerialController.MotionSource
 
             DebugDraw.DrawTransform(_animatedObject, 0.15f);
             DebugDraw.DrawBox(_animationBounds, Color.white);
-            DebugDraw.DrawLine(TargetPosition, TargetPosition + TargetNormal * ReferenceLength, Color.cyan);
+            DebugDraw.DrawLine(TargetPosition, TargetPosition + TargetUp * ReferenceLength, Color.cyan);
             return true;
         }
 
