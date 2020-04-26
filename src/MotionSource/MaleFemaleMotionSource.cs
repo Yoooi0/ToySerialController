@@ -14,6 +14,7 @@ namespace ToySerialController.MotionSource
         private float _penisLength;
         private Transform _penisOrigin;
         private Vector3 _planeNormal;
+        private Vector3 _referencePosition;
 
         private Atom _maleAtom;
 
@@ -21,7 +22,7 @@ namespace ToySerialController.MotionSource
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 ReferencePosition => _penisOrigin.position;
+        public override Vector3 ReferencePosition => _referencePosition;
         public override Vector3 ReferenceUp => _penisOrigin.up;
         public override Vector3 ReferenceRight => -_penisOrigin.forward;
         public override Vector3 ReferenceForward => _penisOrigin.right;
@@ -67,11 +68,16 @@ namespace ToySerialController.MotionSource
                 return false;
 
             _penisLength = 0.0f;
-            _penisOrigin = penisTransforms[0];
             for (int i = 0, j = 1; j < penisTransforms.Count; i = j++)
                 _penisLength += Vector3.Distance(penisTransforms[i].position, penisTransforms[j].position);
 
-            //TODO: could this be done better?
+            _penisOrigin = penisTransforms[0];
+
+            var positionOffset = -_penisOrigin.up * (penisTransforms[1].position - penisTransforms[0].position).magnitude * 0.15f;
+            _referencePosition = _penisOrigin.position + positionOffset;
+            _penisLength += positionOffset.magnitude;
+            _penisLength += penisTransforms[3].GetComponent<CapsuleCollider>()?.radius ?? 0;
+
             var pelvisRight = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFR3Joint")?.transform;
             var pelvidLeft = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFL3Joint")?.transform;
             var pelvisMid = _maleAtom.GetComponentByName<Transform>("AutoColliderpelvisF1")?.GetComponentByName<Collider>("AutoColliderpelvisF4Joint")?.transform;
@@ -81,7 +87,6 @@ namespace ToySerialController.MotionSource
             else
                 _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
-            DebugDraw.Draw();
             DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, Color.white, 0.33f);
             DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
             DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
