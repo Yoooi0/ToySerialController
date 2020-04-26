@@ -45,7 +45,8 @@ namespace ToySerialController
             _xTarget.y = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
             _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
 
-            // TODO: true target twist 
+            var twistAngle = Vector3.SignedAngle(motionSource.ReferenceRight, Vector3.ProjectOnPlane(motionSource.TargetRight, motionSource.ReferenceUp), motionSource.ReferenceUp);
+            _rTarget.x = (twistAngle < 0 ? twistAngle + 360 : twistAngle) / 360;
             _rTarget.y = Vector3.Dot(motionSource.ReferenceRight, motionSource.TargetUp);
             _rTarget.z = Vector3.Dot(motionSource.ReferenceForward, motionSource.TargetUp);
 
