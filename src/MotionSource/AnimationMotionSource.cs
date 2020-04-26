@@ -11,7 +11,11 @@ namespace ToySerialController.MotionSource
     {
         private AnimationPattern _animation;
         private Transform _animatedObject;
-        private Bounds _animationBounds;
+
+        private float _referenceLength;
+
+        private Vector3 _targetPosition;
+        private Vector3 _targetUp, _targetRight, _targetForward;
 
         private JSONStorableStringChooser AnimationChooser;
 
@@ -21,13 +25,13 @@ namespace ToySerialController.MotionSource
         public override Vector3 ReferenceUp => _animatedObject.up;
         public override Vector3 ReferenceRight => _animatedObject.right;
         public override Vector3 ReferenceForward => _animatedObject.forward;
-        public override float ReferenceLength => _animationBounds.extents.y * 2;
-        public override Vector3 ReferencePlaneNormal => Vector3.up;
+        public override float ReferenceLength => _referenceLength;
+        public override Vector3 ReferencePlaneNormal => _targetUp;
 
-        public override Vector3 TargetPosition => _animationBounds.center + _animationBounds.extents.y * Vector3.up;
-        public override Vector3 TargetUp => Vector3.up;
-        public override Vector3 TargetRight => Vector3.right;
-        public override Vector3 TargetForward => Vector3.forward;
+        public override Vector3 TargetPosition => _targetPosition;
+        public override Vector3 TargetUp => _targetUp;
+        public override Vector3 TargetRight => _targetRight;
+        public override Vector3 TargetForward => _targetForward;
 
         public override void CreateUI(IUIBuilder builder)
         {
@@ -63,6 +67,11 @@ namespace ToySerialController.MotionSource
             if (_animatedObject == null)
                 return false;
 
+            var transform = _animation.transform;
+            _targetUp = transform.up;
+            _targetRight = transform.right;
+            _targetForward = transform.forward;
+
             var min = Vector3.one * float.MaxValue;
             var max = Vector3.one * float.MinValue;
 
@@ -70,17 +79,20 @@ namespace ToySerialController.MotionSource
             {
                 for (float t = 0; t <= 1.0f; t += 0.05f)
                 {
-                    var p = _animation.GetPositionFromPoint(i, t);
+                    var p = Quaternion.Inverse(transform.rotation) * (_animation.GetPositionFromPoint(i, t) - transform.position);
                     min = Vector3.Min(min, p);
                     max = Vector3.Max(max, p);
                 }
             }
 
-            _animationBounds = new Bounds((min + max) / 2, max - min);
+            var bounds = new Bounds((min + max) / 2, max - min);
+            _referenceLength = bounds.extents.y * 2;
+            _targetPosition = transform.position + transform.rotation * (bounds.center + bounds.extents.y * Vector3.up);
 
             DebugDraw.DrawTransform(_animatedObject, 0.15f);
-            DebugDraw.DrawBox(_animationBounds, Color.white);
-            DebugDraw.DrawLine(TargetPosition, TargetPosition + TargetUp * ReferenceLength, Color.cyan);
+            DebugDraw.DrawLocalBox(bounds, transform.position, transform.rotation, Color.white);
+            DebugDraw.DrawRay(_targetPosition, _targetUp, ReferenceLength, Color.cyan);
+
             return true;
         }
 

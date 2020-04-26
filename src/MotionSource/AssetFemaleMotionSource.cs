@@ -72,10 +72,10 @@ namespace ToySerialController.MotionSource
             if (DebugDraw.Enabled)
             {
                 foreach (var c in _assetAtom.GetComponentsInChildren<MeshFilter>())
-                    DebugDraw.DrawBox(c.mesh.bounds, c.transform.position, c.transform.rotation, c == _assetComponent ? Color.green : Color.white);
+                    DebugDraw.DrawLocalBox(c.mesh.bounds, c.transform.position, c.transform.rotation, c == _assetComponent ? Color.green : Color.white);
 
                 foreach (var c in _assetAtom.GetComponentsInChildren<SkinnedMeshRenderer>())
-                    DebugDraw.DrawBox(c.sharedMesh.bounds, c.transform.position, c.transform.rotation, c == _assetComponent ? Color.green : Color.white);
+                    DebugDraw.DrawLocalBox(c.sharedMesh.bounds, c.transform.position, c.transform.rotation, c == _assetComponent ? Color.green : Color.white);
             }
 
             Bounds bounds;
