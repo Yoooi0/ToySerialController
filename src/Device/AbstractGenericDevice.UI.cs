@@ -275,7 +275,7 @@ namespace ToySerialController
 
         public void CreateUI(IUIBuilder builder)
         {
-            CurveXAxisChooser = builder.CreateScrollablePopup($"Device:{_name}:CurveXAxis", "Curve X Axis", new List<string> { "X", "RY", "RZ", "RY+RZ", "X+RY+RZ", "Time" }, "X", CurveXAxisChooserCallback, true);
+            CurveXAxisChooser = builder.CreateScrollablePopup($"Device:{_name}:CurveXAxis", "Curve X Axis", new List<string> { "X", "Y", "Z", "Y+Z", "RX", "RY", "RZ", "RY+RZ", "X+RY+RZ", "Time" }, "X", CurveXAxisChooserCallback, true);
             _group = new UIGroup(builder);
 
             CurveXAxisChooserCallback("X");
@@ -356,7 +356,11 @@ namespace ToySerialController
         public float Evaluate(Vector3 xTarget, Vector3 rTarget)
         {
             var t = xTarget.x;
-            if (CurveXAxisChooser.val == "X") t = xTarget.x;
+            if (CurveXAxisChooser.val == "X") t = Mathf.Clamp01(xTarget.x);
+            if (CurveXAxisChooser.val == "Y") t = xTarget.y;
+            if (CurveXAxisChooser.val == "Z") t = xTarget.z;
+            if (CurveXAxisChooser.val == "Y+Z") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.y * xTarget.y + xTarget.z * xTarget.z));
+            else if (CurveXAxisChooser.val == "RX") t = Mathf.Clamp01(Mathf.Abs(rTarget.x));
             else if (CurveXAxisChooser.val == "RY") t = Mathf.Clamp01(Mathf.Abs(rTarget.y));
             else if (CurveXAxisChooser.val == "RZ") t = Mathf.Clamp01(Mathf.Abs(rTarget.z));
             else if (CurveXAxisChooser.val == "RY+RZ") t = Mathf.Clamp01(Mathf.Sqrt(rTarget.y * rTarget.y + rTarget.z * rTarget.z));
