@@ -117,18 +117,31 @@ namespace ToySerialController.MotionSource
             else if (TargetChooser.val.Contains("Hand"))
             {
                 var side = TargetChooser.val.Contains("Left") ? "l" : "r";
-                var finger1 = _femaleAtom.GetRigidBodyByName(side + "Pinky1")?.transform;
-                var finger3 = _femaleAtom.GetRigidBodyByName(side + "Pinky3")?.transform; // TODO: should be finger tip
+                var carpal = _femaleAtom.GetRigidBodyByName($"{side}Carpal2");
+                var fingerBase = carpal.GetComponentByName<CapsuleCollider>($"_Collider3");
+                var fingerTip = _femaleAtom.GetRigidBodyByName($"{side}Pinky3").GetComponentInChildren<CapsuleCollider>();
 
-                if (finger1 == null || finger3 == null)
+                if (carpal == null || fingerBase == null || fingerTip == null)
                     return false;
 
-                _targetUp = finger1.forward;
-                _targetRight = finger1.right;
-                _targetForward = -finger1.up;
-                _targetPosition = (finger1.position + finger3.position) / 2 - finger1.up * 0.008f;
+                _targetUp = fingerBase.transform.forward;
 
-                DebugDraw.DrawLine(finger1.position, finger3.position, Color.gray);
+                if (side == "l")
+                {
+                    _targetRight = -fingerBase.transform.up;
+                    _targetForward = -fingerBase.transform.right;
+                }
+                else if(side == "r")
+                {
+                    _targetRight = fingerBase.transform.up;
+                    _targetForward = fingerBase.transform.right;
+                }
+
+                var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
+                var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
+                _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
+
+                DebugDraw.DrawLine(fingerBasePosition, fingerTipPosition, Color.gray);
             }
             else
             {
