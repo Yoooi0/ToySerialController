@@ -118,7 +118,7 @@ namespace ToySerialController.MotionSource
             {
                 var side = TargetChooser.val.Contains("Left") ? "l" : "r";
                 var carpal = _femaleAtom.GetRigidBodyByName($"{side}Carpal2");
-                var fingerBase = carpal.GetComponentByName<CapsuleCollider>($"_Collider3");
+                var fingerBase = carpal?.GetComponentByName<CapsuleCollider>($"_Collider3");
                 var fingerTip = _femaleAtom.GetRigidBodyByName($"{side}Pinky3").GetComponentInChildren<CapsuleCollider>();
 
                 if (carpal == null || fingerBase == null || fingerTip == null)
