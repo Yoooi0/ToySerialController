@@ -9,6 +9,7 @@ lib\vam-curve-editor\UI\Graphic\DrawScaleOffset.cs
 lib\vam-curve-editor\UI\Graphic\VertexHelperExtensions.cs
 lib\vam-curve-editor\Utils\MathUtils.cs
 lib\vam-debug-utils\DebugDraw.cs
+lib\vam-debug-utils\DebugLog.cs
 lib\vam-debug-utils\LineDrawer.cs
 src\Config\ConfigManager.cs
 src\Config\IConfigProvider.cs
