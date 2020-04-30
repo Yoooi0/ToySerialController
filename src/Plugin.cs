@@ -16,6 +16,7 @@ namespace ToySerialController
         private SerialPort _serial;
         private IDevice _device;
         private IMotionSource _motionSource;
+        private bool _initialized;
 
         private SuperController Controller => SuperController.singleton;
 
@@ -28,6 +29,8 @@ namespace ToySerialController
                 var defaultPath = Controller.GetFilesAtPath(PluginDir, "*.json").FirstOrDefault(s => s.EndsWith("default.json"));
                 if (defaultPath != null)
                     ConfigManager.LoadConfig(defaultPath, this);
+
+                _initialized = true;
             }
             catch (Exception e)
             {
@@ -37,6 +40,9 @@ namespace ToySerialController
 
         protected void Update()
         {
+            if (!_initialized)
+                return;
+
             try
             {
                 DebugDraw.Enabled = DebugDrawEnableToggle.val;
