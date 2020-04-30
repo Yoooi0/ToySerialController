@@ -103,6 +103,7 @@
     <Compile Include="lib\vam-curve-editor\UI\Utils\UIRaycastEventsBehaviour.cs" />
     <Compile Include="lib\vam-curve-editor\Utils\MathUtils.cs" />
     <Compile Include="lib\vam-debug-utils\DebugDraw.cs" />
+    <Compile Include="lib\vam-debug-utils\DebugLog.cs" />
     <Compile Include="lib\vam-debug-utils\LineDrawer.cs" />
     <Compile Include="src\Config\ConfigManager.cs" />
     <Compile Include="src\Config\IConfigProvider.cs" />
