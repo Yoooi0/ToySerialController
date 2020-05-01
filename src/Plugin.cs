@@ -26,9 +26,12 @@ namespace ToySerialController
             {
                 CreateUI();
 
-                var defaultPath = Controller.GetFilesAtPath(PluginDir, "*.json").FirstOrDefault(s => s.EndsWith("default.json"));
-                if (defaultPath != null)
-                    ConfigManager.LoadConfig(defaultPath, this);
+                try
+                {
+                    var defaultPath = Controller.GetFilesAtPath(PluginDir, "*.json").FirstOrDefault(s => s.EndsWith("default.json"));
+                    if (defaultPath != null)
+                        ConfigManager.LoadConfig(defaultPath, this);
+                } catch { }
 
                 _initialized = true;
             }
