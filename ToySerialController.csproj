@@ -88,20 +88,30 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="lib\vam-curve-editor\GlobalSuppressions.cs" />
     <Compile Include="lib\vam-curve-editor\IStorableAnimationCurve.cs" />
     <Compile Include="lib\vam-curve-editor\JSONStorableAnimationCurve.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Control\UIColors.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Control\UICurveEditor.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Control\UICurveEditorPoint.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Control\UICurveLine.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Control\UILine.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Utils\InputEventArgs.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Utils\PointerEventArgs.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Utils\UIInputBehaviour.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Utils\UIMouseClickBehaviour.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Utils\UIMouseDragBehaviour.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\Utils\UIRaycastEventsBehaviour.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\CurveEditorPoint.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\CurveLine.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\CurveLineSettings.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\DrawScaleOffset.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\UICurveEditor.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\UICurveEditorCanvas.cs" />
+    <Compile Include="lib\vam-curve-editor\UI\UICurveEditorSettings.cs" />
     <Compile Include="lib\vam-curve-editor\Utils\MathUtils.cs" />
+    <Compile Include="lib\vam-curve-editor\Utils\VertexHelperExtensions.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\GlobalSuppressions.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\IStorableAnimationCurve.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\JSONStorableAnimationCurve.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\CurveEditorPoint.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\CurveLine.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\CurveLineSettings.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\DrawScaleOffset.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\UICurveEditor.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\UICurveEditorCanvas.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\UICurveEditorSettings.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\Utils\MathUtils.cs" />
+    <Compile Include="lib\vam-curve-editor\vam-curve-editor\Utils\VertexHelperExtensions.cs" />
     <Compile Include="lib\vam-debug-utils\DebugDraw.cs" />
     <Compile Include="lib\vam-debug-utils\DebugLog.cs" />
     <Compile Include="lib\vam-debug-utils\LineDrawer.cs" />

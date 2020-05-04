@@ -61,7 +61,7 @@ namespace ToySerialController
             var xt = (_xTarget.x - RangeMinXSlider.val) / (RangeMaxXSlider.val - RangeMinXSlider.val);
             var yt = (_xTarget.y + RangeMaxYSlider.val) / (2 * RangeMaxYSlider.val);
             var zt = (_xTarget.z + RangeMaxZSlider.val) / (2 * RangeMaxZSlider.val);
-            var rxt = OutputRXCurveEditorSettings.Evaluate(_xTarget, _rTarget);
+            var rxt = 0.5f + OutputRXCurveEditorSettings.Evaluate(_xTarget, _rTarget);
             var ryt = (_rTarget.y + RangeMaxRYSlider.val) / (2 * RangeMaxRYSlider.val);
             var rzt = (_rTarget.z + RangeMaxRZSlider.val) / (2 * RangeMaxRZSlider.val);
             var v0t = OutputV0CurveEditorSettings.Evaluate(_xTarget, _rTarget);
