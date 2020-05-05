@@ -97,7 +97,7 @@ namespace ToySerialController
             applyButton.label = "Apply Limits";
             applyButton.button.onClick.AddListener(PositionApplyButtonCallback);
 
-            SmoothingSlider = _group.CreateSlider("Plugin:Smoothing", "Smoothing", 0.2f, 0f, 0.95f, true, true, true);
+            SmoothingSlider = _group.CreateSlider("Plugin:Smoothing", "Smoothing", 0.1f, 0.0f, 0.99f, true, true, true);
 
             CreateXAxisUI(_group);
             CreateYAxisUI(_group);
