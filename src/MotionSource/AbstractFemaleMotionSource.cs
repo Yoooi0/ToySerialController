@@ -77,7 +77,7 @@ namespace ToySerialController.MotionSource
                     return false;
 
                 _targetPosition = labiaTrigger.position;
-                _targetUp = (labiaTrigger.position - vaginaTrigger.position).normalized;
+                _targetUp = (vaginaTrigger.position - labiaTrigger.position).normalized;
                 _targetRight = vaginaTrigger.right;
                 _targetForward = Vector3.Cross(_targetUp, _targetRight);
 
@@ -92,7 +92,7 @@ namespace ToySerialController.MotionSource
                 if (bottom == null || top0 == null || top1 == null)
                     return false;
 
-                _targetUp = -bottom.forward;
+                _targetUp = bottom.forward;
                 _targetRight = bottom.right;
                 _targetForward = -bottom.up;
                 _targetPosition = (bottom.position + top0.position + top1.position) / 3;
@@ -107,7 +107,7 @@ namespace ToySerialController.MotionSource
                     return false;
 
                 var center = (topLip.position + bottomLip.position) / 2;
-                _targetUp = (center - mouthTrigger.position).normalized;
+                _targetUp = (mouthTrigger.position - center).normalized;
                 _targetRight = mouthTrigger.right;
                 _targetForward = Vector3.Cross(_targetUp, _targetRight);
                 _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.position) * 0.2f;

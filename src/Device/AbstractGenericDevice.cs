@@ -39,8 +39,6 @@ namespace ToySerialController
             var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
             var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
 
-            DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
-
             _xTarget.x = 1 - Mathf.Clamp01(diffOnNormal.magnitude / motionSource.ReferenceLength);
             if (Vector3.Dot(diff, motionSource.ReferenceUp) < 0)
                 _xTarget.x = _xTarget.x > 0 ? 1 : 0;
@@ -123,6 +121,10 @@ namespace ToySerialController
             s += string.Format("V0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _vCmd[0]);
             s += string.Format("V1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}", 0, 0, 0, _vCmd[1]);
             DeviceReport = s;
+
+            DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
+            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinXSlider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
+            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxXSlider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
 
             return true;
         }
