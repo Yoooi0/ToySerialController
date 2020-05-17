@@ -28,7 +28,7 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
-            var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand" };
+            var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand", "Left Foot", "Right Foot", "Feet" };
             var defaultTarget = targets.First();
 
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
@@ -124,6 +124,10 @@ namespace ToySerialController.MotionSource
                 if (carpal == null || fingerBase == null || fingerTip == null)
                     return false;
 
+
+                var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
+                var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
+                _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
                 _targetUp = fingerBase.transform.forward;
 
                 if (side == "l")
@@ -137,11 +141,40 @@ namespace ToySerialController.MotionSource
                     _targetForward = fingerBase.transform.right;
                 }
 
-                var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
-                var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
-                _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
-
                 DebugDraw.DrawLine(fingerBasePosition, fingerTipPosition, Color.gray);
+            }
+            else if (TargetChooser.val.Contains("Foot"))
+            {
+                var side = TargetChooser.val.Contains("Left") ? "l" : "r";
+                var foot = _femaleAtom.GetRigidBodyByName($"{side}Foot");
+                var footBase = foot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+
+                _targetRight = footBase.transform.forward;
+                _targetForward = -footBase.transform.up;
+
+                if (side == "l")
+                    _targetUp = footBase.transform.right;
+                else if (side == "r")
+                    _targetUp = -footBase.transform.right;
+
+                _targetPosition = footBase.transform.position + _targetForward * footBase.radius;
+            }
+            else if (TargetChooser.val == "Feet")
+            {
+                var leftFoot = _femaleAtom.GetRigidBodyByName($"lFoot");
+                var rightFoot = _femaleAtom.GetRigidBodyByName($"rFoot");
+                var leftFootBase = leftFoot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+                var rightFootBase = rightFoot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+
+                var leftPosition = leftFootBase.transform.position - leftFootBase.transform.up * leftFootBase.radius;
+                var rightPosition = rightFootBase.transform.position - rightFootBase.transform.up * rightFootBase.radius;
+
+                _targetPosition = (leftPosition + rightPosition) / 2;
+                _targetForward = ((leftFootBase.transform.forward + rightFootBase.transform.forward) / 2).normalized;
+                _targetUp = Vector3.Cross((leftPosition - rightPosition).normalized, _targetForward).normalized;
+                _targetRight = Vector3.Cross(_targetUp, _targetForward).normalized;
+
+                DebugDraw.DrawCircle(_targetPosition, Quaternion.FromToRotation(Vector3.up, _targetUp), Color.white, (leftPosition - rightPosition).magnitude / 2);
             }
             else
             {
