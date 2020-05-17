@@ -138,7 +138,7 @@ namespace ToySerialController
             InvertXToggle = builder.CreateToggle("Device:InvertX", "Invert", true, true);
             EnableOverrideXToggle = builder.CreateToggle("Device:EnableOverrideX", "Enable Override", false, true);
             OverrideXSlider = builder.CreateSlider("Device:OverrideX", "Override Value", 0.5f, 0f, 1f, true, true, true);
-            ProjectXChooser = builder.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Default", "Reference Up", "Target Up" }, "Default", null, true);
+            ProjectXChooser = builder.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Difference", "Reference Up", "Target Up" }, "Reference Up", null, true);
         }
 
         private void CreateYAxisUI(IUIBuilder builder)

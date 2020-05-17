@@ -30,9 +30,10 @@ namespace ToySerialController
             var diff = motionSource.TargetPosition - motionSource.ReferencePosition;
 
             Vector3 projectionNormal;
-            if (ProjectXChooser.val == "Reference Up") projectionNormal = motionSource.ReferenceUp;
+            if (ProjectXChooser.val == "Difference") projectionNormal = diff.normalized;
+            else if (ProjectXChooser.val == "Reference Up") projectionNormal = motionSource.ReferenceUp;
             else if (ProjectXChooser.val == "Target Up") projectionNormal = motionSource.TargetUp;
-            else projectionNormal = diff.normalized;
+            else return false;
 
             var diffOnNormal = Vector3.Project(diff, projectionNormal);
             var diffOnPlane = Vector3.ProjectOnPlane(diff, motionSource.ReferencePlaneNormal);
