@@ -1,4 +1,4 @@
-using DebugUtils;
+﻿using DebugUtils;
 using System;
 using System.IO.Ports;
 using ToySerialController.MotionSource;
@@ -42,6 +42,9 @@ namespace ToySerialController
             DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
 
             _xTarget.x = 1 - Mathf.Clamp01(diffOnNormal.magnitude / motionSource.ReferenceLength);
+            if (Vector3.Dot(diff, motionSource.ReferenceUp) < 0)
+                _xTarget.x = _xTarget.x > 0 ? 1 : 0;
+
             _xTarget.y = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
             _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
 
