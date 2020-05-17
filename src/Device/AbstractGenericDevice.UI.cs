@@ -131,8 +131,8 @@ namespace ToySerialController
         private void CreateXAxisUI(IUIBuilder builder)
         {
             XAxisTitle = builder.CreateDisabledButton("X Axis", Color.red * 0.8f, Color.white, true);
-            RangeMaxXSlider = builder.CreateSlider("Device:RangeMaxX", "Range Max", 1f, 0f, 1f, true, true, true);
-            RangeMinXSlider = builder.CreateSlider("Device:RangeMinX", "Range Min", 0f, 0f, 1f, true, true, true);
+            RangeMaxXSlider = builder.CreateSlider("Device:RangeMaxX", "Range Max", 1f, 0f, 1f, v => RangeMinXSlider.max = v, true, true, true);
+            RangeMinXSlider = builder.CreateSlider("Device:RangeMinX", "Range Min", 0f, 0f, 1f, v => RangeMaxXSlider.min = v, true, true, true);
             OutputMaxXSlider = builder.CreateSlider("Device:OutputMaxX", "Output Max", 1f, 0.5f, 1f, true, true, true);
             OutputMinXSlider = builder.CreateSlider("Device:OutputMinX", "Output Min", 0, 0f, 0.5f, true, true, true);
             InvertXToggle = builder.CreateToggle("Device:InvertX", "Invert", true, true);
