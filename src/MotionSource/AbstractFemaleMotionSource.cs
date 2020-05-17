@@ -69,50 +69,52 @@ namespace ToySerialController.MotionSource
 
             if (TargetChooser.val == "Vagina")
             {
-                var labiaTrigger = _femaleAtom.GetRigidBodyByName("LabiaTrigger")?.transform;
-                var vaginaTrigger = _femaleAtom.GetRigidBodyByName("VaginaTrigger")?.transform;
-                var positionOffset = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointtopblock0")?.transform;
+                var labiaTrigger = _femaleAtom.GetRigidBodyByName("LabiaTrigger");
+                var vaginaTrigger = _femaleAtom.GetRigidBodyByName("VaginaTrigger");
+                var positionOffsetCollider = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointB");
 
-                if (labiaTrigger == null || vaginaTrigger == null || positionOffset == null)
+                if (labiaTrigger == null || vaginaTrigger == null || positionOffsetCollider == null)
                     return false;
 
-                _targetPosition = labiaTrigger.position;
-                _targetUp = (vaginaTrigger.position - labiaTrigger.position).normalized;
-                _targetRight = vaginaTrigger.right;
+                _targetPosition = labiaTrigger.transform.position;
+                _targetUp = (vaginaTrigger.transform.position - labiaTrigger.transform.position).normalized;
+                _targetRight = vaginaTrigger.transform.right;
                 _targetForward = Vector3.Cross(_targetUp, _targetRight);
 
-                _targetPosition += _targetUp * Vector3.Dot(positionOffset.position - _targetPosition, _targetUp);
+                var positionOffset = positionOffsetCollider.transform.position
+                    + positionOffsetCollider.transform.forward * positionOffsetCollider.radius
+                    - _targetUp * 0.005f;
+                _targetPosition += _targetUp * Vector3.Dot(positionOffset - _targetPosition, _targetUp);
             }
             else if (TargetChooser.val == "Anus")
             {
-                var bottom = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointan9")?.transform;
-                var top0 = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointantopsides0")?.transform;
-                var top1 = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointantopsides1")?.transform;
+                var anusLeft = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointAl");
+                var anusRight = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointAr");
 
-                if (bottom == null || top0 == null || top1 == null)
+                if (anusLeft == null || anusRight == null)
                     return false;
 
-                _targetUp = bottom.forward;
-                _targetRight = bottom.right;
-                _targetForward = -bottom.up;
-                _targetPosition = (bottom.position + top0.position + top1.position) / 3;
+                _targetUp = ((anusLeft.transform.up + anusRight.transform.up) / 2).normalized;
+                _targetRight = ((anusLeft.transform.right + anusRight.transform.right) / 2).normalized;
+                _targetForward = ((anusLeft.transform.forward + anusRight.transform.forward) / 2).normalized;
+                _targetPosition = (anusLeft.transform.position + anusRight.transform.position) / 2;
             }
             else if (TargetChooser.val == "Mouth")
             {
-                var bottomLip = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJoint7")?.transform;
-                var topLip = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJoint23")?.transform;
-                var mouthTrigger = _femaleAtom.GetRigidBodyByName("MouthTrigger")?.transform;
+                var bottomLip = _femaleAtom.GetComponentByName<Transform>("lowerJawStandardColliders")?.GetComponentByName<CapsuleCollider>("_ColliderLipM");
+                var topLip = _femaleAtom.GetComponentByName<Transform>("AutoCollidersTongueUpperLip")?.GetComponentByName<Transform>("AutoColliderAutoCollidersFaceCentral2Hard");
+                var mouthTrigger = _femaleAtom.GetRigidBodyByName("MouthTrigger");
 
                 if (bottomLip == null || topLip == null || mouthTrigger == null)
                     return false;
 
-                var center = (topLip.position + bottomLip.position) / 2;
-                _targetUp = (mouthTrigger.position - center).normalized;
-                _targetRight = mouthTrigger.right;
+                var center = (topLip.transform.position + bottomLip.transform.position) / 2;
+                _targetUp = (mouthTrigger.transform.position - center).normalized;
+                _targetRight = mouthTrigger.transform.right;
                 _targetForward = Vector3.Cross(_targetUp, _targetRight);
-                _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.position) * 0.2f;
+                _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
 
-                DebugDraw.DrawCircle(TargetPosition, TargetUp, Color.gray, 0.03f);
+                DebugDraw.DrawCircle(TargetPosition, TargetUp, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
             }
             else if (TargetChooser.val.Contains("Hand"))
             {
