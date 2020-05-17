@@ -1,4 +1,4 @@
-﻿using CurveEditor;
+using CurveEditor;
 using CurveEditor.UI;
 using SimpleJSON;
 using System;
@@ -97,7 +97,7 @@ namespace ToySerialController
             applyButton.label = "Apply Limits";
             applyButton.button.onClick.AddListener(PositionApplyButtonCallback);
 
-            SmoothingSlider = _group.CreateSlider("Plugin:Smoothing", "Smoothing", 0.2f, 0f, 0.95f, true, true, true);
+            SmoothingSlider = _group.CreateSlider("Plugin:Smoothing", "Smoothing", 0.1f, 0.0f, 0.99f, true, true, true);
 
             CreateXAxisUI(_group);
             CreateYAxisUI(_group);
@@ -131,14 +131,14 @@ namespace ToySerialController
         private void CreateXAxisUI(IUIBuilder builder)
         {
             XAxisTitle = builder.CreateDisabledButton("X Axis", Color.red * 0.8f, Color.white, true);
-            RangeMaxXSlider = builder.CreateSlider("Device:RangeMaxX", "Range Max", 1f, 0f, 1f, true, true, true);
-            RangeMinXSlider = builder.CreateSlider("Device:RangeMinX", "Range Min", 0f, 0f, 1f, true, true, true);
-            OutputMaxXSlider = builder.CreateSlider("Device:OutputMaxX", "Output Max", 1f, 0.5f, 1f, true, true, true);
-            OutputMinXSlider = builder.CreateSlider("Device:OutputMinX", "Output Min", 0, 0f, 0.5f, true, true, true);
+            RangeMaxXSlider = builder.CreateSlider("Device:RangeMaxX", "Range Max", 1f, 0f, 1f, v => RangeMinXSlider.max = v, true, true, true);
+            RangeMinXSlider = builder.CreateSlider("Device:RangeMinX", "Range Min", 0f, 0f, 1f, v => RangeMaxXSlider.min = v, true, true, true);
+            OutputMaxXSlider = builder.CreateSlider("Device:OutputMaxX", "Output Max", 1f, 0f, 1f, v => OutputMinXSlider.max = v, true, true, true);
+            OutputMinXSlider = builder.CreateSlider("Device:OutputMinX", "Output Min", 0, 0f, 1f, v => OutputMaxXSlider.min = v, true, true, true);
             InvertXToggle = builder.CreateToggle("Device:InvertX", "Invert", true, true);
             EnableOverrideXToggle = builder.CreateToggle("Device:EnableOverrideX", "Enable Override", false, true);
             OverrideXSlider = builder.CreateSlider("Device:OverrideX", "Override Value", 0.5f, 0f, 1f, true, true, true);
-            ProjectXChooser = builder.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Default", "Reference Up", "Target Up" }, "Default", null, true);
+            ProjectXChooser = builder.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Difference", "Reference Up", "Target Up" }, "Reference Up", null, true);
         }
 
         private void CreateYAxisUI(IUIBuilder builder)
@@ -167,9 +167,8 @@ namespace ToySerialController
         {
             RXAxisTitle = builder.CreateDisabledButton("RX Axis", Color.cyan * 0.8f, Color.white, true);
             OutputRXCurveEditor = builder.CreateCurveEditor(300, true);
-            OutputRXCurve = builder.CreateCurve("Device:OutputRXCurve", OutputRXCurveEditor, new List<Keyframe> { new Keyframe(0, 0.5f, 0, 0.5f), new Keyframe(1, 1, 0.5f, 0) });
-            OutputRXCurve.SetDefaultFromCurrent();
-            OutputRXCurveEditor.SetValueBounds(OutputRXCurve, Vector2.zero, Vector2.one);
+            OutputRXCurve = builder.CreateCurve("Device:OutputRXCurve", OutputRXCurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 0.5f), new Keyframe(1, 0.5f, 0.5f, 0) });
+            OutputRXCurveEditor.SetDrawScale(OutputRXCurve, Vector2.one, new Vector2(0, 0.5f), true);
 
             OutputRXCurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputRXCurveSettings", OutputRXCurveEditor, OutputRXCurve);
             OutputRXCurveEditorSettings.CreateUI(builder);
@@ -207,7 +206,7 @@ namespace ToySerialController
             Vibe0Title = builder.CreateDisabledButton("Vibe 0", new Color(0.4f, 0.4f, 0.4f), Color.white, true);
             OutputV0CurveEditor = builder.CreateCurveEditor(300, true);
             OutputV0Curve = builder.CreateCurve("Device:OutputV0Curve", OutputV0CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
-            OutputV0CurveEditor.SetValueBounds(OutputV0Curve, Vector2.zero, Vector2.one);
+            OutputV0CurveEditor.SetDrawScale(OutputV0Curve, Vector2.one, Vector2.zero, true);
 
             OutputV0CurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputV0CurveSettings", OutputV0CurveEditor, OutputV0Curve);
             OutputV0CurveEditorSettings.CreateUI(builder);
@@ -221,7 +220,7 @@ namespace ToySerialController
             Vibe1Title = builder.CreateDisabledButton("Vibe 1", new Color(0.4f, 0.4f, 0.4f), Color.white, true);
             OutputV1CurveEditor = builder.CreateCurveEditor(300, true);
             OutputV1Curve = builder.CreateCurve("Device:OutputV1Curve", OutputV1CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
-            OutputV1CurveEditor.SetValueBounds(OutputV1Curve, Vector2.zero, Vector2.one);
+            OutputV1CurveEditor.SetDrawScale(OutputV1Curve, Vector2.one, Vector2.zero, true);
 
             OutputV1CurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputV1CurveSettings", OutputV1CurveEditor, OutputV1Curve);
             OutputV1CurveEditorSettings.CreateUI(builder);
@@ -317,7 +316,7 @@ namespace ToySerialController
                 {
                     TimeSpanSlider.valNoCallback = Mathf.Round(v);
                     TimeScrubberSlider.max = Mathf.Round(v);
-                    _editor.SetValueBounds(_storable, Vector2.zero, new Vector2(v, 1));
+                    _editor.SetDrawScale(_storable, Vector2.zero, new Vector2(v, 1), true);
                 }, 1, 300, true, true);
 
                 TimeScrubberSlider = new JSONStorableFloat($"Device:{_name}:TimeScrubberPosition", 0, 0, TimeSpanSlider.val, true, true);
@@ -349,7 +348,6 @@ namespace ToySerialController
             else
             {
                 _storable.SetValToDefault();
-                _editor.SetValueBounds(_storable, Vector2.zero, Vector2.one);
             }
         }
 
@@ -379,8 +377,7 @@ namespace ToySerialController
                 TimeScrubberSlider.val = t;
             }
 
-            _editor.showScrubbers = true;
-            _editor.SetScrubber(_storable, t);
+            _editor.SetScrubberPosition(_storable, t);
             return _storable.val.Evaluate(t);
         }
     }

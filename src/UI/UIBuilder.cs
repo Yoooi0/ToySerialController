@@ -139,9 +139,10 @@ namespace ToySerialController.UI
             buttons[3].button.onClick.AddListener(() => curveEditor.SetLinear());
 
             curveEditor = new UICurveEditor(container, 510, height, buttons: buttons);
-            curveEditor.allowViewDragging = false;
-            curveEditor.allowViewScaling = false;
-            curveEditor.allowViewZooming = false;
+            curveEditor.settings.allowViewDragging = false;
+            curveEditor.settings.allowViewScaling = false;
+            curveEditor.settings.allowViewZooming = false;
+            curveEditor.settings.showScrubbers = true;
             return curveEditor;
         }
 

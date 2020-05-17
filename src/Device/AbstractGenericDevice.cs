@@ -30,18 +30,20 @@ namespace ToySerialController
             var diff = motionSource.TargetPosition - motionSource.ReferencePosition;
 
             Vector3 projectionNormal;
-            if (ProjectXChooser.val == "Reference Up") projectionNormal = motionSource.ReferenceUp;
+            if (ProjectXChooser.val == "Difference") projectionNormal = diff.normalized;
+            else if (ProjectXChooser.val == "Reference Up") projectionNormal = motionSource.ReferenceUp;
             else if (ProjectXChooser.val == "Target Up") projectionNormal = motionSource.TargetUp;
-            else projectionNormal = diff.normalized;
+            else return false;
 
             var diffOnNormal = Vector3.Project(diff, projectionNormal);
             var diffOnPlane = Vector3.ProjectOnPlane(diff, motionSource.ReferencePlaneNormal);
             var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
             var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
 
-            DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
+            _xTarget.x = 1 - Mathf.Clamp01(diffOnNormal.magnitude / motionSource.ReferenceLength);
+            if (Vector3.Dot(diff, motionSource.ReferenceUp) < 0)
+                _xTarget.x = _xTarget.x > 0 ? 1 : 0;
 
-            _xTarget.x = 1 - Mathf.Clamp(diffOnNormal.magnitude / motionSource.ReferenceLength, 0, 1);
             _xTarget.y = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
             _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
 
@@ -61,7 +63,7 @@ namespace ToySerialController
             var xt = (_xTarget.x - RangeMinXSlider.val) / (RangeMaxXSlider.val - RangeMinXSlider.val);
             var yt = (_xTarget.y + RangeMaxYSlider.val) / (2 * RangeMaxYSlider.val);
             var zt = (_xTarget.z + RangeMaxZSlider.val) / (2 * RangeMaxZSlider.val);
-            var rxt = OutputRXCurveEditorSettings.Evaluate(_xTarget, _rTarget);
+            var rxt = 0.5f + OutputRXCurveEditorSettings.Evaluate(_xTarget, _rTarget);
             var ryt = (_rTarget.y + RangeMaxRYSlider.val) / (2 * RangeMaxRYSlider.val);
             var rzt = (_rTarget.z + RangeMaxRZSlider.val) / (2 * RangeMaxRZSlider.val);
             var v0t = OutputV0CurveEditorSettings.Evaluate(_xTarget, _rTarget);
@@ -85,30 +87,30 @@ namespace ToySerialController
             var v0CmdRaw = v0t;
             var v1CmdRaw = v1t;
 
-            _xCmd.x = Mathf.Lerp(xCmdRaw, _xCmd.x, SmoothingSlider.val);
-            _xCmd.y = Mathf.Lerp(yCmdRaw, _xCmd.y, SmoothingSlider.val);
-            _xCmd.z = Mathf.Lerp(zCmdRaw, _xCmd.z, SmoothingSlider.val);
-            _rCmd.x = Mathf.Lerp(rxCmdRaw, _rCmd.x, SmoothingSlider.val);
-            _rCmd.y = Mathf.Lerp(ryCmdRaw, _rCmd.y, SmoothingSlider.val);
-            _rCmd.z = Mathf.Lerp(rzCmdRaw, _rCmd.z, SmoothingSlider.val);
-            _vCmd[0] = Mathf.Lerp(v0CmdRaw, _vCmd[0], SmoothingSlider.val);
-            _vCmd[1] = Mathf.Lerp(v1CmdRaw, _vCmd[1], SmoothingSlider.val);
+            if (InvertXToggle.val) xCmdRaw = 1f - xCmdRaw;
+            if (InvertYToggle.val) yCmdRaw = 1f - yCmdRaw;
+            if (InvertZToggle.val) zCmdRaw = 1f - zCmdRaw;
+            if (InvertRXToggle.val) rxCmdRaw = 1f - rxCmdRaw;
+            if (InvertRYToggle.val) ryCmdRaw = 1f - ryCmdRaw;
+            if (InvertRZToggle.val) rzCmdRaw = 1f - rzCmdRaw;
 
-            if (InvertXToggle.val) _xCmd.x = 1f - _xCmd.x;
-            if (InvertYToggle.val) _xCmd.y = 1f - _xCmd.y;
-            if (InvertZToggle.val) _xCmd.z = 1f - _xCmd.z;
-            if (InvertRXToggle.val) _rCmd.x = 1f - _rCmd.x;
-            if (InvertRYToggle.val) _rCmd.y = 1f - _rCmd.y;
-            if (InvertRZToggle.val) _rCmd.z = 1f - _rCmd.z;
+            if (EnableOverrideXToggle.val) xCmdRaw = OverrideXSlider.val;
+            if (EnableOverrideYToggle.val) yCmdRaw = OverrideYSlider.val;
+            if (EnableOverrideZToggle.val) zCmdRaw = OverrideZSlider.val;
+            if (EnableOverrideRXToggle.val) rxCmdRaw = OverrideRXSlider.val;
+            if (EnableOverrideRYToggle.val) ryCmdRaw = OverrideRYSlider.val;
+            if (EnableOverrideRZToggle.val) rzCmdRaw = OverrideRZSlider.val;
+            if (EnableOverrideV0Toggle.val) v0CmdRaw = OverrideV0Slider.val;
+            if (EnableOverrideV1Toggle.val) v1CmdRaw = OverrideV1Slider.val;
 
-            if (EnableOverrideXToggle.val) _xCmd.x = OverrideXSlider.val;
-            if (EnableOverrideYToggle.val) _xCmd.y = OverrideYSlider.val;
-            if (EnableOverrideZToggle.val) _xCmd.z = OverrideZSlider.val;
-            if (EnableOverrideRXToggle.val) _rCmd.x = OverrideRXSlider.val;
-            if (EnableOverrideRYToggle.val) _rCmd.y = OverrideRYSlider.val;
-            if (EnableOverrideRZToggle.val) _rCmd.z = OverrideRZSlider.val;
-            if (EnableOverrideV0Toggle.val) _vCmd[0] = OverrideV0Slider.val;
-            if (EnableOverrideV1Toggle.val) _vCmd[1] = OverrideV1Slider.val;
+            _xCmd.x = Mathf.Lerp(_xCmd.x, xCmdRaw, 1 - SmoothingSlider.val);
+            _xCmd.y = Mathf.Lerp(_xCmd.y, yCmdRaw, 1 - SmoothingSlider.val);
+            _xCmd.z = Mathf.Lerp(_xCmd.z, zCmdRaw, 1 - SmoothingSlider.val);
+            _rCmd.x = Mathf.Lerp(_rCmd.x, rxCmdRaw, 1 - SmoothingSlider.val);
+            _rCmd.y = Mathf.Lerp(_rCmd.y, ryCmdRaw, 1 - SmoothingSlider.val);
+            _rCmd.z = Mathf.Lerp(_rCmd.z, rzCmdRaw, 1 - SmoothingSlider.val);
+            _vCmd[0] = Mathf.Lerp(_vCmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
+            _vCmd[1] = Mathf.Lerp(_vCmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
 
             var s = "          Min      Cur      Max     Cmd\n";
             s += string.Format("   X\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.x, _xTarget.x, _xTargetMax.x, _xCmd.x);
@@ -120,6 +122,10 @@ namespace ToySerialController
             s += string.Format("V0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _vCmd[0]);
             s += string.Format("V1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}", 0, 0, 0, _vCmd[1]);
             DeviceReport = s;
+
+            DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
+            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinXSlider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
+            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxXSlider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
 
             return true;
         }

@@ -28,7 +28,7 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
-            var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand" };
+            var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand", "Left Foot", "Right Foot", "Feet" };
             var defaultTarget = targets.First();
 
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
@@ -69,50 +69,52 @@ namespace ToySerialController.MotionSource
 
             if (TargetChooser.val == "Vagina")
             {
-                var labiaTrigger = _femaleAtom.GetRigidBodyByName("LabiaTrigger")?.transform;
-                var vaginaTrigger = _femaleAtom.GetRigidBodyByName("VaginaTrigger")?.transform;
-                var positionOffset = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointtopblock0")?.transform;
+                var labiaTrigger = _femaleAtom.GetRigidBodyByName("LabiaTrigger");
+                var vaginaTrigger = _femaleAtom.GetRigidBodyByName("VaginaTrigger");
+                var positionOffsetCollider = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointB");
 
-                if (labiaTrigger == null || vaginaTrigger == null || positionOffset == null)
+                if (labiaTrigger == null || vaginaTrigger == null || positionOffsetCollider == null)
                     return false;
 
-                _targetPosition = labiaTrigger.position;
-                _targetUp = (labiaTrigger.position - vaginaTrigger.position).normalized;
-                _targetRight = vaginaTrigger.right;
+                _targetPosition = labiaTrigger.transform.position;
+                _targetUp = (vaginaTrigger.transform.position - labiaTrigger.transform.position).normalized;
+                _targetRight = vaginaTrigger.transform.right;
                 _targetForward = Vector3.Cross(_targetUp, _targetRight);
 
-                _targetPosition += _targetUp * Vector3.Dot(positionOffset.position - _targetPosition, _targetUp);
+                var positionOffset = positionOffsetCollider.transform.position
+                    + positionOffsetCollider.transform.forward * positionOffsetCollider.radius
+                    - _targetUp * 0.005f;
+                _targetPosition += _targetUp * Vector3.Dot(positionOffset - _targetPosition, _targetUp);
             }
             else if (TargetChooser.val == "Anus")
             {
-                var bottom = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointan9")?.transform;
-                var top0 = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointantopsides0")?.transform;
-                var top1 = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJointantopsides1")?.transform;
+                var anusLeft = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointAl");
+                var anusRight = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointAr");
 
-                if (bottom == null || top0 == null || top1 == null)
+                if (anusLeft == null || anusRight == null)
                     return false;
 
-                _targetUp = -bottom.forward;
-                _targetRight = bottom.right;
-                _targetForward = -bottom.up;
-                _targetPosition = (bottom.position + top0.position + top1.position) / 3;
+                _targetUp = ((anusLeft.transform.up + anusRight.transform.up) / 2).normalized;
+                _targetRight = ((anusLeft.transform.right + anusRight.transform.right) / 2).normalized;
+                _targetForward = ((anusLeft.transform.forward + anusRight.transform.forward) / 2).normalized;
+                _targetPosition = (anusLeft.transform.position + anusRight.transform.position) / 2;
             }
             else if (TargetChooser.val == "Mouth")
             {
-                var bottomLip = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJoint7")?.transform;
-                var topLip = _femaleAtom.GetComponentByName<Collider>("PhysicsMeshJoint23")?.transform;
-                var mouthTrigger = _femaleAtom.GetRigidBodyByName("MouthTrigger")?.transform;
+                var bottomLip = _femaleAtom.GetComponentByName<Transform>("lowerJawStandardColliders")?.GetComponentByName<CapsuleCollider>("_ColliderLipM");
+                var topLip = _femaleAtom.GetComponentByName<Transform>("AutoCollidersTongueUpperLip")?.GetComponentByName<Transform>("AutoColliderAutoCollidersFaceCentral2Hard");
+                var mouthTrigger = _femaleAtom.GetRigidBodyByName("MouthTrigger");
 
                 if (bottomLip == null || topLip == null || mouthTrigger == null)
                     return false;
 
-                var center = (topLip.position + bottomLip.position) / 2;
-                _targetUp = (center - mouthTrigger.position).normalized;
-                _targetRight = mouthTrigger.right;
+                var center = (topLip.transform.position + bottomLip.transform.position) / 2;
+                _targetUp = (mouthTrigger.transform.position - center).normalized;
+                _targetRight = mouthTrigger.transform.right;
                 _targetForward = Vector3.Cross(_targetUp, _targetRight);
-                _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.position) * 0.2f;
+                _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
 
-                DebugDraw.DrawCircle(TargetPosition, TargetUp, Color.gray, 0.03f);
+                DebugDraw.DrawCircle(TargetPosition, TargetUp, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
             }
             else if (TargetChooser.val.Contains("Hand"))
             {
@@ -124,6 +126,10 @@ namespace ToySerialController.MotionSource
                 if (carpal == null || fingerBase == null || fingerTip == null)
                     return false;
 
+
+                var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
+                var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
+                _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
                 _targetUp = fingerBase.transform.forward;
 
                 if (side == "l")
@@ -137,11 +143,40 @@ namespace ToySerialController.MotionSource
                     _targetForward = fingerBase.transform.right;
                 }
 
-                var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
-                var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
-                _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
-
                 DebugDraw.DrawLine(fingerBasePosition, fingerTipPosition, Color.gray);
+            }
+            else if (TargetChooser.val.Contains("Foot"))
+            {
+                var side = TargetChooser.val.Contains("Left") ? "l" : "r";
+                var foot = _femaleAtom.GetRigidBodyByName($"{side}Foot");
+                var footBase = foot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+
+                _targetRight = footBase.transform.forward;
+                _targetForward = -footBase.transform.up;
+
+                if (side == "l")
+                    _targetUp = footBase.transform.right;
+                else if (side == "r")
+                    _targetUp = -footBase.transform.right;
+
+                _targetPosition = footBase.transform.position + _targetForward * footBase.radius;
+            }
+            else if (TargetChooser.val == "Feet")
+            {
+                var leftFoot = _femaleAtom.GetRigidBodyByName($"lFoot");
+                var rightFoot = _femaleAtom.GetRigidBodyByName($"rFoot");
+                var leftFootBase = leftFoot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+                var rightFootBase = rightFoot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+
+                var leftPosition = leftFootBase.transform.position - leftFootBase.transform.up * leftFootBase.radius;
+                var rightPosition = rightFootBase.transform.position - rightFootBase.transform.up * rightFootBase.radius;
+
+                _targetPosition = (leftPosition + rightPosition) / 2;
+                _targetForward = ((leftFootBase.transform.forward + rightFootBase.transform.forward) / 2).normalized;
+                _targetUp = Vector3.Cross((leftPosition - rightPosition).normalized, _targetForward).normalized;
+                _targetRight = Vector3.Cross(_targetUp, _targetForward).normalized;
+
+                DebugDraw.DrawCircle(_targetPosition, Quaternion.FromToRotation(Vector3.up, _targetUp), Color.white, (leftPosition - rightPosition).magnitude / 2);
             }
             else
             {
