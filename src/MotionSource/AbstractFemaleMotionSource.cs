@@ -28,7 +28,7 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
-            var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand", "Left Foot", "Right Foot", "Feet" };
+            var targets = new List<string> { "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet" };
             var defaultTarget = targets.First();
 
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
@@ -126,7 +126,6 @@ namespace ToySerialController.MotionSource
                 if (carpal == null || fingerBase == null || fingerTip == null)
                     return false;
 
-
                 var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
                 var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
                 _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
@@ -144,6 +143,25 @@ namespace ToySerialController.MotionSource
                 }
 
                 DebugDraw.DrawLine(fingerBasePosition, fingerTipPosition, Color.gray);
+            }
+            else if (TargetChooser.val == "Chest")
+            {
+                var left = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderslNipple1").jointCollider as CapsuleCollider;
+                var right = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoCollidersrNipple1").jointCollider as CapsuleCollider;
+                var chest = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderschest2c").jointCollider as CapsuleCollider;
+
+                if (left == null || right == null || chest == null)
+                    return false;
+
+                var leftPosition = left.transform.position;
+                var rightPosition = right.transform.position;
+                var chestPosition = chest.transform.position + _targetForward * chest.radius;
+
+                _targetRight = (rightPosition - leftPosition).normalized;
+                _targetForward = chest.transform.forward;
+                _targetUp = Vector3.Cross(_targetForward, _targetRight);
+
+                _targetPosition = Vector3.Lerp(chestPosition, (leftPosition + rightPosition) / 2, 0.3f);
             }
             else if (TargetChooser.val.Contains("Foot"))
             {

@@ -88,30 +88,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="lib\vam-curve-editor\GlobalSuppressions.cs" />
     <Compile Include="lib\vam-curve-editor\IStorableAnimationCurve.cs" />
     <Compile Include="lib\vam-curve-editor\JSONStorableAnimationCurve.cs" />
     <Compile Include="lib\vam-curve-editor\UI\CurveEditorPoint.cs" />
     <Compile Include="lib\vam-curve-editor\UI\CurveLine.cs" />
     <Compile Include="lib\vam-curve-editor\UI\CurveLineSettings.cs" />
-    <Compile Include="lib\vam-curve-editor\UI\DrawScaleOffset.cs" />
     <Compile Include="lib\vam-curve-editor\UI\UICurveEditor.cs" />
     <Compile Include="lib\vam-curve-editor\UI\UICurveEditorCanvas.cs" />
     <Compile Include="lib\vam-curve-editor\UI\UICurveEditorSettings.cs" />
     <Compile Include="lib\vam-curve-editor\Utils\MathUtils.cs" />
+    <Compile Include="lib\vam-curve-editor\Utils\Matrix2x3.cs" />
     <Compile Include="lib\vam-curve-editor\Utils\VertexHelperExtensions.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\GlobalSuppressions.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\IStorableAnimationCurve.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\JSONStorableAnimationCurve.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\CurveEditorPoint.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\CurveLine.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\CurveLineSettings.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\DrawScaleOffset.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\UICurveEditor.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\UICurveEditorCanvas.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\UI\UICurveEditorSettings.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\Utils\MathUtils.cs" />
-    <Compile Include="lib\vam-curve-editor\vam-curve-editor\Utils\VertexHelperExtensions.cs" />
     <Compile Include="lib\vam-debug-utils\DebugDraw.cs" />
     <Compile Include="lib\vam-debug-utils\DebugLog.cs" />
     <Compile Include="lib\vam-debug-utils\LineDrawer.cs" />
@@ -137,6 +124,9 @@
     <Compile Include="src\UI\UIBuilder.cs" />
     <Compile Include="src\Utils\Extensions.cs" />
     <Compile Include="src\Utils\MathUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lib\vam-curve-editor\LICENSE" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -130,8 +130,22 @@ namespace ToySerialController.UI
             _objects.Clear();
         }
 
-
         public void BlacklistStorable(string name) => _storableBlacklist.Add(name);
+
+        public void SetVisible(bool visible)
+        {
+            foreach (var o in _objects)
+            {
+                if (o is JSONStorableStringChooser) ((JSONStorableStringChooser)o).popup.transform.gameObject.SetActive(visible);
+                else if (o is JSONStorableFloat) ((JSONStorableFloat)o).slider.transform.parent.gameObject.SetActive(visible);
+                else if (o is JSONStorableBool) ((JSONStorableBool)o).toggle.transform.gameObject.SetActive(visible);
+                else if (o is JSONStorableString) ((JSONStorableString)o).dynamicText.transform.gameObject.SetActive(visible);
+                else if (o is UIDynamicButton) ((UIDynamicButton)o).button.transform.gameObject.SetActive(visible);
+                else if (o is UICurveEditor) ((UICurveEditor)o).container.transform.gameObject.SetActive(visible);
+                else if (o is UIHorizontalGroup) ((UIHorizontalGroup)o).container.transform.gameObject.SetActive(visible);
+                else if (o is UIDynamic) ((UIDynamic)o).transform.gameObject.SetActive(visible);
+            }
+        }
 
         public void StoreConfig(JSONNode config)
         {
