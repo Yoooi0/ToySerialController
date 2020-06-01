@@ -22,16 +22,31 @@ namespace ToySerialController
 
         public override void Init()
         {
+            base.Init();
             try
             {
-                CreateUI();
-
                 try
                 {
                     var defaultPath = Controller.GetFilesAtPath(PluginDir, "*.json").FirstOrDefault(s => s.EndsWith("default.json"));
                     if (defaultPath != null)
                         ConfigManager.LoadConfig(defaultPath, this);
                 } catch { }
+            }
+            catch (Exception e)
+            {
+                SuperController.LogError("Exception caught: " + e);
+            }
+        }
+
+        public override void InitUI()
+        {
+            base.InitUI();
+            if (UITransform == null)
+                return;
+
+            try
+            {
+                CreateUI();
 
                 _initialized = true;
             }

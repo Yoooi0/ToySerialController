@@ -149,6 +149,7 @@ namespace ToySerialController.UI
         public JSONStorableAnimationCurve CreateCurve(string paramName, UICurveEditor curveEditor, IEnumerable<Keyframe> keyframes = null)
         {
             var storable = new JSONStorableAnimationCurve(paramName);
+
             if (keyframes != null)
             {
                 storable.val = new AnimationCurve(keyframes.ToArray());
