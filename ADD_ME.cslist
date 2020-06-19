@@ -25,6 +25,7 @@ src\MotionSource\AnimationMotionSource.cs
 src\MotionSource\AssetFemaleMotionSource.cs
 src\MotionSource\IMotionSource.cs
 src\MotionSource\MaleFemaleMotionSource.cs
+src\MotionSource\RangeTestMotionSource.cs
 src\Plugin.cs
 src\Plugin.UI.cs
 src\UI\Control\UIHorizontalGroup.cs

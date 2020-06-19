@@ -113,6 +113,7 @@
     <Compile Include="src\MotionSource\AssetFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\AnimationMotionSource.cs" />
     <Compile Include="src\MotionSource\MaleFemaleMotionSource.cs" />
+    <Compile Include="src\MotionSource\RangeTestMotionSource.cs" />
     <Compile Include="src\UI\Control\UIHorizontalGroup.cs" />
     <Compile Include="src\UI\IUIBuilder.cs" />
     <Compile Include="src\UI\UIGroup.cs" />

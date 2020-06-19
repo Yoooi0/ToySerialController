@@ -83,7 +83,7 @@ namespace ToySerialController
             hardwareGroup.SetVisible(false);
 
             MotionSourceTitle = _group.CreateDisabledButton("Motion Source", new Color(0.3f, 0.3f, 0.3f), Color.white);
-            MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", new List<string> { "Male + Female", "Asset + Female", "Animation Pattern" }, "Male + Female", MotionSourceChooserCallback);
+            MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", new List<string> { "Male + Female", "Asset + Female", "Animation Pattern", "Range Test" }, "Male + Female", MotionSourceChooserCallback);
 
             DeviceTitle = _group.CreateDisabledButton("Device", new Color(0.3f, 0.3f, 0.3f), Color.white, true);
             DeviceChooserCallback("T-code");
@@ -137,6 +137,8 @@ namespace ToySerialController
                 _motionSource = new AssetFemaleMotionSource();
             else if (s == "Animation Pattern")
                 _motionSource = new AnimationMotionSource();
+            else if (s == "Range Test")
+                _motionSource = new RangeTestMotionSource();
             else
                 return;
 
