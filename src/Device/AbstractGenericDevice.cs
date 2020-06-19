@@ -35,17 +35,26 @@ namespace ToySerialController
             else if (ProjectXChooser.val == "Target Up") projectionNormal = motionSource.TargetUp;
             else return false;
 
-            var diffOnNormal = Vector3.Project(diff, projectionNormal);
-            var diffOnPlane = Vector3.ProjectOnPlane(diff, motionSource.ReferencePlaneNormal);
-            var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
-            var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
+            if (diff.magnitude > 0.00001f)
+            {
+                var diffOnNormal = Vector3.Project(diff, projectionNormal);
+                var diffOnPlane = Vector3.ProjectOnPlane(diff, motionSource.ReferencePlaneNormal);
+                var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
+                var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
 
-            _xTarget.x = 1 - Mathf.Clamp01(diffOnNormal.magnitude / motionSource.ReferenceLength);
-            if (Vector3.Dot(diff, motionSource.ReferenceUp) < 0)
-                _xTarget.x = _xTarget.x > 0 ? 1 : 0;
+                _xTarget.x = 1 - Mathf.Clamp01(diffOnNormal.magnitude / motionSource.ReferenceLength);
+                if (Vector3.Dot(diff, motionSource.ReferenceUp) < 0)
+                    _xTarget.x = _xTarget.x > 0 ? 1 : 0;
 
-            _xTarget.y = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
-            _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
+                _xTarget.y = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
+                _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
+
+                DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
+            }
+            else
+            {
+                _xTarget = new Vector3(1, 0, 0);
+            }
 
             var twistAngle = Vector3.SignedAngle(motionSource.ReferenceRight, Vector3.ProjectOnPlane(motionSource.TargetRight, motionSource.ReferenceUp), motionSource.ReferenceUp);
             _rTarget.x = (twistAngle < 0 ? twistAngle + 360 : twistAngle) / 360;
@@ -123,7 +132,6 @@ namespace ToySerialController
             s += string.Format("V1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}", 0, 0, 0, _vCmd[1]);
             DeviceReport = s;
 
-            DebugDraw.DrawRay(motionSource.ReferencePosition, diffOnNormal, 1f, new Color(0.3f, 0.3f, 0.3f));
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinXSlider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxXSlider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
 
