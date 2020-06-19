@@ -18,7 +18,7 @@ namespace ToySerialController
         private JSONStorableStringChooser DeviceChooser, MotionSourceChooser;
         private UIDynamicButton StartSerialButton, StopSerialButton;
         private JSONStorableString SerialReportText, DeviceReportText;
-        private JSONStorableBool DebugDrawEnableToggle;
+        private JSONStorableBool RecordingToggle, DebugDrawEnableToggle;
 
         private UIHorizontalGroup PresetButtonGroup, SerialButtonGroup;
 
@@ -54,6 +54,9 @@ namespace ToySerialController
             defaultButton.buttonColor = new Color(1f, 0.870f, 0.039f) * 0.8f;
             defaultButton.textColor = Color.white;
             defaultButton.button.onClick.AddListener(SaveDefaultConfigCallback);
+
+            RecordingToggle = _group.CreateToggle("Plugin:Recording", "Recording", false);
+            _group.BlacklistStorable("Plugin:Recording");
 
             DebugDrawEnableToggle = _group.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
 
