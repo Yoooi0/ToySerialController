@@ -109,6 +109,7 @@
     <Compile Include="src\Device\IDevice.cs" />
     <Compile Include="src\MotionSource\AbstractFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\AbstractRefreshableMotionSource.cs" />
+    <Compile Include="src\MotionSource\DildoFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\IMotionSource.cs" />
     <Compile Include="src\MotionSource\AssetFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\AnimationMotionSource.cs" />
