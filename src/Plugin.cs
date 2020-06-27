@@ -21,6 +21,7 @@ namespace ToySerialController
         private IDevice _device;
         private IMotionSource _motionSource;
         private bool _initialized;
+        private int _physicsIteration;
 
         private SafeFileHandle _recordingFile;
         private float _recordingStart;
@@ -55,7 +56,6 @@ namespace ToySerialController
             try
             {
                 CreateUI();
-
                 _initialized = true;
             }
             catch (Exception e)
@@ -69,11 +69,32 @@ namespace ToySerialController
             if (!_initialized)
                 return;
 
-            try
-            {
-                DebugDraw.Enabled = DebugDrawEnableToggle.val;
+            DebugDraw.Draw();
+            DebugDraw.Enabled = DebugDrawEnableToggle.val;
+            _physicsIteration = 0;
+        }
+
+        protected void FixedUpdate()
+        {
+            if (!_initialized)
+                return;
+
+            if(_physicsIteration == 0)
                 DebugDraw.Clear();
 
+            UpdateDevice();
+            UpdateRecording();
+
+            if (_physicsIteration == 0)
+                DebugDraw.Enabled = false;
+
+            _physicsIteration++;
+        }
+
+        private void UpdateDevice()
+        {
+            try
+            {
                 if (_motionSource?.Update() == true && _device?.Update(_motionSource) == true)
                 {
                     if (_serial?.IsOpen == true)
@@ -81,53 +102,63 @@ namespace ToySerialController
 
                     DeviceReportText.val = _device.GetDeviceReport() ?? string.Empty;
                     SerialReportText.val = _device.GetSerialReport() ?? string.Empty;
+                }
+            }
+            catch (Exception e)
+            {
+                SuperController.LogError("Exception caught: " + e);
+            }
+        }
 
-                    if (_recordingFile == null) {
-                        if (RecordingToggle.val)
-                        {
-                            if (!FileManagerSecure.DirectoryExists(PluginDir))
-                                PInvoke.MakeSureDirectoryPathExists(PluginDir);
+        private void UpdateRecording()
+        {
+            try
+            {
+                if (_recordingFile == null)
+                {
+                    if (RecordingToggle.val)
+                    {
+                        if (!FileManagerSecure.DirectoryExists(PluginDir))
+                            PInvoke.MakeSureDirectoryPathExists(PluginDir);
 
-                            var recordingPath = $@"{PluginDir}\{DateTime.Now:yyyyMMddTHHmmss}_recording.txt";
-                            _recordingFile = PInvoke.CreateFile(recordingPath, 2, 0, IntPtr.Zero, 1, 128, IntPtr.Zero);
+                        var recordingPath = $@"{PluginDir}\{DateTime.Now:yyyyMMddTHHmmss}_recording.txt";
+                        _recordingFile = PInvoke.CreateFile(recordingPath, 2, 0, IntPtr.Zero, 1, 128, IntPtr.Zero);
 
-                            if (_recordingFile == null || _recordingFile.IsInvalid)
-                                SuperController.LogError($"Failed to create \"{recordingPath}\"!");
-                            else
-                                SuperController.LogMessage($"Started recording to \"{recordingPath}\"!");
-
-                            _recordingStart = Time.time;
-                        }
-                    }
-
-                    if (_recordingFile != null && !_recordingFile.IsInvalid && !_recordingFile.IsClosed) {
-                        if (RecordingToggle.val)
-                        {
-                            var buffer = SerialReportText.val.Replace('\n', ' ').Trim();
-                            if (!string.IsNullOrEmpty(buffer) && buffer != _lastRecordingBuffer)
-                            {
-                                var bytes = System.Text.Encoding.ASCII.GetBytes($"{(Time.time - _recordingStart)};{buffer}\r\n");
-                                var written = 0u;
-                                var result = PInvoke.WriteFile(_recordingFile.DangerousGetHandle(), bytes, (uint)bytes.Length, out written, IntPtr.Zero);
-
-                                if (!result || written != bytes.Length)
-                                    SuperController.LogError($"Write to file failed!");
-
-                                _lastRecordingBuffer = buffer;
-                            }
-                        }
+                        if (_recordingFile == null || _recordingFile.IsInvalid)
+                            SuperController.LogError($"Failed to create \"{recordingPath}\"!");
                         else
-                        {
-                            _recordingFile.Close();
-                            _recordingFile.SetHandleAsInvalid();
-                            _recordingFile = null;
+                            SuperController.LogMessage($"Started recording to \"{recordingPath}\"!");
 
-                            SuperController.LogMessage($"Recording stopped!");
-                        }
+                        _recordingStart = Time.time;
                     }
                 }
 
-                DebugDraw.Draw();
+                if (_recordingFile != null && !_recordingFile.IsInvalid && !_recordingFile.IsClosed)
+                {
+                    if (RecordingToggle.val)
+                    {
+                        var buffer = SerialReportText.val.Replace('\n', ' ').Trim();
+                        if (!string.IsNullOrEmpty(buffer) && buffer != _lastRecordingBuffer)
+                        {
+                            var bytes = System.Text.Encoding.ASCII.GetBytes($"{(Time.time - _recordingStart)};{buffer}\r\n");
+                            var written = 0u;
+                            var result = PInvoke.WriteFile(_recordingFile.DangerousGetHandle(), bytes, (uint)bytes.Length, out written, IntPtr.Zero);
+
+                            if (!result || written != bytes.Length)
+                                SuperController.LogError($"Write to file failed!");
+
+                            _lastRecordingBuffer = buffer;
+                        }
+                    }
+                    else
+                    {
+                        _recordingFile.Close();
+                        _recordingFile.SetHandleAsInvalid();
+                        _recordingFile = null;
+
+                        SuperController.LogMessage($"Recording stopped!");
+                    }
+                }
             }
             catch (Exception e)
             {
