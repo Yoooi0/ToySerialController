@@ -23,8 +23,10 @@ src\MotionSource\AbstractFemaleMotionSource.cs
 src\MotionSource\AbstractRefreshableMotionSource.cs
 src\MotionSource\AnimationMotionSource.cs
 src\MotionSource\AssetFemaleMotionSource.cs
+src\MotionSource\DildoFemaleMotionSource.cs
 src\MotionSource\IMotionSource.cs
 src\MotionSource\MaleFemaleMotionSource.cs
+src\MotionSource\RangeTestMotionSource.cs
 src\Plugin.cs
 src\Plugin.UI.cs
 src\UI\Control\UIHorizontalGroup.cs
@@ -34,3 +36,4 @@ src\UI\UIBuilder.cs
 src\UI\UIGroup.cs
 src\Utils\Extensions.cs
 src\Utils\MathUtils.cs
+src\Utils\PInvoke.cs

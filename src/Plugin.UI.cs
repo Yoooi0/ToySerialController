@@ -13,12 +13,12 @@ namespace ToySerialController
         private UIBuilder _builder;
         private UIGroup _group;
 
-        private UIDynamicButton PluginTitle, MotionSourceTitle, HardwareTitle, DeviceTitle;
+        private UIDynamicButton PluginTitle, MotionSourceTitle, HardwareTitle;
         private JSONStorableStringChooser ComPortChooser, BaudRateChooser;
         private JSONStorableStringChooser DeviceChooser, MotionSourceChooser;
         private UIDynamicButton StartSerialButton, StopSerialButton;
         private JSONStorableString SerialReportText, DeviceReportText;
-        private JSONStorableBool DebugDrawEnableToggle;
+        private JSONStorableBool RecordingToggle, DebugDrawEnableToggle;
 
         private UIHorizontalGroup PresetButtonGroup, SerialButtonGroup;
 
@@ -55,6 +55,9 @@ namespace ToySerialController
             defaultButton.textColor = Color.white;
             defaultButton.button.onClick.AddListener(SaveDefaultConfigCallback);
 
+            RecordingToggle = _group.CreateToggle("Plugin:Recording", "Recording", false);
+            _group.BlacklistStorable("Plugin:Recording");
+
             DebugDrawEnableToggle = _group.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
 
             var hardwareGroup = new UIGroup(_group);
@@ -80,9 +83,8 @@ namespace ToySerialController
             hardwareGroup.SetVisible(false);
 
             MotionSourceTitle = _group.CreateDisabledButton("Motion Source", new Color(0.3f, 0.3f, 0.3f), Color.white);
-            MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", new List<string> { "Male + Female", "Asset + Female", "Animation Pattern" }, "Male + Female", MotionSourceChooserCallback);
+            MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", new List<string> { "Male + Female", "Asset + Female", "Dildo + Female", "Animation Pattern", "Range Test" }, "Male + Female", MotionSourceChooserCallback);
 
-            DeviceTitle = _group.CreateDisabledButton("Device", new Color(0.3f, 0.3f, 0.3f), Color.white, true);
             DeviceChooserCallback("T-code");
             MotionSourceChooserCallback("Male + Female");
         }
@@ -132,8 +134,12 @@ namespace ToySerialController
                 _motionSource = new MaleFemaleMotionSource();
             else if (s == "Asset + Female")
                 _motionSource = new AssetFemaleMotionSource();
+            else if (s == "Dildo + Female")
+                _motionSource = new DildoFemaleMotionSource();
             else if (s == "Animation Pattern")
                 _motionSource = new AnimationMotionSource();
+            else if (s == "Range Test")
+                _motionSource = new RangeTestMotionSource();
             else
                 return;
 

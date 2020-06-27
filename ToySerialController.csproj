@@ -109,10 +109,12 @@
     <Compile Include="src\Device\IDevice.cs" />
     <Compile Include="src\MotionSource\AbstractFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\AbstractRefreshableMotionSource.cs" />
+    <Compile Include="src\MotionSource\DildoFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\IMotionSource.cs" />
     <Compile Include="src\MotionSource\AssetFemaleMotionSource.cs" />
     <Compile Include="src\MotionSource\AnimationMotionSource.cs" />
     <Compile Include="src\MotionSource\MaleFemaleMotionSource.cs" />
+    <Compile Include="src\MotionSource\RangeTestMotionSource.cs" />
     <Compile Include="src\UI\Control\UIHorizontalGroup.cs" />
     <Compile Include="src\UI\IUIBuilder.cs" />
     <Compile Include="src\UI\UIGroup.cs" />
@@ -124,6 +126,7 @@
     <Compile Include="src\UI\UIBuilder.cs" />
     <Compile Include="src\Utils\Extensions.cs" />
     <Compile Include="src\Utils\MathUtils.cs" />
+    <Compile Include="src\Utils\PInvoke.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\vam-curve-editor\LICENSE" />

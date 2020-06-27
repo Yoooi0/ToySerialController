@@ -1,7 +1,7 @@
 ﻿using MVR.FileManagementSecure;
 using SimpleJSON;
 using System.Linq;
-using System.Runtime.InteropServices;
+using ToySerialController.Utils;
 
 namespace ToySerialController.Config
 {
@@ -52,7 +52,7 @@ namespace ToySerialController.Config
         private static void OpenDialog(string defaultPath, string filter, bool textEntry, uFileBrowser.FileBrowserCallback callback)
         {
             if(!FileManagerSecure.DirectoryExists(defaultPath))
-                MakeSureDirectoryPathExists(defaultPath);
+                PInvoke.MakeSureDirectoryPathExists(defaultPath);
 
             Controller.mediaFileBrowserUI.fileRemovePrefix = null;
             Controller.mediaFileBrowserUI.hideExtension = false;
@@ -69,8 +69,5 @@ namespace ToySerialController.Config
 
         public static void OpenSaveDialog(uFileBrowser.FileBrowserCallback callback) => OpenDialog(Plugin.PluginDir, "json", true, callback);
         public static void OpenLoadDialog(uFileBrowser.FileBrowserCallback callback) => OpenDialog(Plugin.PluginDir, "json", false, callback);
-
-        [DllImport("dbgHelp", SetLastError = true)]
-        private static extern bool MakeSureDirectoryPathExists(string dirPath);
     }
 }
