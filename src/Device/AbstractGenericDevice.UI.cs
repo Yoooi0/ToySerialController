@@ -7,13 +7,15 @@ using ToySerialController.Config;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace ToySerialController
 {
     public abstract partial class AbstractGenericDevice : IDevice
     {
+        private UIDynamicButton MainTitle;
         private UIHorizontalGroup LimitsButtonGroup;
+        private JSONStorableFloat SmoothingSlider;
+        private JSONStorableFloat ActivationDistanceSlider;
 
         private UIDynamicButton XAxisTitle;
         private JSONStorableBool InvertXToggle;
@@ -65,7 +67,6 @@ namespace ToySerialController
         private JSONStorableFloat AdjustRZSlider;
         private JSONStorableFloat OverrideRZSlider;
         private JSONStorableFloat RangeMaxRZSlider;
-        private JSONStorableFloat SmoothingSlider;
         private JSONStorableBool EnableOverrideRZToggle;
 
         private UIDynamicButton Vibe0Title;
@@ -89,7 +90,13 @@ namespace ToySerialController
         public virtual void CreateUI(IUIBuilder builder)
         {
             _group = new UIGroup(builder);
-            LimitsButtonGroup = _group.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateButtonEx(), true);
+
+            var visible = false;
+            var mainGroup = new UIGroup(_group);
+
+            MainTitle = _group.CreateButton("Main", () => mainGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white, true);
+
+            LimitsButtonGroup = mainGroup.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => mainGroup.CreateButtonEx(), true);
             var resetButton = LimitsButtonGroup.items[0].GetComponent<UIDynamicButton>();
             resetButton.label = "Reset Limits";
             resetButton.button.onClick.AddListener(PositionResetButtonCallback);
@@ -98,9 +105,11 @@ namespace ToySerialController
             applyButton.label = "Apply Limits";
             applyButton.button.onClick.AddListener(PositionApplyButtonCallback);
 
-            SmoothingSlider = _group.CreateSlider("Plugin:Smoothing", "Smoothing", 0.1f, 0.0f, 0.99f, true, true, true);
+            SmoothingSlider = mainGroup.CreateSlider("Plugin:Smoothing", "Smoothing", 0.1f, 0.0f, 0.99f, true, true, true);
+            ActivationDistanceSlider = mainGroup.CreateSlider("Device:ActivationDistance", "Activation Distance", 1.1f, 0, 10, true, true, true);
 
-            CreateCustomUI(_group);
+            CreateCustomUI(mainGroup);
+            mainGroup.SetVisible(false);
 
             CreateXAxisUI(_group);
             CreateYAxisUI(_group);
@@ -144,7 +153,7 @@ namespace ToySerialController
             InvertXToggle = xGroup.CreateToggle("Device:InvertX", "Invert", true, true);
             EnableOverrideXToggle = xGroup.CreateToggle("Device:EnableOverrideX", "Enable Override", false, true);
             OverrideXSlider = xGroup.CreateSlider("Device:OverrideX", "Override Value", 0.5f, 0f, 1f, true, true, true);
-            ProjectXChooser = xGroup.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Difference", "Reference Up", "Target Up" }, "Reference Up", null, true);
+            ProjectXChooser = xGroup.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Difference", "Reference Up", "Target Up" }, "Difference", null, true);
 
             xGroup.SetVisible(false);
         }

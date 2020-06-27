@@ -25,6 +25,7 @@ namespace ToySerialController
             _vCmd = new float[9];
         }
 
+        //TODO: detect true insertion
         public bool Update(IMotionSource motionSource)
         {
             var diff = motionSource.TargetPosition - motionSource.ReferencePosition;
@@ -41,6 +42,10 @@ namespace ToySerialController
                 var diffOnPlane = Vector3.ProjectOnPlane(diff, motionSource.ReferencePlaneNormal);
                 var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
                 var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
+
+                if(ActivationDistanceSlider.val > 0)
+                    if (diffOnNormal.magnitude / motionSource.ReferenceLength > ActivationDistanceSlider.val)
+                        return false;
 
                 _xTarget.x = 1 - Mathf.Clamp01(diffOnNormal.magnitude / motionSource.ReferenceLength);
                 if (Vector3.Dot(diff, motionSource.ReferenceUp) < 0)
