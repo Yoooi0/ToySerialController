@@ -66,7 +66,10 @@ namespace ToySerialController
 
         protected void Update()
         {
-            if (!_initialized)
+            if (SuperController.singleton.isLoading)
+                ComponentCache.Clear();
+
+            if (!_initialized || SuperController.singleton.isLoading)
                 return;
 
             DebugDraw.Draw();
@@ -76,7 +79,7 @@ namespace ToySerialController
 
         protected void FixedUpdate()
         {
-            if (!_initialized)
+            if (!_initialized || SuperController.singleton.isLoading)
                 return;
 
             if(_physicsIteration == 0)

@@ -124,6 +124,7 @@
     <Compile Include="src\Plugin.UI.cs" />
     <Compile Include="src\UI\IUIProvider.cs" />
     <Compile Include="src\UI\UIBuilder.cs" />
+    <Compile Include="src\Utils\ComponentCache.cs" />
     <Compile Include="src\Utils\Extensions.cs" />
     <Compile Include="src\Utils\MathUtils.cs" />
     <Compile Include="src\Utils\PInvoke.cs" />

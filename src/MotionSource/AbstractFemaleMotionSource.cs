@@ -133,11 +133,11 @@ namespace ToySerialController.MotionSource
             _targetPosition = labiaTrigger.transform.position;
             _targetUp = (vaginaTrigger.transform.position - labiaTrigger.transform.position).normalized;
             _targetRight = vaginaTrigger.transform.right;
-            _targetForward = Vector3.Cross(_targetUp, _targetRight);
+            _targetForward = Vector3.Cross(_targetRight, _targetUp);
 
             var positionOffset = positionOffsetCollider.transform.position
                 + positionOffsetCollider.transform.forward * positionOffsetCollider.radius
-                - _targetUp * 0.005f;
+                - _targetUp * 0.0025f;
             _targetPosition += _targetUp * Vector3.Dot(positionOffset - _targetPosition, _targetUp);
 
             return true;
