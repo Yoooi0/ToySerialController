@@ -100,6 +100,8 @@ namespace ToySerialController
 
             SmoothingSlider = _group.CreateSlider("Plugin:Smoothing", "Smoothing", 0.1f, 0.0f, 0.99f, true, true, true);
 
+            CreateCustomUI(_group);
+
             CreateXAxisUI(_group);
             CreateYAxisUI(_group);
             CreateZAxisUI(_group);
@@ -110,6 +112,7 @@ namespace ToySerialController
             CreateVibe1UI(_group);
         }
 
+        public virtual void CreateCustomUI(UIGroup group) { }
         public virtual void DestroyUI(IUIBuilder builder) => _group.Destroy();
         public virtual void StoreConfig(JSONNode config)
         {
