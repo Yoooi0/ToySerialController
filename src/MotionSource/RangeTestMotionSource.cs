@@ -54,7 +54,12 @@ namespace ToySerialController.MotionSource
             MotionTypeChooser = _group.CreateScrollablePopup("MotionSource:Value", "Select Value", new List<string> { "Min", "Center", "Max", "Linear", "Smooth" }, "Min", AxisChooserCallback);
 
         }
-        public void DestroyUI(IUIBuilder builder) { }
+        
+        public void DestroyUI(IUIBuilder builder)
+        {
+            _group.Destroy();
+        }
+
         public void RestoreConfig(JSONNode config) { }
         public void StoreConfig(JSONNode config) { }
 
