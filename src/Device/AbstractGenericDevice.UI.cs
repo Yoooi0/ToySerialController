@@ -163,7 +163,7 @@ namespace ToySerialController
             var yGroup = new UIGroup(builder);
             var visible = false;
             YAxisTitle = builder.CreateButton("Y Axis", () => yGroup.SetVisible(visible = !visible), Color.green * 0.8f, Color.white, true);
-            RangeMaxYSlider = yGroup.CreateSlider("Device:RangeMaxY", "Range Max (+/-)", 1f, 0, 2f, true, true, true);
+            RangeMaxYSlider = yGroup.CreateSlider("Device:RangeMaxY", "Range Max (+/-)", 0.15f, 0, 1f, true, true, true);
             OutputMaxYSlider = yGroup.CreateSlider("Device:OutputMaxY", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
             AdjustYSlider = yGroup.CreateSlider("Device:AdjustY", "Adjust", 0f, -0.25f, 0.25f, true, true, true);
             InvertYToggle = yGroup.CreateToggle("Device:InvertY", "Invert", false, true);
@@ -178,7 +178,7 @@ namespace ToySerialController
             var zGroup = new UIGroup(builder);
             var visible = false;
             ZAxisTitle = builder.CreateButton("Z Axis", () => zGroup.SetVisible(visible = !visible), Color.blue * 0.8f, Color.white, true);
-            RangeMaxZSlider = zGroup.CreateSlider("Device:RangeMaxZ", "Range Max (+/-)", 1f, 0, 2f, true, true, true);
+            RangeMaxZSlider = zGroup.CreateSlider("Device:RangeMaxZ", "Range Max (+/-)", 0.15f, 0, 1f, true, true, true);
             OutputMaxZSlider = zGroup.CreateSlider("Device:OutputMaxZ", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
             AdjustZSlider = zGroup.CreateSlider("Device:AdjustZ", "Adjust", 0f, -0.25f, 0.25f, true, true, true);
             InvertZToggle = zGroup.CreateToggle("Device:InvertZ", "Invert", false, true);
