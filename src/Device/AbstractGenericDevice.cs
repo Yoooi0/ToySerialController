@@ -101,6 +101,15 @@ namespace ToySerialController
             var v0CmdRaw = v0t;
             var v1CmdRaw = v1t;
 
+            xCmdRaw = Mathf.Clamp01(xCmdRaw);
+            yCmdRaw = Mathf.Clamp01(yCmdRaw);
+            zCmdRaw = Mathf.Clamp01(zCmdRaw);
+            rxCmdRaw = Mathf.Clamp01(rxCmdRaw);
+            ryCmdRaw = Mathf.Clamp01(ryCmdRaw);
+            rzCmdRaw = Mathf.Clamp01(rzCmdRaw);
+            v0CmdRaw = Mathf.Clamp01(v0CmdRaw);
+            v1CmdRaw = Mathf.Clamp01(v1CmdRaw);
+
             if (InvertXToggle.val) xCmdRaw = 1f - xCmdRaw;
             if (InvertYToggle.val) yCmdRaw = 1f - yCmdRaw;
             if (InvertZToggle.val) zCmdRaw = 1f - zCmdRaw;
