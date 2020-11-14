@@ -14,7 +14,7 @@ namespace ToySerialController.Config
             if (path == string.Empty)
                 return false;
 
-            var parts = path.Split('.');
+            var parts = path.Split('\\').Last().Split('.');
             if (parts.Length == 1)
                 path += ".json";
 
