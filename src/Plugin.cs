@@ -181,7 +181,10 @@ namespace ToySerialController
 
                 _serial = new SerialPort(comPort, Convert.ToInt32(baudRate))
                 {
-                    ReadTimeout = 10
+                    ReadTimeout = 1000,
+                    WriteTimeout = 1000,
+                    DtrEnable = true,
+                    RtsEnable = true
                 };
                 _serial.Open();
 
