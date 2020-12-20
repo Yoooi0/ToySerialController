@@ -12,6 +12,7 @@ namespace ToySerialController.MotionSource
     public class MaleFemaleMotionSource : AbstractFemaleMotionSource
     {
         private float _penisLength;
+        private float _penisRadius;
         private Transform _penisOrigin;
         private Vector3 _planeNormal;
         private Vector3 _referencePosition;
@@ -27,6 +28,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 ReferenceRight => -_penisOrigin.forward;
         public override Vector3 ReferenceForward => _penisOrigin.right;
         public override float ReferenceLength => _penisLength;
+        public override float ReferenceRadius => _penisRadius;
         public override Vector3 ReferencePlaneNormal => _planeNormal;
 
         public override void CreateUI(IUIBuilder builder)
@@ -76,7 +78,8 @@ namespace ToySerialController.MotionSource
             var positionOffset = -_penisOrigin.up * (penisTransforms[1].position - penisTransforms[0].position).magnitude * 0.15f;
             _referencePosition = _penisOrigin.position + positionOffset;
             _penisLength += positionOffset.magnitude;
-            _penisLength += penisTransforms[3].GetComponent<CapsuleCollider>()?.radius ?? 0;
+            _penisLength += penisTransforms[3].GetComponent<CapsuleCollider>().radius;
+            _penisRadius = penisTransforms[1].GetComponent<CapsuleCollider>().radius;
 
             var pelvisRight = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFR3Joint")?.transform;
             var pelvidLeft = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFL3Joint")?.transform;

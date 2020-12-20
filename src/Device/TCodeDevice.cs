@@ -6,16 +6,16 @@ namespace ToySerialController
 {
     public class TCodeDevice : AbstractGenericDevice
     {
-        private JSONStorableFloat TCodeIntervalScaleSlider;
+        private JSONStorableFloat TCodeIntervalSlider;
 
         public override void CreateCustomUI(UIGroup group)
         {
-            TCodeIntervalScaleSlider = group.CreateSlider("Device:TCodeIntervalScale", "TCode Interval Scale", 0, 0, 2, true, true, true);
+            TCodeIntervalSlider = group.CreateSlider("Device:TCodeInterval", "TCode Interval (ms)", 3, 0, 16, true, true, true, "F0");
         }
 
         public override void Write(SerialPort serial, Vector3 xCmd, Vector3 rCmd, float[] vCmd)
         {
-            var ms = Mathf.RoundToInt(Time.fixedDeltaTime * 1000 * TCodeIntervalScaleSlider.val);
+            var ms = Mathf.RoundToInt(TCodeIntervalSlider.val);
             var interval = ms > 0 ? $"I{ms}" : string.Empty;
 
             var l0 = $"L0{TCodeNumber(xCmd.x)}{interval}";

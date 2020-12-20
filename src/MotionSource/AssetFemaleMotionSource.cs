@@ -5,6 +5,7 @@ using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
 using DebugUtils;
+using Leap.Unity;
 
 namespace ToySerialController.MotionSource
 {
@@ -14,6 +15,7 @@ namespace ToySerialController.MotionSource
         private Component _assetComponent;
 
         private float _assetLength;
+        private float _assetRadius;
         private Vector3 _assetPosition;
         private Vector3 _assetUp, _assetRight, _assetForward;
         private UIGroup _group;
@@ -28,6 +30,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 ReferenceRight => _assetRight;
         public override Vector3 ReferenceForward => _assetForward;
         public override float ReferenceLength => _assetLength;
+        public override float ReferenceRadius => _assetRadius;
         public override Vector3 ReferencePlaneNormal => _assetUp;
 
         public override void CreateUI(IUIBuilder builder)
@@ -109,6 +112,8 @@ namespace ToySerialController.MotionSource
             _assetUp = upRotation * transform.up;
             _assetRight = upRotation * transform.right;
             _assetForward = upRotation * transform.forward;
+
+            _assetRadius = Vector3.Project(transform.rotation * bounds.extents, _assetRight).magnitude;
 
             DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
             DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);

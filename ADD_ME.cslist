@@ -17,7 +17,6 @@ src\Config\IConfigProvider.cs
 src\Device\AbstractGenericDevice.cs
 src\Device\AbstractGenericDevice.UI.cs
 src\Device\IDevice.cs
-src\Device\RSMDevice.cs
 src\Device\TCodeDevice.cs
 src\MotionSource\AbstractFemaleMotionSource.cs
 src\MotionSource\AbstractRefreshableMotionSource.cs

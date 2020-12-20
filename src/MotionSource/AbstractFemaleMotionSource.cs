@@ -30,7 +30,7 @@ namespace ToySerialController.MotionSource
         public override void CreateUI(IUIBuilder builder)
         {
             var targets = new List<string> { "Auto", "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet" };
-            var defaultTarget = targets.First();
+            var defaultTarget = "Vagina";
 
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
             TargetChooser = builder.CreateScrollablePopup("MotionSource:FemaleTarget", "Select Target Point", targets, defaultTarget, null);

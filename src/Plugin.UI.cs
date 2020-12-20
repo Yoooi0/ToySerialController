@@ -63,7 +63,7 @@ namespace ToySerialController
             var hardwareGroup = new UIGroup(_group);
             var visible = false;
             HardwareTitle = _group.CreateButton("Hardware", () => hardwareGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
-            DeviceChooser = hardwareGroup.CreatePopup("Plugin:DeviceChooser", "Select device", new List<string> { "T-code", "RSM" }, "T-code", DeviceChooserCallback);
+            DeviceChooser = hardwareGroup.CreatePopup("Plugin:DeviceChooser", "Select device", new List<string> { "T-code" }, "T-code", DeviceChooserCallback);
             DeviceReportText = hardwareGroup.CreateTextField("Device Report", "", 290);
 
             ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", SerialPort.GetPortNames().ToList(), "None", null);
@@ -117,8 +117,6 @@ namespace ToySerialController
 
             if (s == "T-code")
                 _device = new TCodeDevice();
-            else if (s == "RSM")
-                _device = new RSMDevice();
             else
                 return;
 

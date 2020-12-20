@@ -15,61 +15,60 @@ namespace ToySerialController
         private UIDynamicButton MainTitle;
         private UIHorizontalGroup LimitsButtonGroup;
         private JSONStorableFloat SmoothingSlider;
-        private JSONStorableFloat ActivationDistanceSlider;
+        private JSONStorableFloat ReferenceLengthScaleSlider;
+        private JSONStorableFloat ReferenceRadiusScaleSlider;
 
-        private UIDynamicButton XAxisTitle;
-        private JSONStorableBool InvertXToggle;
-        private JSONStorableFloat OutputMaxXSlider;
-        private JSONStorableFloat OutputMinXSlider;
-        private JSONStorableBool EnableOverrideXToggle;
-        private JSONStorableFloat OverrideXSlider;
-        private JSONStorableFloat RangeMaxXSlider;
-        private JSONStorableFloat RangeMinXSlider;
-        private JSONStorableStringChooser ProjectXChooser;
+        private UIDynamicButton L0AxisTitle;
+        private JSONStorableBool InvertL0Toggle;
+        private JSONStorableFloat OutputMaxL0Slider;
+        private JSONStorableFloat OutputMinL0Slider;
+        private JSONStorableBool EnableOverrideL0Toggle;
+        private JSONStorableFloat OverrideL0Slider;
+        private JSONStorableFloat RangeMaxL0Slider;
+        private JSONStorableFloat RangeMinL0Slider;
+        private JSONStorableStringChooser ProjectL0Chooser;
 
-        private UIDynamicButton YAxisTitle;
-        private JSONStorableBool InvertYToggle;
-        private JSONStorableBool EnableOverrideYToggle;
-        private JSONStorableFloat OutputMaxYSlider;
-        private JSONStorableFloat AdjustYSlider;
-        private JSONStorableFloat OverrideYSlider;
-        private JSONStorableFloat RangeMaxYSlider;
+        private UIDynamicButton L1AxisTitle;
+        private JSONStorableBool InvertL1Toggle;
+        private JSONStorableBool EnableOverrideL1Toggle;
+        private JSONStorableFloat OutputMaxL1Slider;
+        private JSONStorableFloat OffsetL1Slider;
+        private JSONStorableFloat OverrideL1Slider;
+        private JSONStorableFloat RangeMaxL1Slider;
 
-        private UIDynamicButton ZAxisTitle;
-        private JSONStorableBool InvertZToggle;
-        private JSONStorableBool EnableOverrideZToggle;
-        private JSONStorableFloat OutputMaxZSlider;
-        private JSONStorableFloat OutputMaxRZSlider;
-        private JSONStorableFloat AdjustZSlider;
-        private JSONStorableFloat OverrideZSlider;
-        private JSONStorableFloat RangeMaxZSlider;
+        private UIDynamicButton L2AxisTitle;
+        private JSONStorableBool InvertL2Toggle;
+        private JSONStorableBool EnableOverrideL2Toggle;
+        private JSONStorableFloat OutputMaxL2Slider;
+        private JSONStorableFloat OffsetL2Slider;
+        private JSONStorableFloat OverrideL2Slider;
+        private JSONStorableFloat RangeMaxL2Slider;
 
-        private UIDynamicButton RXAxisTitle;
-        private JSONStorableBool InvertRXToggle;
-        private JSONStorableBool EnableOverrideRXToggle;
-        private JSONStorableFloat OverrideRXSlider;
-        private JSONStorableFloat OutputMaxRXSlider;
-        private UICurveEditor OutputRXCurveEditor;
-        private JSONStorableAnimationCurve OutputRXCurve;
-        private JSONStorableStringChooser OutputRXCurveXAxisChooser;
-        private AbstractGenericDeviceCurveSettings OutputRXCurveEditorSettings;
+        private UIDynamicButton R0AxisTitle;
+        private JSONStorableBool InvertR0Toggle;
+        private JSONStorableFloat OutputMaxR0Slider;
+        private JSONStorableBool EnableOverrideR0Toggle;
+        private JSONStorableFloat OffsetR0Slider;
+        private JSONStorableFloat OverrideR0Slider;
+        private JSONStorableFloat RangeMaxR0Slider;
 
-        private UIDynamicButton RYAxisTitle;
-        private JSONStorableBool InvertRYToggle;
-        private JSONStorableFloat OutputMaxRYSlider;
-        private JSONStorableBool EnableOverrideRYToggle;
-        private JSONStorableFloat AdjustRYSlider;
-        private JSONStorableFloat OverrideRYSlider;
-        private JSONStorableFloat RangeMaxRYSlider;
+        private UIDynamicButton R1AxisTitle;
+        private JSONStorableBool InvertR1Toggle;
+        private JSONStorableFloat OutputMaxR1Slider;
+        private JSONStorableBool EnableOverrideR1Toggle;
+        private JSONStorableFloat OffsetR1Slider;
+        private JSONStorableFloat OverrideR1Slider;
+        private JSONStorableFloat RangeMaxR1Slider;
 
-        private UIDynamicButton RZAxisTitle;
-        private JSONStorableBool InvertRZToggle;
-        private JSONStorableFloat AdjustRZSlider;
-        private JSONStorableFloat OverrideRZSlider;
-        private JSONStorableFloat RangeMaxRZSlider;
-        private JSONStorableBool EnableOverrideRZToggle;
+        private UIDynamicButton R2AxisTitle;
+        private JSONStorableBool InvertR2Toggle;
+        private JSONStorableFloat OutputMaxR2Slider;
+        private JSONStorableFloat OffsetR2Slider;
+        private JSONStorableFloat OverrideR2Slider;
+        private JSONStorableFloat RangeMaxR2Slider;
+        private JSONStorableBool EnableOverrideR2Toggle;
 
-        private UIDynamicButton Vibe0Title;
+        private UIDynamicButton V0AxisTitle;
         private UICurveEditor OutputV0CurveEditor;
         private JSONStorableAnimationCurve OutputV0Curve;
         private JSONStorableStringChooser OutputV0CurveXAxisChooser;
@@ -77,13 +76,21 @@ namespace ToySerialController
         private JSONStorableBool EnableOverrideV0Toggle;
         private AbstractGenericDeviceCurveSettings OutputV0CurveEditorSettings;
 
-        private UIDynamicButton Vibe1Title;
+        private UIDynamicButton V1AxisTitle;
         private UICurveEditor OutputV1CurveEditor;
         private JSONStorableAnimationCurve OutputV1Curve;
         private JSONStorableStringChooser OutputV1CurveXAxisChooser;
         private JSONStorableFloat OverrideV1Slider;
         private JSONStorableBool EnableOverrideV1Toggle;
         private AbstractGenericDeviceCurveSettings OutputV1CurveEditorSettings;
+
+        private UIDynamicButton L3AxisTitle;
+        private UICurveEditor OutputL3CurveEditor;
+        private JSONStorableAnimationCurve OutputL3Curve;
+        private JSONStorableStringChooser OutputL3CurveXAxisChooser;
+        private JSONStorableFloat OverrideL3Slider;
+        private JSONStorableBool EnableOverrideL3Toggle;
+        private AbstractGenericDeviceCurveSettings OutputL3CurveEditorSettings;
 
         private UIGroup _group;
 
@@ -96,29 +103,22 @@ namespace ToySerialController
 
             MainTitle = _group.CreateButton("Main", () => mainGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white, true);
 
-            LimitsButtonGroup = mainGroup.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => mainGroup.CreateButtonEx(), true);
-            var resetButton = LimitsButtonGroup.items[0].GetComponent<UIDynamicButton>();
-            resetButton.label = "Reset Limits";
-            resetButton.button.onClick.AddListener(PositionResetButtonCallback);
-            
-            var applyButton = LimitsButtonGroup.items[1].GetComponent<UIDynamicButton>();
-            applyButton.label = "Apply Limits";
-            applyButton.button.onClick.AddListener(PositionApplyButtonCallback);
-
-            SmoothingSlider = mainGroup.CreateSlider("Plugin:Smoothing", "Smoothing", 0.1f, 0.0f, 0.99f, true, true, true);
-            ActivationDistanceSlider = mainGroup.CreateSlider("Device:ActivationDistance", "Activation Distance", 1.1f, 0, 10, true, true, true);
+            SmoothingSlider = mainGroup.CreateSlider("Plugin:Smoothing", "Smoothing (%)", 0.1f, 0.0f, 0.99f, true, true, true, "P0");
+            ReferenceLengthScaleSlider = mainGroup.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 10, true, true, true, "P0");
+            ReferenceRadiusScaleSlider = mainGroup.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 10, true, true, true, "P0");
 
             CreateCustomUI(mainGroup);
             mainGroup.SetVisible(false);
 
-            CreateXAxisUI(_group);
-            CreateYAxisUI(_group);
-            CreateZAxisUI(_group);
-            CreateRXAxisUI(_group);
-            CreateRYAxisUI(_group);
-            CreateRZAxisUI(_group);
-            CreateVibe0UI(_group);
-            CreateVibe1UI(_group);
+            CreateL0AxisUI(_group);
+            CreateL1AxisUI(_group);
+            CreateL2AxisUI(_group);
+            CreateR0AxisUI(_group);
+            CreateR1AxisUI(_group);
+            CreateR2AxisUI(_group);
+            CreateV0AxisUI(_group);
+            CreateV1AxisUI(_group);
+            CreateL3AxisUI(_group);
         }
 
         public virtual void CreateCustomUI(UIGroup group) { }
@@ -127,7 +127,6 @@ namespace ToySerialController
         {
             _group.StoreConfig(config);
 
-            OutputRXCurveEditorSettings?.StoreConfig(config);
             OutputV0CurveEditorSettings?.StoreConfig(config);
             OutputV1CurveEditorSettings?.StoreConfig(config);
         }
@@ -136,117 +135,107 @@ namespace ToySerialController
         {
             _group.RestoreConfig(config);
 
-            OutputRXCurveEditorSettings?.RestoreConfig(config);
             OutputV0CurveEditorSettings?.RestoreConfig(config);
             OutputV1CurveEditorSettings?.RestoreConfig(config);
         }
 
-        private void CreateXAxisUI(IUIBuilder builder)
+        private void CreateL0AxisUI(IUIBuilder builder)
         {
-            var xGroup = new UIGroup(builder);
+            var l0Group = new UIGroup(builder);
             var visible = false;
-            XAxisTitle = builder.CreateButton("X Axis", () => xGroup.SetVisible(visible = !visible), Color.red * 0.8f, Color.white, true);
-            RangeMaxXSlider = xGroup.CreateSlider("Device:RangeMaxX", "Range Max", 1f, 0.01f, 1f, v => RangeMinXSlider.max = v - 0.01f, true, true, true);
-            RangeMinXSlider = xGroup.CreateSlider("Device:RangeMinX", "Range Min", 0f, 0f, 0.99f, v => RangeMaxXSlider.min = v + 0.01f, true, true, true);
-            OutputMaxXSlider = xGroup.CreateSlider("Device:OutputMaxX", "Output Max", 1f, 0f, 1f, v => OutputMinXSlider.max = v, true, true, true);
-            OutputMinXSlider = xGroup.CreateSlider("Device:OutputMinX", "Output Min", 0, 0f, 1f, v => OutputMaxXSlider.min = v, true, true, true);
-            InvertXToggle = xGroup.CreateToggle("Device:InvertX", "Invert", true, true);
-            EnableOverrideXToggle = xGroup.CreateToggle("Device:EnableOverrideX", "Enable Override", false, true);
-            OverrideXSlider = xGroup.CreateSlider("Device:OverrideX", "Override Value", 0.5f, 0f, 1f, true, true, true);
-            ProjectXChooser = xGroup.CreateScrollablePopup("Device:ProjectX", "Select Projection Axis", new List<string> { "Difference", "Reference Up", "Target Up" }, "Difference", null, true);
+            L0AxisTitle = builder.CreateButton("Up/Down | L0", () => l0Group.SetVisible(visible = !visible), Color.red * 0.8f, Color.white, true);
+            RangeMaxL0Slider = l0Group.CreateSlider("Device:RangeMaxL0", "Range Max (%)", 1f, 0.01f, 1f, v => RangeMinL0Slider.max = v - 0.01f, true, true, true, "P0");
+            RangeMinL0Slider = l0Group.CreateSlider("Device:RangeMinL0", "Range Min (%)", 0f, 0f, 0.99f, v => RangeMaxL0Slider.min = v + 0.01f, true, true, true, "P0");
+            OutputMaxL0Slider = l0Group.CreateSlider("Device:OutputMaxL0", "Output Max (%)", 1f, 0f, 1f, v => OutputMinL0Slider.max = v, true, true, true, "P0");
+            OutputMinL0Slider = l0Group.CreateSlider("Device:OutputMinL0", "Output Min (%)", 0, 0f, 1f, v => OutputMaxL0Slider.min = v, true, true, true, "P0");
+            InvertL0Toggle = l0Group.CreateToggle("Device:InvertL0", "Invert", true, true);
+            EnableOverrideL0Toggle = l0Group.CreateToggle("Device:EnableOverrideL0", "Enable Override", false, true);
+            OverrideL0Slider = l0Group.CreateSlider("Device:OverrideL0", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
+            ProjectL0Chooser = l0Group.CreateScrollablePopup("Device:ProjectL0", "Select Projection Axis", new List<string> { "Difference", "Reference Up", "Target Up" }, "Reference Up", null, true);
 
-            xGroup.SetVisible(false);
+            l0Group.SetVisible(false);
         }
 
-        private void CreateYAxisUI(IUIBuilder builder)
+        private void CreateL1AxisUI(IUIBuilder builder)
         {
-            var yGroup = new UIGroup(builder);
+            var l1Group = new UIGroup(builder);
             var visible = false;
-            YAxisTitle = builder.CreateButton("Y Axis", () => yGroup.SetVisible(visible = !visible), Color.green * 0.8f, Color.white, true);
-            RangeMaxYSlider = yGroup.CreateSlider("Device:RangeMaxY", "Range Max (+/-)", 0.15f, 0.01f, 1f, true, true, true);
-            OutputMaxYSlider = yGroup.CreateSlider("Device:OutputMaxY", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
-            AdjustYSlider = yGroup.CreateSlider("Device:AdjustY", "Adjust", 0f, -0.25f, 0.25f, true, true, true);
-            InvertYToggle = yGroup.CreateToggle("Device:InvertY", "Invert", false, true);
-            EnableOverrideYToggle = yGroup.CreateToggle("Device:EnableOverrideY", "Enable Override", false, true);
-            OverrideYSlider = yGroup.CreateSlider("Device:OverrideY", "Override Value", 0.5f, 0f, 1f, true, true, true);
+            L1AxisTitle = builder.CreateButton("Left/Right | L1", () => l1Group.SetVisible(visible = !visible), Color.green * 0.8f, Color.white, true);
+            RangeMaxL1Slider = l1Group.CreateSlider("Device:RangeMaxL1", "Range Max (+/- cm)", 0.15f, 0.01f, 1f, true, true, true, "P2");
+            OutputMaxL1Slider = l1Group.CreateSlider("Device:OutputMaxL1", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
+            OffsetL1Slider = l1Group.CreateSlider("Device:OffsetL1", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
+            InvertL1Toggle = l1Group.CreateToggle("Device:InvertL1", "Invert", false, true);
+            EnableOverrideL1Toggle = l1Group.CreateToggle("Device:EnableOverrideL1", "Enable Override", false, true);
+            OverrideL1Slider = l1Group.CreateSlider("Device:OverrideL1", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
 
-            yGroup.SetVisible(false);
+            l1Group.SetVisible(false);
         }
 
-        private void CreateZAxisUI(IUIBuilder builder)
+        private void CreateL2AxisUI(IUIBuilder builder)
         {
-            var zGroup = new UIGroup(builder);
+            var l2Group = new UIGroup(builder);
             var visible = false;
-            ZAxisTitle = builder.CreateButton("Z Axis", () => zGroup.SetVisible(visible = !visible), Color.blue * 0.8f, Color.white, true);
-            RangeMaxZSlider = zGroup.CreateSlider("Device:RangeMaxZ", "Range Max (+/-)", 0.15f, 0.01f, 1f, true, true, true);
-            OutputMaxZSlider = zGroup.CreateSlider("Device:OutputMaxZ", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
-            AdjustZSlider = zGroup.CreateSlider("Device:AdjustZ", "Adjust", 0f, -0.25f, 0.25f, true, true, true);
-            InvertZToggle = zGroup.CreateToggle("Device:InvertZ", "Invert", false, true);
-            EnableOverrideZToggle = zGroup.CreateToggle("Device:EnableOverrideZ", "Enable Override", false, true);
-            OverrideZSlider = zGroup.CreateSlider("Device:OverrideZ", "Override Value", 0.5f, 0f, 1f, true, true, true);
+            L2AxisTitle = builder.CreateButton("Forward/Backward | L2", () => l2Group.SetVisible(visible = !visible), Color.blue * 0.8f, Color.white, true);
+            RangeMaxL2Slider = l2Group.CreateSlider("Device:RangeMaxL2", "Range Max (+/- cm)", 0.15f, 0.01f, 1f, true, true, true, "P2");
+            OutputMaxL2Slider = l2Group.CreateSlider("Device:OutputMaxL2", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
+            OffsetL2Slider = l2Group.CreateSlider("Device:OffsetL2", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
+            InvertL2Toggle = l2Group.CreateToggle("Device:InvertL2", "Invert", false, true);
+            EnableOverrideL2Toggle = l2Group.CreateToggle("Device:EnableOverrideL2", "Enable Override", false, true);
+            OverrideL2Slider = l2Group.CreateSlider("Device:OverrideL2", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
 
-            zGroup.SetVisible(false);
+            l2Group.SetVisible(false);
         }
 
-        private void CreateRXAxisUI(IUIBuilder builder)
+        private void CreateR0AxisUI(IUIBuilder builder)
         {
-            var rxGroup = new UIGroup(builder);
+            var r0Group = new UIGroup(builder);
             var visible = false;
-            RXAxisTitle = builder.CreateButton("RX Axis", () =>
-            {
-                rxGroup.SetVisible(visible = !visible);
-                OutputRXCurveEditorSettings.SetVisible(visible);
-            }, Color.cyan * 0.8f, Color.white, true);
-            OutputRXCurveEditor = rxGroup.CreateCurveEditor(300, true);
-            OutputRXCurve = rxGroup.CreateCurve("Device:OutputRXCurve", OutputRXCurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 0.5f), new Keyframe(1, 0.5f, 0.5f, 0) });
-            OutputRXCurveEditor.SetDrawScale(OutputRXCurve, Vector2.one, new Vector2(0, 0.5f), true);
+            R0AxisTitle = builder.CreateButton("Twist | R0", () => r0Group.SetVisible(visible = !visible), Color.cyan * 0.8f, Color.white, true);
+            RangeMaxR0Slider = r0Group.CreateSlider("Device:RangeMaxR0", "Range Max (+/- \u00b0)", 90, 1, 179, true, true, true, "F0");
+            OutputMaxR0Slider = r0Group.CreateSlider("Device:OutputMaxR0", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
+            OffsetR0Slider = r0Group.CreateSlider("Device:OffsetR0", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
+            InvertR0Toggle = r0Group.CreateToggle("Device:InvertR0", "Invert", false, true);
+            EnableOverrideR0Toggle = r0Group.CreateToggle("Device:EnableOverrideR0", "Enable Override", false, true);
+            OverrideR0Slider = r0Group.CreateSlider("Device:OverrideR0", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
 
-            OutputRXCurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputRXCurveSettings", OutputRXCurveEditor, OutputRXCurve, new Vector2(0, 0.5f));
-            OutputRXCurveEditorSettings.CreateUI(rxGroup);
-
-            OutputMaxRXSlider = rxGroup.CreateSlider("Device:OutputMaxRX", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
-            InvertRXToggle = rxGroup.CreateToggle("Device:InvertRX", "Invert", false, true);
-            EnableOverrideRXToggle = rxGroup.CreateToggle("Device:EnableOverrideRX", "Enable Override", true, true);
-            OverrideRXSlider = rxGroup.CreateSlider("Device:OverrideRX", "Override Value", 0.5f, 0f, 1f, true, true, true);
-
-            rxGroup.SetVisible(false);
+            r0Group.SetVisible(false);
         }
 
-        private void CreateRYAxisUI(IUIBuilder builder)
+        private void CreateR1AxisUI(IUIBuilder builder)
         {
-            var ryGroup = new UIGroup(builder);
+            var r1Group = new UIGroup(builder);
             var visible = false;
-            RYAxisTitle = builder.CreateButton("RY Axis", () => ryGroup.SetVisible(visible = !visible), Color.magenta * 0.8f, Color.white, true);
-            RangeMaxRYSlider = ryGroup.CreateSlider("Device:RangeMaxRY", "Range Max (+/-)", 0.4f, 0.01f, 1f, true, true, true);
-            OutputMaxRYSlider = ryGroup.CreateSlider("Device:OutputMaxRY", "Output Max (+/-)", 0.5f, 0f, 0.5f, true, true, true);
-            AdjustRYSlider = ryGroup.CreateSlider("Device:AdjustRY", "Adjust", 0f, -0.25f, 0.25f, true, true, true);
-            InvertRYToggle = ryGroup.CreateToggle("Device:InvertRY", "Invert", false, true);
-            EnableOverrideRYToggle = ryGroup.CreateToggle("Device:EnableOverrideRY", "Enable Override", false, true);
-            OverrideRYSlider = ryGroup.CreateSlider("Device:OverrideRY", "Override Value", 0.5f, 0f, 1f, true, true, true);
+            R1AxisTitle = builder.CreateButton("Pitch | R1", () => r1Group.SetVisible(visible = !visible), Color.magenta * 0.8f, Color.white, true);
+            RangeMaxR1Slider = r1Group.CreateSlider("Device:RangeMaxR1", "Range Max (+/-  \u00b0)", 30, 1, 89, true, true, true, "F0");
+            OutputMaxR1Slider = r1Group.CreateSlider("Device:OutputMaxR1", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
+            OffsetR1Slider = r1Group.CreateSlider("Device:OffsetR1", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
+            InvertR1Toggle = r1Group.CreateToggle("Device:InvertR1", "Invert", false, true);
+            EnableOverrideR1Toggle = r1Group.CreateToggle("Device:EnableOverrideR1", "Enable Override", false, true);
+            OverrideR1Slider = r1Group.CreateSlider("Device:OverrideR1", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
 
-            ryGroup.SetVisible(false);
+            r1Group.SetVisible(false);
         }
 
-        private void CreateRZAxisUI(IUIBuilder builder)
+        private void CreateR2AxisUI(IUIBuilder builder)
         {
-            var rzGroup = new UIGroup(builder);
+            var r2Group = new UIGroup(builder);
             var visible = false;
-            RZAxisTitle = builder.CreateButton("RZ Axis", () => rzGroup.SetVisible(visible = !visible), Color.yellow * 0.8f, Color.white, true);
-            RangeMaxRZSlider = rzGroup.CreateSlider("Device:RangeMaxRZ", "Range Max (+/-)", 0.4f, 0.01f, 1f, true, true, true);
-            OutputMaxRZSlider = rzGroup.CreateSlider("Device:OutputMaxRZ", "Output Max (+/-)", 0.5f, 0.01f, 0.5f, true, true, true);
-            AdjustRZSlider = rzGroup.CreateSlider("Device:AdjustRZ", "Adjust", 0f, -0.25f, 0.25f, true, true, true);
-            InvertRZToggle = rzGroup.CreateToggle("Device:InvertRZ", "Invert", false, true);
-            EnableOverrideRZToggle = rzGroup.CreateToggle("Device:EnableOverrideRZ", "Enable Override", false, true);
-            OverrideRZSlider = rzGroup.CreateSlider("Device:OverrideRZ", "Override Value", 0.5f, 0f, 1f, true, true, true);
+            R2AxisTitle = builder.CreateButton("Roll | R2", () => r2Group.SetVisible(visible = !visible), Color.yellow * 0.8f, Color.white, true);
+            RangeMaxR2Slider = r2Group.CreateSlider("Device:RangeMaxR2", "Range Max (+/-  \u00b0)", 30, 1, 89, true, true, true, "F0");
+            OutputMaxR2Slider = r2Group.CreateSlider("Device:OutputMaxR2", "Output Max (+/- %)", 0.5f, 0.01f, 0.5f, true, true, true, "P0");
+            OffsetR2Slider = r2Group.CreateSlider("Device:OffsetR2", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
+            InvertR2Toggle = r2Group.CreateToggle("Device:InvertR2", "Invert", false, true);
+            EnableOverrideR2Toggle = r2Group.CreateToggle("Device:EnableOverrideR2", "Enable Override", false, true);
+            OverrideR2Slider = r2Group.CreateSlider("Device:OverrideR2", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
 
-            rzGroup.SetVisible(false);
+            r2Group.SetVisible(false);
         }
 
-        private void CreateVibe0UI(IUIBuilder builder)
+        private void CreateV0AxisUI(IUIBuilder builder)
         {
             var v0Group = new UIGroup(builder);
             var visible = false;
-            Vibe0Title = builder.CreateButton("Vibe 0", () => 
+            V0AxisTitle = builder.CreateButton("Custom 0 | V0", () => 
             { 
                 v0Group.SetVisible(visible = !visible);
                 OutputV0CurveEditorSettings.SetVisible(visible);
@@ -259,16 +248,16 @@ namespace ToySerialController
             OutputV0CurveEditorSettings.CreateUI(v0Group);
 
             EnableOverrideV0Toggle = v0Group.CreateToggle("Device:EnableOverrideV0", "Enable Override", true, true);
-            OverrideV0Slider = v0Group.CreateSlider("Device:OverrideV0", "Override Value", 0f, 0f, 1f, true, true, true);
+            OverrideV0Slider = v0Group.CreateSlider("Device:OverrideV0", "Override Value (%)", 0f, 0f, 1f, true, true, true, "P0");
 
             v0Group.SetVisible(false);
         }
 
-        private void CreateVibe1UI(IUIBuilder builder)
+        private void CreateV1AxisUI(IUIBuilder builder)
         {
             var v1Group = new UIGroup(builder);
             var visible = false;
-            Vibe1Title = builder.CreateButton("Vibe 1", () =>
+            V1AxisTitle = builder.CreateButton("Custom 1 | V1", () =>
             {
                 v1Group.SetVisible(visible = !visible);
                 OutputV1CurveEditorSettings.SetVisible(visible);
@@ -281,28 +270,31 @@ namespace ToySerialController
             OutputV1CurveEditorSettings.CreateUI(v1Group);
 
             EnableOverrideV1Toggle = v1Group.CreateToggle("Device:EnableOverrideV1", "Enable Override", true, true);
-            OverrideV1Slider = v1Group.CreateSlider("Device:OverrideV1", "Override Value", 0f, 0f, 1f, true, true, true);
+            OverrideV1Slider = v1Group.CreateSlider("Device:OverrideV1", "Override Value (%)", 0f, 0f, 1f, true, true, true, "P0");
 
             v1Group.SetVisible(false);
         }
 
-        protected void PositionResetButtonCallback()
+        private void CreateL3AxisUI(IUIBuilder builder)
         {
-            _xTargetMin = _xTargetMax = _xTarget;
-            _rTargetMin = _rTargetMax = _rTarget;
-        }
+            var l3Group = new UIGroup(builder);
+            var visible = false;
+            L3AxisTitle = builder.CreateButton("Valve | L3", () =>
+            {
+                l3Group.SetVisible(visible = !visible);
+                OutputL3CurveEditorSettings.SetVisible(visible);
+            }, new Color(0.4f, 0.4f, 0.4f), Color.white, true);
+            OutputL3CurveEditor = l3Group.CreateCurveEditor(300, true);
+            OutputL3Curve = l3Group.CreateCurve("Device:OutputL3Curve", OutputL3CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
+            OutputL3CurveEditor.SetDrawScale(OutputL3Curve, Vector2.one, Vector2.zero, true);
 
-        protected void PositionApplyButtonCallback()
-        {
-            RangeMaxXSlider.val = _xTargetMax.x;
-            RangeMinXSlider.val = _xTargetMin.x;
+            OutputL3CurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputL3CurveSettings", OutputL3CurveEditor, OutputL3Curve);
+            OutputL3CurveEditorSettings.CreateUI(l3Group);
 
-            RangeMaxYSlider.val = Math.Max(Math.Abs(_xTargetMax.y), Math.Abs(_xTargetMin.y));
-            RangeMaxZSlider.val = Math.Max(Math.Abs(_xTargetMax.z), Math.Abs(_xTargetMin.z));
+            EnableOverrideL3Toggle = l3Group.CreateToggle("Device:EnableOverrideL3", "Enable Override", true, true);
+            OverrideL3Slider = l3Group.CreateSlider("Device:OverrideL3", "Override Value (%)", 0f, 0f, 1f, true, true, true, "P0");
 
-            //RangeMaxRX.val = Math.Max(Math.Abs(_rTargetMax.x), Math.Abs(_rTargetMin.x));
-            RangeMaxRYSlider.val = Math.Max(Math.Abs(_rTargetMax.y), Math.Abs(_rTargetMin.y));
-            RangeMaxRZSlider.val = Math.Max(Math.Abs(_rTargetMax.z), Math.Abs(_rTargetMin.z));
+            l3Group.SetVisible(false);
         }
     }
 
@@ -333,10 +325,10 @@ namespace ToySerialController
 
         public void CreateUI(IUIBuilder builder)
         {
-            CurveXAxisChooser = builder.CreateScrollablePopup($"Device:{_name}:CurveXAxis", "Curve X Axis", new List<string> { "X", "Y", "Z", "Y+Z", "RX", "RY", "RZ", "RY+RZ", "X+RY+RZ", "Time" }, "X", CurveXAxisChooserCallback, true);
+            CurveXAxisChooser = builder.CreateScrollablePopup($"Device:{_name}:CurveXAxis", "Curve X Axis", new List<string> { "L0", "L1", "L2", "L1+L2", "R0", "R1", "R2", "R1+R2", "L0+R1+R2", "Time" }, "L0", CurveXAxisChooserCallback, true);
             CreateTimeUI(builder);
 
-            CurveXAxisChooserCallback("X");
+            CurveXAxisChooserCallback("L0");
         }
 
         private void CreateTimeUI(IUIBuilder builder)
@@ -356,6 +348,7 @@ namespace ToySerialController
             var timeSpanSlider = TimeSliderGroup.items[0].GetComponent<UIDynamicSlider>();
             timeSpanSlider.Configure("Time Span", TimeSpanSlider.min, TimeSpanSlider.max, TimeSpanSlider.defaultVal, valFormat: "F0", showQuickButtons: false);
             timeSpanSlider.defaultButtonEnabled = false;
+            timeSpanSlider.slider.wholeNumbers = true;
             TimeSpanSlider.slider = timeSpanSlider.slider;
 
             var timeScrubberSlider = TimeSliderGroup.items[1].GetComponent<UIDynamicSlider>();
@@ -432,15 +425,15 @@ namespace ToySerialController
         public float Evaluate(Vector3 xTarget, Vector3 rTarget)
         {
             var t = 0.0f;
-            if (CurveXAxisChooser.val == "X") t = Mathf.Clamp01(xTarget.x);
-            else if (CurveXAxisChooser.val == "Y") t = xTarget.y;
-            else if (CurveXAxisChooser.val == "Z") t = xTarget.z;
-            else if (CurveXAxisChooser.val == "Y+Z") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.y * xTarget.y + xTarget.z * xTarget.z));
-            else if (CurveXAxisChooser.val == "RX") t = Mathf.Clamp01(Mathf.Abs(rTarget.x));
-            else if (CurveXAxisChooser.val == "RY") t = Mathf.Clamp01(Mathf.Abs(rTarget.y));
-            else if (CurveXAxisChooser.val == "RZ") t = Mathf.Clamp01(Mathf.Abs(rTarget.z));
-            else if (CurveXAxisChooser.val == "RY+RZ") t = Mathf.Clamp01(Mathf.Sqrt(rTarget.y * rTarget.y + rTarget.z * rTarget.z));
-            else if (CurveXAxisChooser.val == "X+RY+RZ") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.x * xTarget.x + rTarget.y * rTarget.y + rTarget.z * rTarget.z));
+            if (CurveXAxisChooser.val == "L0") t = Mathf.Clamp01(xTarget.x);
+            else if (CurveXAxisChooser.val == "L1") t = xTarget.y;
+            else if (CurveXAxisChooser.val == "L2") t = xTarget.z;
+            else if (CurveXAxisChooser.val == "L1+L2") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.y * xTarget.y + xTarget.z * xTarget.z));
+            else if (CurveXAxisChooser.val == "R0") t = Mathf.Clamp01(0.5f + rTarget.x);
+            else if (CurveXAxisChooser.val == "R1") t = Mathf.Clamp01(Mathf.Abs(rTarget.y));
+            else if (CurveXAxisChooser.val == "R2") t = Mathf.Clamp01(Mathf.Abs(rTarget.z));
+            else if (CurveXAxisChooser.val == "R1+R2") t = Mathf.Clamp01(Mathf.Sqrt(rTarget.y * rTarget.y + rTarget.z * rTarget.z));
+            else if (CurveXAxisChooser.val == "L0+R1+R2") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.x * xTarget.x + rTarget.y * rTarget.y + rTarget.z * rTarget.z));
             else if (CurveXAxisChooser.val == "Time")
             {
                 var timeLimit = TimeSpanSlider.val;

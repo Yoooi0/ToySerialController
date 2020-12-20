@@ -13,6 +13,7 @@ namespace ToySerialController.MotionSource
         private Transform _animatedObject;
 
         private float _referenceLength;
+        private float _referenceRadius;
 
         private Vector3 _targetPosition;
         private Vector3 _targetUp, _targetRight, _targetForward;
@@ -26,6 +27,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 ReferenceRight => _animatedObject.right;
         public override Vector3 ReferenceForward => _animatedObject.forward;
         public override float ReferenceLength => _referenceLength;
+        public override float ReferenceRadius => _referenceRadius;
         public override Vector3 ReferencePlaneNormal => _targetUp;
 
         public override Vector3 TargetPosition => _targetPosition;
@@ -87,6 +89,7 @@ namespace ToySerialController.MotionSource
 
             var bounds = new Bounds((min + max) / 2, max - min);
             _referenceLength = bounds.extents.y * 2;
+            _referenceRadius = Mathf.Sqrt(bounds.extents.x * bounds.extents.x + bounds.extents.z * bounds.extents.z);
             _targetPosition = transform.position + transform.rotation * (bounds.center + bounds.extents.y * Vector3.up);
 
             DebugDraw.DrawTransform(_animatedObject, 0.15f);
