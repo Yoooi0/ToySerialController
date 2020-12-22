@@ -10,7 +10,7 @@ namespace ToySerialController.UI
 {
     public class UIBuilder : IUIBuilder
     {
-        protected MVRScript Plugin { get; private set; }
+        protected MVRScript Plugin { get; }
 
         public UIBuilder(MVRScript plugin)
         {
@@ -93,7 +93,6 @@ namespace ToySerialController.UI
 
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, bool rightSide = false)
             => CreateTextField(paramName, startingValue, height, null, rightSide);
-
 
         public JSONStorableBool CreateToggle(string paramName, string label, bool startingValue, JSONStorableBool.SetBoolCallback callback, bool rightSide = false)
         {

@@ -186,7 +186,7 @@ namespace ToySerialController.MotionSource
         private bool UpdateHandTarget(string side)
         {
             var carpal = _femaleAtom.GetRigidBodyByName($"{side}Carpal2");
-            var fingerBase = carpal?.GetComponentByName<CapsuleCollider>($"_Collider3");
+            var fingerBase = carpal?.GetComponentByName<CapsuleCollider>("_Collider3");
             var fingerTip = _femaleAtom.GetRigidBodyByName($"{side}Pinky3").GetComponentInChildren<CapsuleCollider>();
 
             if (carpal == null || fingerBase == null || fingerTip == null)
@@ -242,7 +242,7 @@ namespace ToySerialController.MotionSource
         private bool UpdateFootTarget(string side)
         {
             var foot = _femaleAtom.GetRigidBodyByName($"{side}Foot");
-            var footBase = foot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+            var footBase = foot?.GetComponentByName<CapsuleCollider>("_Collider6");
 
             if (foot == null || footBase == null)
                 return false;
@@ -262,10 +262,10 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateFeetTarget()
         {
-            var leftFoot = _femaleAtom.GetRigidBodyByName($"lFoot");
-            var rightFoot = _femaleAtom.GetRigidBodyByName($"rFoot");
-            var leftFootBase = leftFoot?.GetComponentByName<CapsuleCollider>($"_Collider6");
-            var rightFootBase = rightFoot?.GetComponentByName<CapsuleCollider>($"_Collider6");
+            var leftFoot = _femaleAtom.GetRigidBodyByName("lFoot");
+            var rightFoot = _femaleAtom.GetRigidBodyByName("rFoot");
+            var leftFootBase = leftFoot?.GetComponentByName<CapsuleCollider>("_Collider6");
+            var rightFootBase = rightFoot?.GetComponentByName<CapsuleCollider>("_Collider6");
 
             if (leftFoot == null || rightFoot == null || leftFootBase == null || rightFootBase == null)
                 return false;

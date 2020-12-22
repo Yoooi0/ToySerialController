@@ -77,7 +77,6 @@ namespace ToySerialController.UI
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, bool rightSide = false)
             => CreateTextField(paramName, startingValue, height, null, rightSide);
 
-
         public JSONStorableBool CreateToggle(string paramName, string label, bool startingValue, JSONStorableBool.SetBoolCallback callback, bool rightSide = false)
         {
             var storable = _builder.CreateToggle(paramName, label, startingValue, callback, rightSide);
