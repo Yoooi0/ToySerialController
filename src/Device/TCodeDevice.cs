@@ -13,21 +13,22 @@ namespace ToySerialController
             TCodeIntervalSlider = group.CreateSlider("Device:TCodeInterval", "TCode Interval (ms)", 3, 0, 16, true, true, true, "F0");
         }
 
-        public override void Write(SerialPort serial, Vector3 xCmd, Vector3 rCmd, float[] vCmd)
+        public override void Write(SerialPort serial, float[] xCmd, float[] rCmd, float[] eCmd)
         {
             var ms = Mathf.RoundToInt(TCodeIntervalSlider.val);
             var interval = ms > 0 ? $"I{ms}" : string.Empty;
 
-            var l0 = $"L0{TCodeNumber(xCmd.x)}{interval}";
-            var l1 = $"L1{TCodeNumber(xCmd.y)}{interval}";
-            var l2 = $"L2{TCodeNumber(xCmd.z)}{interval}";
-            var r0 = $"R0{TCodeNumber(rCmd.x)}{interval}";
-            var r1 = $"R1{TCodeNumber(rCmd.y)}{interval}";
-            var r2 = $"R2{TCodeNumber(rCmd.z)}{interval}";
-            var v0 = $"V0{TCodeNumber(vCmd[0])}{interval}";
-            var v1 = $"V1{TCodeNumber(vCmd[1])}{interval}";
+            var l0 = $"L0{TCodeNumber(xCmd[0])}{interval}";
+            var l1 = $"L1{TCodeNumber(xCmd[1])}{interval}";
+            var l2 = $"L2{TCodeNumber(xCmd[2])}{interval}";
+            var r0 = $"R0{TCodeNumber(rCmd[0])}{interval}";
+            var r1 = $"R1{TCodeNumber(rCmd[1])}{interval}";
+            var r2 = $"R2{TCodeNumber(rCmd[2])}{interval}";
+            var v0 = $"V0{TCodeNumber(eCmd[0])}{interval}";
+            var v1 = $"V1{TCodeNumber(eCmd[1])}{interval}";
+            var l3 = $"L3{TCodeNumber(eCmd[2])}{interval}";
 
-            var data = $"{l0} {l1} {l2} {r0} {r1} {r2} {v0} {v1}\n";
+            var data = $"{l0} {l1} {l2} {r0} {r1} {r2} {v0} {v1} {l3}\n";
             serial.Write(data);
             SerialReport = data.Replace(' ', '\n');
         }

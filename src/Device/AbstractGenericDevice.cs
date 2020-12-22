@@ -8,9 +8,9 @@ namespace ToySerialController
 {
     public abstract partial class AbstractGenericDevice : IDevice
     {
-        private Vector3 _xTarget, _xTargetMax, _xTargetMin, _xCmd;
-        private Vector3 _rTarget, _rTargetMin, _rTargetMax, _rCmd;
-        private float[] _vCmd;
+        private Vector3 _xTarget, _xTargetMax, _xTargetMin;
+        private Vector3 _rTarget, _rTargetMin, _rTargetMax;
+        private readonly float[] _xCmd, _rCmd, _eCmd;
 
         protected string DeviceReport { get; set; }
         protected string SerialReport { get; set; }
@@ -22,7 +22,9 @@ namespace ToySerialController
         {
             _xTargetMax = _rTargetMax = Vector3.one * float.MinValue;
             _xTargetMin = _rTargetMin = Vector3.one * float.MaxValue;
-            _vCmd = new float[9];
+            _xCmd = new float[3];
+            _rCmd = new float[3];
+            _eCmd = new float[9];
         }
 
         public bool Update(IMotionSource motionSource)
@@ -84,6 +86,7 @@ namespace ToySerialController
             var r2t = 0.5f + (_rTarget.z / 2) / (RangeMaxR2Slider.val / 90);
             var v0t = OutputV0CurveEditorSettings.Evaluate(_xTarget, _rTarget);
             var v1t = OutputV1CurveEditorSettings.Evaluate(_xTarget, _rTarget);
+            var l3t = OutputV1CurveEditorSettings.Evaluate(_xTarget, _rTarget);
 
             l0t = Mathf.Clamp01(l0t);
             l1t = Mathf.Clamp01(l1t);
@@ -93,6 +96,7 @@ namespace ToySerialController
             r2t = Mathf.Clamp01(r2t);
             v0t = Mathf.Clamp01(v0t);
             v1t = Mathf.Clamp01(v1t);
+            l3t = Mathf.Clamp01(l3t);
 
             var l0CmdRaw = Mathf.Lerp(OutputMinL0Slider.val, OutputMaxL0Slider.val, l0t);
             var l1CmdRaw = OffsetL1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxL1Slider.val, OutputMaxL1Slider.val, l1t);
@@ -102,6 +106,7 @@ namespace ToySerialController
             var r2CmdRaw = OffsetR2Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR2Slider.val, OutputMaxR2Slider.val, r2t);
             var v0CmdRaw = v0t;
             var v1CmdRaw = v1t;
+            var l3CmdRaw = l3t;
 
             l0CmdRaw = Mathf.Clamp01(l0CmdRaw);
             l1CmdRaw = Mathf.Clamp01(l1CmdRaw);
@@ -111,6 +116,7 @@ namespace ToySerialController
             r2CmdRaw = Mathf.Clamp01(r2CmdRaw);
             v0CmdRaw = Mathf.Clamp01(v0CmdRaw);
             v1CmdRaw = Mathf.Clamp01(v1CmdRaw);
+            l3CmdRaw = Mathf.Clamp01(l3CmdRaw);
 
             if (InvertL0Toggle.val) l0CmdRaw = 1f - l0CmdRaw;
             if (InvertL1Toggle.val) l1CmdRaw = 1f - l1CmdRaw;
@@ -127,25 +133,28 @@ namespace ToySerialController
             if (EnableOverrideR2Toggle.val) r2CmdRaw = OverrideR2Slider.val;
             if (EnableOverrideV0Toggle.val) v0CmdRaw = OverrideV0Slider.val;
             if (EnableOverrideV1Toggle.val) v1CmdRaw = OverrideV1Slider.val;
+            if (EnableOverrideL3Toggle.val) v1CmdRaw = OverrideL3Slider.val;
 
-            _xCmd.x = Mathf.Lerp(_xCmd.x, l0CmdRaw, 1 - SmoothingSlider.val);
-            _xCmd.y = Mathf.Lerp(_xCmd.y, l1CmdRaw, 1 - SmoothingSlider.val);
-            _xCmd.z = Mathf.Lerp(_xCmd.z, l2CmdRaw, 1 - SmoothingSlider.val);
-            _rCmd.x = Mathf.Lerp(_rCmd.x, r0CmdRaw, 1 - SmoothingSlider.val);
-            _rCmd.y = Mathf.Lerp(_rCmd.y, r1CmdRaw, 1 - SmoothingSlider.val);
-            _rCmd.z = Mathf.Lerp(_rCmd.z, r2CmdRaw, 1 - SmoothingSlider.val);
-            _vCmd[0] = Mathf.Lerp(_vCmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
-            _vCmd[1] = Mathf.Lerp(_vCmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
+            _xCmd[0] = Mathf.Lerp(_xCmd[0], l0CmdRaw, 1 - SmoothingSlider.val);
+            _xCmd[1] = Mathf.Lerp(_xCmd[1], l1CmdRaw, 1 - SmoothingSlider.val);
+            _xCmd[2] = Mathf.Lerp(_xCmd[2], l2CmdRaw, 1 - SmoothingSlider.val);
+            _rCmd[0] = Mathf.Lerp(_rCmd[0], r0CmdRaw, 1 - SmoothingSlider.val);
+            _rCmd[1] = Mathf.Lerp(_rCmd[1], r1CmdRaw, 1 - SmoothingSlider.val);
+            _rCmd[2] = Mathf.Lerp(_rCmd[2], r2CmdRaw, 1 - SmoothingSlider.val);
+            _eCmd[0] = Mathf.Lerp(_eCmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
+            _eCmd[1] = Mathf.Lerp(_eCmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
+            _eCmd[2] = Mathf.Lerp(_eCmd[2], l3CmdRaw, 1 - SmoothingSlider.val);
 
             var s = "          Min      Cur      Max     Cmd\n";
-            s += string.Format("L0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.x, _xTarget.x, _xTargetMax.x, _xCmd.x);
-            s += string.Format("L1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.y, _xTarget.y, _xTargetMax.y, _xCmd.y);
-            s += string.Format("L2\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.z, _xTarget.z, _xTargetMax.z, _xCmd.z);
-            s += string.Format("R0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.x, _rTarget.x, _rTargetMax.x, _rCmd.x);
-            s += string.Format("R1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.y, _rTarget.y, _rTargetMax.y, _rCmd.y);
-            s += string.Format("R2\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.z, _rTarget.z, _rTargetMax.z, _rCmd.z);
-            s += string.Format("V0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _vCmd[0]);
-            s += string.Format("V1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}", 0, 0, 0, _vCmd[1]);
+            s += string.Format("L0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.x, _xTarget.x, _xTargetMax.x, _xCmd[0]);
+            s += string.Format("L1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.y, _xTarget.y, _xTargetMax.y, _xCmd[1]);
+            s += string.Format("L2\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.z, _xTarget.z, _xTargetMax.z, _xCmd[2]);
+            s += string.Format("R0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.x, _rTarget.x, _rTargetMax.x, _rCmd[0]);
+            s += string.Format("R1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.y, _rTarget.y, _rTargetMax.y, _rCmd[1]);
+            s += string.Format("R2\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.z, _rTarget.z, _rTargetMax.z, _rCmd[2]);
+            s += string.Format("V0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _eCmd[0]);
+            s += string.Format("V1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _eCmd[1]);
+            s += string.Format("L3\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}", 0, 0, 0, _eCmd[2]);
             DeviceReport = s;
 
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
@@ -154,10 +163,10 @@ namespace ToySerialController
             return true;
         }
 
-        public abstract void Write(SerialPort serial, Vector3 xCmd, Vector3 rCmd, float[] _vCmd);
+        public abstract void Write(SerialPort serial, float[] xCmd, float[] rCmd, float[] eCmd);
 
         public void Write(SerialPort serial)
-            => Write(serial, _xCmd, _rCmd, _vCmd);
+            => Write(serial, _xCmd, _rCmd, _eCmd);
 
         public void Dispose() => Dispose(true);
         protected virtual void Dispose(bool disposing) { }
