@@ -18,12 +18,12 @@ namespace ToySerialController.UI
 
             gameObject = new GameObject();
             gameObject.transform.SetParent(container.gameObject.transform, false);
-            
+
             var rectTransform = gameObject.AddComponent<RectTransform>();
             rectTransform.anchoredPosition = new Vector2(0, 0);
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-            
+
             var gridLayout = gameObject.AddComponent<GridLayoutGroup>();
             gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             gridLayout.constraintCount = count;

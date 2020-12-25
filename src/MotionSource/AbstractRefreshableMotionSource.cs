@@ -14,6 +14,7 @@ namespace ToySerialController.MotionSource
         public abstract Vector3 ReferenceRight { get; }
         public abstract Vector3 ReferenceForward { get; }
         public abstract float ReferenceLength { get; }
+        public abstract float ReferenceRadius { get; }
         public abstract Vector3 ReferencePlaneNormal { get; }
         public abstract Vector3 TargetPosition { get; }
         public abstract Vector3 TargetUp { get; }

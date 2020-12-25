@@ -13,6 +13,7 @@ namespace ToySerialController.MotionSource
         private Atom _dildoAtom;
 
         private float _dildoLength;
+        private float _dildoRadius;
         private Vector3 _dildoPosition;
         private Vector3 _dildoUp, _dildoRight, _dildoForward, _dildoPlaneNormal;
         private UIGroup _group;
@@ -26,6 +27,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 ReferenceRight => _dildoRight;
         public override Vector3 ReferenceForward => _dildoForward;
         public override float ReferenceLength => _dildoLength;
+        public override float ReferenceRadius => _dildoRadius;
         public override Vector3 ReferencePlaneNormal => _dildoPlaneNormal;
 
         public override void CreateUI(IUIBuilder builder)
@@ -76,6 +78,7 @@ namespace ToySerialController.MotionSource
 
             _dildoPosition = basePosition;
             _dildoLength = Vector3.Distance(basePosition, midPosition) + Vector3.Distance(midPosition, tipPosition);
+            _dildoRadius = midCollider.radius;
 
             _dildoUp = (tipPosition - midPosition).normalized;
             _dildoRight = -baseCollider.transform.right;

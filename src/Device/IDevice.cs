@@ -11,7 +11,6 @@ namespace ToySerialController
         bool Update(IMotionSource motionSource);
         void Write(SerialPort serial);
 
-        string GetSerialReport();
         string GetDeviceReport();
     }
 }
