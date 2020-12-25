@@ -15,7 +15,7 @@ namespace ToySerialController
 
         private UIDynamicButton PluginTitle, MotionSourceTitle, HardwareTitle;
         private JSONStorableStringChooser ComPortChooser, BaudRateChooser;
-        private JSONStorableStringChooser DeviceChooser, MotionSourceChooser;
+        private JSONStorableStringChooser MotionSourceChooser;
         private UIDynamicButton StartSerialButton, StopSerialButton;
         private JSONStorableString DeviceReportText;
         private JSONStorableBool DebugDrawEnableToggle;
@@ -59,7 +59,6 @@ namespace ToySerialController
             var hardwareGroup = new UIGroup(_group);
             var visible = false;
             HardwareTitle = _group.CreateButton("Hardware", () => hardwareGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
-            DeviceChooser = hardwareGroup.CreatePopup("Plugin:DeviceChooser", "Select device", new List<string> { "T-code" }, "T-code", DeviceChooserCallback);
 
             ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", SerialPort.GetPortNames().ToList(), "None", null);
             BaudRateChooser = hardwareGroup.CreatePopup("Plugin:BaudRateChooser", "Select baud rate", new List<string> { "9600", "19200", "38400", "74880", "115200", "230400", "250000" }, "115200", null);
@@ -110,11 +109,7 @@ namespace ToySerialController
             _device?.Dispose();
             _device = null;
 
-            if (s == "T-code")
-                _device = new TCodeDevice();
-            else
-                return;
-
+            _device = new TCodeDevice();
             _device.CreateUI(_builder);
         }
 

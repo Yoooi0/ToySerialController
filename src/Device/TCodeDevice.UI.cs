@@ -10,12 +10,13 @@ using UnityEngine;
 
 namespace ToySerialController
 {
-    public abstract partial class AbstractGenericDevice : IDevice
+    public partial class TCodeDevice : IDevice
     {
         private UIDynamicButton MainTitle;
         private JSONStorableFloat SmoothingSlider;
         private JSONStorableFloat ReferenceLengthScaleSlider;
         private JSONStorableFloat ReferenceRadiusScaleSlider;
+        private JSONStorableFloat TCodeIntervalSlider;
 
         private UIDynamicButton L0AxisTitle;
         private JSONStorableBool InvertL0Toggle;
@@ -97,16 +98,16 @@ namespace ToySerialController
             _group = new UIGroup(builder);
 
             var visible = false;
-            var mainGroup = new UIGroup(_group);
+            var group = new UIGroup(_group);
 
-            MainTitle = _group.CreateButton("Main", () => mainGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white, true);
+            MainTitle = _group.CreateButton("Main", () => group.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white, true);
 
-            SmoothingSlider = mainGroup.CreateSlider("Plugin:Smoothing", "Smoothing (%)", 0.1f, 0.0f, 0.99f, true, true, true, "P0");
-            ReferenceLengthScaleSlider = mainGroup.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 10, true, true, true, "P0");
-            ReferenceRadiusScaleSlider = mainGroup.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 10, true, true, true, "P0");
+            SmoothingSlider = group.CreateSlider("Plugin:Smoothing", "Smoothing (%)", 0.1f, 0.0f, 0.99f, true, true, true, "P0");
+            ReferenceLengthScaleSlider = group.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 10, true, true, true, "P0");
+            ReferenceRadiusScaleSlider = group.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 10, true, true, true, "P0");
+            TCodeIntervalSlider = group.CreateSlider("Device:TCodeInterval", "TCode Interval (ms)", 3, 0, 16, true, true, true, "F0");
 
-            CreateCustomUI(mainGroup);
-            mainGroup.SetVisible(false);
+            group.SetVisible(false);
 
             CreateL0AxisUI(_group);
             CreateL1AxisUI(_group);
