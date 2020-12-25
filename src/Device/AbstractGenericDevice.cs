@@ -8,28 +8,28 @@ namespace ToySerialController
 {
     public abstract partial class AbstractGenericDevice : IDevice
     {
-        private Vector3 _xTarget, _xTargetMax, _xTargetMin;
-        private Vector3 _rTarget, _rTargetMin, _rTargetMax;
-        private readonly float[] _xCmd, _rCmd, _eCmd;
+        protected readonly float[] XTarget, RTarget, ETarget;
+        protected readonly float[] XCmd, RCmd, ECmd;
 
         private float? _lastCollisionTime;
         private bool _lastCollisionSmoothingEnabled;
         private float _lastCollisionSmoothingStartTime, _lastCollisionSmoothingDuration;
 
         protected string DeviceReport { get; set; }
-        protected string SerialReport { get; set; }
-
         public string GetDeviceReport() => DeviceReport;
-        public string GetSerialReport() => SerialReport;
 
         protected AbstractGenericDevice()
         {
-            _xTargetMax = _rTargetMax = Vector3.one * float.MinValue;
-            _xTargetMin = _rTargetMin = Vector3.one * float.MaxValue;
-            _xCmd = new float[3];
-            _rCmd = new float[3];
-            _eCmd = new float[9];
+            XTarget = new float[3];
+            RTarget = new float[3];
+            ETarget = new float[9];
+
+            XCmd = new float[3];
+            RCmd = new float[3];
+            ECmd = new float[9];
         }
+
+        public abstract void Write(SerialPort serial);
 
         public bool Update(IMotionSource motionSource)
         {
@@ -49,52 +49,52 @@ namespace ToySerialController
                 var t = Mathf.Clamp(Vector3.Dot(motionSource.TargetPosition - motionSource.ReferencePosition, motionSource.ReferenceUp), 0f, length);
                 var closestPoint = motionSource.ReferencePosition + motionSource.ReferenceUp * t;
 
-                _xTarget.x = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
-                if (aboveTarget)
-                    _xTarget.x = _xTarget.x > 0 ? 1 : 0;
-                else if (Vector3.Magnitude(closestPoint - motionSource.TargetPosition) > radius)
+                if (Vector3.Magnitude(closestPoint - motionSource.TargetPosition) > radius)
                 {
                     if (_lastCollisionTime == null)
                         _lastCollisionTime = Time.time;
                     return false;
                 }
 
+                XTarget[0] = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
+                if (aboveTarget)
+                    XTarget[0] = XTarget[0] > 0 ? 1 : 0;
+
                 var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
                 var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
                 var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
-                _xTarget.y = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
-                _xTarget.z = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
+                XTarget[1] = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
+                XTarget[2] = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
             }
             else
             {
-                _xTarget = new Vector3(1, 0, 0);
+                SuperController.singleton.Message("diff");
+                XTarget[0] = 1;
+                XTarget[1] = 0;
+                XTarget[2] = 0;
             }
 
             var correctedRight = Vector3.ProjectOnPlane(motionSource.TargetRight, motionSource.ReferenceUp);
             if (Vector3.Dot(correctedRight, motionSource.ReferenceRight) < 0)
                 correctedRight -= 2 * Vector3.Project(correctedRight, motionSource.ReferenceRight);
 
-            _rTarget.x = Vector3.SignedAngle(motionSource.ReferenceRight, correctedRight, motionSource.ReferenceUp) / 180;
-            _rTarget.y = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceForward), motionSource.ReferenceForward) / 90;
-            _rTarget.z = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceRight), motionSource.ReferenceRight) / 90;
+            RTarget[0] = Vector3.SignedAngle(motionSource.ReferenceRight, correctedRight, motionSource.ReferenceUp) / 180;
+            RTarget[1] = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceForward), motionSource.ReferenceForward) / 90;
+            RTarget[2] = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceRight), motionSource.ReferenceRight) / 90;
 
-            for (var i = 0; i < 3; i++)
-            {
-                _xTargetMax[i] = Math.Max(_xTarget[i], _xTargetMax[i]);
-                _xTargetMin[i] = Math.Min(_xTarget[i], _xTargetMin[i]);
-                _rTargetMax[i] = Math.Max(_rTarget[i], _rTargetMax[i]);
-                _rTargetMin[i] = Math.Min(_rTarget[i], _rTargetMin[i]);
-            }
+            ETarget[0] = OutputV0CurveEditorSettings.Evaluate(XTarget, RTarget);
+            ETarget[1] = OutputV1CurveEditorSettings.Evaluate(XTarget, RTarget);
+            ETarget[2] = OutputL3CurveEditorSettings.Evaluate(XTarget, RTarget);
 
-            var l0t = (_xTarget.x - RangeMinL0Slider.val) / (RangeMaxL0Slider.val - RangeMinL0Slider.val);
-            var l1t = (_xTarget.y + RangeMaxL1Slider.val) / (2 * RangeMaxL1Slider.val);
-            var l2t = (_xTarget.z + RangeMaxL2Slider.val) / (2 * RangeMaxL2Slider.val);
-            var r0t = 0.5f + (_rTarget.x / 2) / (RangeMaxR0Slider.val / 180);
-            var r1t = 0.5f + (_rTarget.y / 2) / (RangeMaxR1Slider.val / 90);
-            var r2t = 0.5f + (_rTarget.z / 2) / (RangeMaxR2Slider.val / 90);
-            var v0t = OutputV0CurveEditorSettings.Evaluate(_xTarget, _rTarget);
-            var v1t = OutputV1CurveEditorSettings.Evaluate(_xTarget, _rTarget);
-            var l3t = OutputV1CurveEditorSettings.Evaluate(_xTarget, _rTarget);
+            var l0t = (XTarget[0] - RangeMinL0Slider.val) / (RangeMaxL0Slider.val - RangeMinL0Slider.val);
+            var l1t = (XTarget[1] + RangeMaxL1Slider.val) / (2 * RangeMaxL1Slider.val);
+            var l2t = (XTarget[2] + RangeMaxL2Slider.val) / (2 * RangeMaxL2Slider.val);
+            var r0t = 0.5f + (RTarget[0] / 2) / (RangeMaxR0Slider.val / 180);
+            var r1t = 0.5f + (RTarget[1] / 2) / (RangeMaxR1Slider.val / 90);
+            var r2t = 0.5f + (RTarget[2] / 2) / (RangeMaxR2Slider.val / 90);
+            var v0t = ETarget[0];
+            var v1t = ETarget[1];
+            var l3t = ETarget[2];
 
             l0t = Mathf.Clamp01(l0t);
             l1t = Mathf.Clamp01(l1t);
@@ -141,12 +141,12 @@ namespace ToySerialController
             if (EnableOverrideR2Toggle.val) r2CmdRaw = OverrideR2Slider.val;
             if (EnableOverrideV0Toggle.val) v0CmdRaw = OverrideV0Slider.val;
             if (EnableOverrideV1Toggle.val) v1CmdRaw = OverrideV1Slider.val;
-            if (EnableOverrideL3Toggle.val) v1CmdRaw = OverrideL3Slider.val;
+            if (EnableOverrideL3Toggle.val) l3CmdRaw = OverrideL3Slider.val;
 
             if (_lastCollisionTime != null)
             {
                 var noCollisionDuration = Time.time - _lastCollisionTime.Value;
-                _lastCollisionSmoothingDuration = Mathf.Clamp(noCollisionDuration, 0.5f, 4);
+                _lastCollisionSmoothingDuration = Mathf.Clamp(noCollisionDuration, 0.5f, 2);
                 _lastCollisionSmoothingStartTime = Time.time;
                 _lastCollisionSmoothingEnabled = true;
                 _lastCollisionTime = null;
@@ -161,50 +161,33 @@ namespace ToySerialController
                 }
                 else
                 {
-                    l0CmdRaw = Mathf.Lerp(_xCmd[0], l0CmdRaw, lastCollisionSmoothingT);
-                    l1CmdRaw = Mathf.Lerp(_xCmd[1], l1CmdRaw, lastCollisionSmoothingT);
-                    l2CmdRaw = Mathf.Lerp(_xCmd[2], l2CmdRaw, lastCollisionSmoothingT);
-                    r0CmdRaw = Mathf.Lerp(_rCmd[0], r0CmdRaw, lastCollisionSmoothingT);
-                    r1CmdRaw = Mathf.Lerp(_rCmd[1], r1CmdRaw, lastCollisionSmoothingT);
-                    r2CmdRaw = Mathf.Lerp(_rCmd[2], r2CmdRaw, lastCollisionSmoothingT);
-                    v0CmdRaw = Mathf.Lerp(_eCmd[0], v0CmdRaw, lastCollisionSmoothingT);
-                    v1CmdRaw = Mathf.Lerp(_eCmd[1], v1CmdRaw, lastCollisionSmoothingT);
-                    l3CmdRaw = Mathf.Lerp(_eCmd[2], l3CmdRaw, lastCollisionSmoothingT);
+                    l0CmdRaw = Mathf.Lerp(XCmd[0], l0CmdRaw, lastCollisionSmoothingT);
+                    l1CmdRaw = Mathf.Lerp(XCmd[1], l1CmdRaw, lastCollisionSmoothingT);
+                    l2CmdRaw = Mathf.Lerp(XCmd[2], l2CmdRaw, lastCollisionSmoothingT);
+                    r0CmdRaw = Mathf.Lerp(RCmd[0], r0CmdRaw, lastCollisionSmoothingT);
+                    r1CmdRaw = Mathf.Lerp(RCmd[1], r1CmdRaw, lastCollisionSmoothingT);
+                    r2CmdRaw = Mathf.Lerp(RCmd[2], r2CmdRaw, lastCollisionSmoothingT);
+                    v0CmdRaw = Mathf.Lerp(ECmd[0], v0CmdRaw, lastCollisionSmoothingT);
+                    v1CmdRaw = Mathf.Lerp(ECmd[1], v1CmdRaw, lastCollisionSmoothingT);
+                    l3CmdRaw = Mathf.Lerp(ECmd[2], l3CmdRaw, lastCollisionSmoothingT);
                 }
             }
 
-            _xCmd[0] = Mathf.Lerp(_xCmd[0], l0CmdRaw, 1 - SmoothingSlider.val);
-            _xCmd[1] = Mathf.Lerp(_xCmd[1], l1CmdRaw, 1 - SmoothingSlider.val);
-            _xCmd[2] = Mathf.Lerp(_xCmd[2], l2CmdRaw, 1 - SmoothingSlider.val);
-            _rCmd[0] = Mathf.Lerp(_rCmd[0], r0CmdRaw, 1 - SmoothingSlider.val);
-            _rCmd[1] = Mathf.Lerp(_rCmd[1], r1CmdRaw, 1 - SmoothingSlider.val);
-            _rCmd[2] = Mathf.Lerp(_rCmd[2], r2CmdRaw, 1 - SmoothingSlider.val);
-            _eCmd[0] = Mathf.Lerp(_eCmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
-            _eCmd[1] = Mathf.Lerp(_eCmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
-            _eCmd[2] = Mathf.Lerp(_eCmd[2], l3CmdRaw, 1 - SmoothingSlider.val);
-
-            var s = "          Min      Cur      Max     Cmd\n";
-            s += string.Format("L0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.x, _xTarget.x, _xTargetMax.x, _xCmd[0]);
-            s += string.Format("L1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.y, _xTarget.y, _xTargetMax.y, _xCmd[1]);
-            s += string.Format("L2\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _xTargetMin.z, _xTarget.z, _xTargetMax.z, _xCmd[2]);
-            s += string.Format("R0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.x, _rTarget.x, _rTargetMax.x, _rCmd[0]);
-            s += string.Format("R1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.y, _rTarget.y, _rTargetMax.y, _rCmd[1]);
-            s += string.Format("R2\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", _rTargetMin.z, _rTarget.z, _rTargetMax.z, _rCmd[2]);
-            s += string.Format("V0\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _eCmd[0]);
-            s += string.Format("V1\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}\n", 0, 0, 0, _eCmd[1]);
-            s += string.Format("L3\t{0,5:0.00},\t{1,5:0.00},\t{2,5:0.00},\t{3,5:0.00}", 0, 0, 0, _eCmd[2]);
-            DeviceReport = s;
+            XCmd[0] = Mathf.Lerp(XCmd[0], l0CmdRaw, 1 - SmoothingSlider.val);
+            XCmd[1] = Mathf.Lerp(XCmd[1], l1CmdRaw, 1 - SmoothingSlider.val);
+            XCmd[2] = Mathf.Lerp(XCmd[2], l2CmdRaw, 1 - SmoothingSlider.val);
+            RCmd[0] = Mathf.Lerp(RCmd[0], r0CmdRaw, 1 - SmoothingSlider.val);
+            RCmd[1] = Mathf.Lerp(RCmd[1], r1CmdRaw, 1 - SmoothingSlider.val);
+            RCmd[2] = Mathf.Lerp(RCmd[2], r2CmdRaw, 1 - SmoothingSlider.val);
+            ECmd[0] = Mathf.Lerp(ECmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
+            ECmd[1] = Mathf.Lerp(ECmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
+            ECmd[2] = Mathf.Lerp(ECmd[2], l3CmdRaw, 1 - SmoothingSlider.val);
 
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
 
             return true;
         }
-
-        public abstract void Write(SerialPort serial, float[] xCmd, float[] rCmd, float[] eCmd);
-
-        public void Write(SerialPort serial)
-            => Write(serial, _xCmd, _rCmd, _eCmd);
 
         public void Dispose() => Dispose(true);
         protected virtual void Dispose(bool disposing) { }

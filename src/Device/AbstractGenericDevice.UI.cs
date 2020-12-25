@@ -419,18 +419,18 @@ namespace ToySerialController
             _editor.UpdateCurve(_storable);
         }
 
-        public float Evaluate(Vector3 xTarget, Vector3 rTarget)
+        public float Evaluate(float[] xTarget, float[] rTarget)
         {
             var t = 0.0f;
-            if (CurveXAxisChooser.val == "L0") t = Mathf.Clamp01(xTarget.x);
-            else if (CurveXAxisChooser.val == "L1") t = xTarget.y;
-            else if (CurveXAxisChooser.val == "L2") t = xTarget.z;
-            else if (CurveXAxisChooser.val == "L1+L2") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.y * xTarget.y + xTarget.z * xTarget.z));
-            else if (CurveXAxisChooser.val == "R0") t = Mathf.Clamp01(0.5f + rTarget.x);
-            else if (CurveXAxisChooser.val == "R1") t = Mathf.Clamp01(Mathf.Abs(rTarget.y));
-            else if (CurveXAxisChooser.val == "R2") t = Mathf.Clamp01(Mathf.Abs(rTarget.z));
-            else if (CurveXAxisChooser.val == "R1+R2") t = Mathf.Clamp01(Mathf.Sqrt(rTarget.y * rTarget.y + rTarget.z * rTarget.z));
-            else if (CurveXAxisChooser.val == "L0+R1+R2") t = Mathf.Clamp01(Mathf.Sqrt(xTarget.x * xTarget.x + rTarget.y * rTarget.y + rTarget.z * rTarget.z));
+            if (CurveXAxisChooser.val == "L0") t = Mathf.Clamp01(xTarget[0]);
+            else if (CurveXAxisChooser.val == "L1") t = xTarget[1];
+            else if (CurveXAxisChooser.val == "L2") t = xTarget[2];
+            else if (CurveXAxisChooser.val == "L1+L2") t = Mathf.Clamp01(Mathf.Sqrt(xTarget[1] * xTarget[1] + xTarget[2] * xTarget[2]));
+            else if (CurveXAxisChooser.val == "R0") t = Mathf.Clamp01(0.5f + rTarget[0]);
+            else if (CurveXAxisChooser.val == "R1") t = Mathf.Clamp01(Mathf.Abs(rTarget[1]));
+            else if (CurveXAxisChooser.val == "R2") t = Mathf.Clamp01(Mathf.Abs(rTarget[2]));
+            else if (CurveXAxisChooser.val == "R1+R2") t = Mathf.Clamp01(Mathf.Sqrt(rTarget[1] * rTarget[1] + rTarget[2] * rTarget[2]));
+            else if (CurveXAxisChooser.val == "L0+R1+R2") t = Mathf.Clamp01(Mathf.Sqrt(xTarget[0] * xTarget[0] + rTarget[1] * rTarget[1] + rTarget[2] * rTarget[2]));
             else if (CurveXAxisChooser.val == "Time")
             {
                 var timeLimit = TimeSpanSlider.val;

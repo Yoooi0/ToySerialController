@@ -17,8 +17,8 @@ namespace ToySerialController
         private JSONStorableStringChooser ComPortChooser, BaudRateChooser;
         private JSONStorableStringChooser DeviceChooser, MotionSourceChooser;
         private UIDynamicButton StartSerialButton, StopSerialButton;
-        private JSONStorableString SerialReportText, DeviceReportText;
-        private JSONStorableBool RecordingToggle, DebugDrawEnableToggle;
+        private JSONStorableString DeviceReportText;
+        private JSONStorableBool DebugDrawEnableToggle;
 
         private UIHorizontalGroup PresetButtonGroup, SerialButtonGroup;
 
@@ -29,7 +29,6 @@ namespace ToySerialController
             _builder = new UIBuilder(this);
             _group = new UIGroup(_builder);
             _group.BlacklistStorable("Device Report");
-            _group.BlacklistStorable("Serial Report");
 
             PluginTitle = _group.CreateDisabledButton("Plugin", new Color(0.3f, 0.3f, 0.3f), Color.white);
 
@@ -55,16 +54,12 @@ namespace ToySerialController
             defaultButton.textColor = Color.white;
             defaultButton.button.onClick.AddListener(SaveDefaultConfigCallback);
 
-            RecordingToggle = _group.CreateToggle("Plugin:Recording", "Recording", false);
-            _group.BlacklistStorable("Plugin:Recording");
-
             DebugDrawEnableToggle = _group.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
 
             var hardwareGroup = new UIGroup(_group);
             var visible = false;
             HardwareTitle = _group.CreateButton("Hardware", () => hardwareGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
             DeviceChooser = hardwareGroup.CreatePopup("Plugin:DeviceChooser", "Select device", new List<string> { "T-code" }, "T-code", DeviceChooserCallback);
-            DeviceReportText = hardwareGroup.CreateTextField("Device Report", "", 290);
 
             ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", SerialPort.GetPortNames().ToList(), "None", null);
             BaudRateChooser = hardwareGroup.CreatePopup("Plugin:BaudRateChooser", "Select baud rate", new List<string> { "9600", "19200", "38400", "74880", "115200", "230400", "250000" }, "115200", null);
@@ -78,7 +73,7 @@ namespace ToySerialController
             stopSerialButton.label = "Stop Serial";
             stopSerialButton.button.onClick.AddListener(StopButtonCallback);
 
-            SerialReportText = hardwareGroup.CreateTextField("Serial Report", "", 290);
+            DeviceReportText = hardwareGroup.CreateTextField("Device Report", "", 320);
 
             hardwareGroup.SetVisible(false);
 
