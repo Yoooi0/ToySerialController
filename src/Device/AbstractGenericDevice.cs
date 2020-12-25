@@ -1,4 +1,4 @@
-﻿using DebugUtils;
+using DebugUtils;
 using System;
 using System.IO.Ports;
 using ToySerialController.MotionSource;
@@ -11,6 +11,10 @@ namespace ToySerialController
         private Vector3 _xTarget, _xTargetMax, _xTargetMin;
         private Vector3 _rTarget, _rTargetMin, _rTargetMax;
         private readonly float[] _xCmd, _rCmd, _eCmd;
+
+        private float? _lastCollisionTime;
+        private bool _lastCollisionSmoothingEnabled;
+        private float _lastCollisionSmoothingStartTime, _lastCollisionSmoothingDuration;
 
         protected string DeviceReport { get; set; }
         protected string SerialReport { get; set; }
@@ -49,7 +53,11 @@ namespace ToySerialController
                 if (aboveTarget)
                     _xTarget.x = _xTarget.x > 0 ? 1 : 0;
                 else if (Vector3.Magnitude(closestPoint - motionSource.TargetPosition) > radius)
+                {
+                    if (_lastCollisionTime == null)
+                        _lastCollisionTime = Time.time;
                     return false;
+                }
 
                 var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
                 var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
@@ -134,6 +142,36 @@ namespace ToySerialController
             if (EnableOverrideV0Toggle.val) v0CmdRaw = OverrideV0Slider.val;
             if (EnableOverrideV1Toggle.val) v1CmdRaw = OverrideV1Slider.val;
             if (EnableOverrideL3Toggle.val) v1CmdRaw = OverrideL3Slider.val;
+
+            if (_lastCollisionTime != null)
+            {
+                var noCollisionDuration = Time.time - _lastCollisionTime.Value;
+                _lastCollisionSmoothingDuration = Mathf.Clamp(noCollisionDuration, 0.5f, 4);
+                _lastCollisionSmoothingStartTime = Time.time;
+                _lastCollisionSmoothingEnabled = true;
+                _lastCollisionTime = null;
+            }
+
+            if (_lastCollisionSmoothingEnabled)
+            {
+                var lastCollisionSmoothingT = Mathf.Pow(2, 10 * ((Time.time - _lastCollisionSmoothingStartTime) / _lastCollisionSmoothingDuration - 1));
+                if (lastCollisionSmoothingT >= 1.0f)
+                {
+                    _lastCollisionSmoothingEnabled = false;
+                }
+                else
+                {
+                    l0CmdRaw = Mathf.Lerp(_xCmd[0], l0CmdRaw, lastCollisionSmoothingT);
+                    l1CmdRaw = Mathf.Lerp(_xCmd[1], l1CmdRaw, lastCollisionSmoothingT);
+                    l2CmdRaw = Mathf.Lerp(_xCmd[2], l2CmdRaw, lastCollisionSmoothingT);
+                    r0CmdRaw = Mathf.Lerp(_rCmd[0], r0CmdRaw, lastCollisionSmoothingT);
+                    r1CmdRaw = Mathf.Lerp(_rCmd[1], r1CmdRaw, lastCollisionSmoothingT);
+                    r2CmdRaw = Mathf.Lerp(_rCmd[2], r2CmdRaw, lastCollisionSmoothingT);
+                    v0CmdRaw = Mathf.Lerp(_eCmd[0], v0CmdRaw, lastCollisionSmoothingT);
+                    v1CmdRaw = Mathf.Lerp(_eCmd[1], v1CmdRaw, lastCollisionSmoothingT);
+                    l3CmdRaw = Mathf.Lerp(_eCmd[2], l3CmdRaw, lastCollisionSmoothingT);
+                }
+            }
 
             _xCmd[0] = Mathf.Lerp(_xCmd[0], l0CmdRaw, 1 - SmoothingSlider.val);
             _xCmd[1] = Mathf.Lerp(_xCmd[1], l1CmdRaw, 1 - SmoothingSlider.val);
