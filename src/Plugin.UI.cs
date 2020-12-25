@@ -14,7 +14,7 @@ namespace ToySerialController
         private UIGroup _group;
 
         private UIDynamicButton PluginTitle, MotionSourceTitle, HardwareTitle;
-        private JSONStorableStringChooser ComPortChooser, BaudRateChooser;
+        private JSONStorableStringChooser ComPortChooser;
         private JSONStorableStringChooser MotionSourceChooser;
         private UIDynamicButton StartSerialButton, StopSerialButton;
         private JSONStorableString DeviceReportText;
@@ -61,7 +61,6 @@ namespace ToySerialController
             HardwareTitle = _group.CreateButton("Hardware", () => hardwareGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
 
             ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", SerialPort.GetPortNames().ToList(), "None", null);
-            BaudRateChooser = hardwareGroup.CreatePopup("Plugin:BaudRateChooser", "Select baud rate", new List<string> { "9600", "19200", "38400", "74880", "115200", "230400", "250000" }, "115200", null);
 
             SerialButtonGroup = hardwareGroup.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateButtonEx());
             var startSerialButton = SerialButtonGroup.items[0].GetComponent<UIDynamicButton>();

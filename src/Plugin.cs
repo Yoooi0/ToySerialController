@@ -107,14 +107,13 @@ namespace ToySerialController
 
         private void StartSerial()
         {
-            var comPort = ComPortChooser.val;
-            var baudRate = BaudRateChooser.val;
-            if (comPort != "None")
+            var portName = ComPortChooser.val;
+            if (portName != "None")
             {
-                if (comPort.Substring(0, 3) == "COM" && comPort.Length != 4)
-                    comPort = $@"\\.\{comPort}";
+                if (portName.Substring(0, 3) == "COM" && portName.Length != 4)
+                    portName = $@"\\.\{portName}";
 
-                _serial = new SerialPort(comPort, Convert.ToInt32(baudRate))
+                _serial = new SerialPort(portName, 115200)
                 {
                     ReadTimeout = 1000,
                     WriteTimeout = 1000,
@@ -123,7 +122,7 @@ namespace ToySerialController
                 };
                 _serial.Open();
 
-                SuperController.LogMessage($"Serial connection started: {comPort}, baud {baudRate}");
+                SuperController.LogMessage($"Serial connection started: {portName}");
             }
         }
 
