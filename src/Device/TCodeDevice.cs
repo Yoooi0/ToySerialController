@@ -25,8 +25,8 @@ namespace ToySerialController
             RTarget = new float[3];
             ETarget = new float[9];
 
-            XCmd = new float[3];
-            RCmd = new float[3];
+            XCmd = new float[] { 0.5f, 0.5f, 0.5f };
+            RCmd = new float[] { 0.5f, 0.5f, 0.5f };
             ECmd = new float[9];
         }
 
