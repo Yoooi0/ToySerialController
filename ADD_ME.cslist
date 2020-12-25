@@ -14,11 +14,9 @@ lib\vam-debug-utils\DebugLog.cs
 lib\vam-debug-utils\LineDrawer.cs
 src\Config\ConfigManager.cs
 src\Config\IConfigProvider.cs
-src\Device\AbstractGenericDevice.cs
-src\Device\AbstractGenericDevice.UI.cs
 src\Device\IDevice.cs
-src\Device\RSMDevice.cs
 src\Device\TCodeDevice.cs
+src\Device\TCodeDevice.UI.cs
 src\MotionSource\AbstractFemaleMotionSource.cs
 src\MotionSource\AbstractRefreshableMotionSource.cs
 src\MotionSource\AnimationMotionSource.cs
@@ -34,6 +32,7 @@ src\UI\IUIBuilder.cs
 src\UI\IUIProvider.cs
 src\UI\UIBuilder.cs
 src\UI\UIGroup.cs
+src\Utils\ComponentCache.cs
 src\Utils\Extensions.cs
 src\Utils\MathUtils.cs
 src\Utils\PInvoke.cs

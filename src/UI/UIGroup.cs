@@ -57,15 +57,15 @@ namespace ToySerialController.UI
             return o;
         }
 
-        public JSONStorableFloat CreateSlider(string paramName, string label, float startingValue, float minValue, float maxValue, JSONStorableFloat.SetFloatCallback callback, bool constrain, bool interactable, bool rightSide = false)
+        public JSONStorableFloat CreateSlider(string paramName, string label, float startingValue, float minValue, float maxValue, JSONStorableFloat.SetFloatCallback callback, bool constrain, bool interactable, bool rightSide = false, string valueFormat = "F2")
         {
-            var storable = _builder.CreateSlider(paramName, label, startingValue, minValue, maxValue, callback, constrain, interactable, rightSide);
+            var storable = _builder.CreateSlider(paramName, label, startingValue, minValue, maxValue, callback, constrain, interactable, rightSide, valueFormat);
             _objects.Add(storable);
             return storable;
         }
 
-        public JSONStorableFloat CreateSlider(string paramName, string label, float startingValue, float minValue, float maxValue, bool constrain, bool interactable, bool rightSide = false)
-            => CreateSlider(paramName, label, startingValue, minValue, maxValue, null, constrain, interactable, rightSide);
+        public JSONStorableFloat CreateSlider(string paramName, string label, float startingValue, float minValue, float maxValue, bool constrain, bool interactable, bool rightSide = false, string valueFormat = "F2")
+            => CreateSlider(paramName, label, startingValue, minValue, maxValue, null, constrain, interactable, rightSide, valueFormat);
 
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, JSONStorableString.SetStringCallback callback, bool rightSide = false)
         {
@@ -76,7 +76,6 @@ namespace ToySerialController.UI
 
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, bool rightSide = false)
             => CreateTextField(paramName, startingValue, height, null, rightSide);
-
 
         public JSONStorableBool CreateToggle(string paramName, string label, bool startingValue, JSONStorableBool.SetBoolCallback callback, bool rightSide = false)
         {

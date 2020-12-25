@@ -6,11 +6,8 @@ namespace ToySerialController.Utils
 {
     public static class Extensions
     {
-        public static Rigidbody GetRigidBodyByName(this Atom atom, string name)
-            => atom.rigidbodies?.FirstOrDefault(b => b.name == name);
-
-        public static T GetComponentByName<T>(this Component component, string name) where T : Component
-            => component.GetComponentsInChildren<T>()?.FirstOrDefault(c => c.name == name);
+        public static Rigidbody GetRigidBodyByName(this Atom atom, string name) => ComponentCache.GetRigidbody(atom, name);
+        public static T GetComponentByName<T>(this Component component, string name) where T : Component => ComponentCache.GetComponent<T>(component, name);
 
         public static void Store(this JSONNode config, JSONStorableParam storable)
         {

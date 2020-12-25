@@ -1,5 +1,6 @@
 ﻿using SimpleJSON;
 using ToySerialController.UI;
+using ToySerialController.Utils;
 using UnityEngine;
 
 namespace ToySerialController.MotionSource
@@ -13,6 +14,7 @@ namespace ToySerialController.MotionSource
         public abstract Vector3 ReferenceRight { get; }
         public abstract Vector3 ReferenceForward { get; }
         public abstract float ReferenceLength { get; }
+        public abstract float ReferenceRadius { get; }
         public abstract Vector3 ReferencePlaneNormal { get; }
         public abstract Vector3 TargetPosition { get; }
         public abstract Vector3 TargetUp { get; }
@@ -25,7 +27,10 @@ namespace ToySerialController.MotionSource
 
         public virtual void CreateUI(IUIBuilder builder)
         {
-            RefreshButton = builder.CreateButton("Refresh", RefreshButtonCallback);
+            RefreshButton = builder.CreateButton("Refresh", () => {
+                ComponentCache.Clear();
+                RefreshButtonCallback();
+            });
             RefreshButton.buttonColor = new Color(0, 0.75f, 1f) * 0.8f;
             RefreshButton.textColor = Color.white;
         }

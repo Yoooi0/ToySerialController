@@ -118,12 +118,12 @@
     <Compile Include="src\UI\Control\UIHorizontalGroup.cs" />
     <Compile Include="src\UI\IUIBuilder.cs" />
     <Compile Include="src\UI\UIGroup.cs" />
-    <Compile Include="src\Device\RSMDevice.cs" />
     <Compile Include="src\Device\TCodeDevice.cs" />
     <Compile Include="src\Plugin.cs" />
     <Compile Include="src\Plugin.UI.cs" />
     <Compile Include="src\UI\IUIProvider.cs" />
     <Compile Include="src\UI\UIBuilder.cs" />
+    <Compile Include="src\Utils\ComponentCache.cs" />
     <Compile Include="src\Utils\Extensions.cs" />
     <Compile Include="src\Utils\MathUtils.cs" />
     <Compile Include="src\Utils\PInvoke.cs" />

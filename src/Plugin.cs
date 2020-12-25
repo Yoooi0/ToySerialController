@@ -23,10 +23,6 @@ namespace ToySerialController
         private bool _initialized;
         private int _physicsIteration;
 
-        private SafeFileHandle _recordingFile;
-        private float _recordingStart;
-        private string _lastRecordingBuffer;
-
         private SuperController Controller => SuperController.singleton;
 
         public override void Init()
@@ -66,7 +62,10 @@ namespace ToySerialController
 
         protected void Update()
         {
-            if (!_initialized)
+            if (SuperController.singleton.isLoading)
+                ComponentCache.Clear();
+
+            if (!_initialized || SuperController.singleton.isLoading)
                 return;
 
             DebugDraw.Draw();
@@ -76,14 +75,13 @@ namespace ToySerialController
 
         protected void FixedUpdate()
         {
-            if (!_initialized)
+            if (!_initialized || SuperController.singleton.isLoading)
                 return;
 
             if(_physicsIteration == 0)
                 DebugDraw.Clear();
 
             UpdateDevice();
-            UpdateRecording();
 
             if (_physicsIteration == 0)
                 DebugDraw.Enabled = false;
@@ -97,67 +95,8 @@ namespace ToySerialController
             {
                 if (_motionSource?.Update() == true && _device?.Update(_motionSource) == true)
                 {
-                    if (_serial?.IsOpen == true)
-                        _device.Write(_serial);
-
+                    _device.Write(_serial);
                     DeviceReportText.val = _device.GetDeviceReport() ?? string.Empty;
-                    SerialReportText.val = _device.GetSerialReport() ?? string.Empty;
-                }
-            }
-            catch (Exception e)
-            {
-                SuperController.LogError("Exception caught: " + e);
-            }
-        }
-
-        private void UpdateRecording()
-        {
-            try
-            {
-                if (_recordingFile == null)
-                {
-                    if (RecordingToggle.val)
-                    {
-                        if (!FileManagerSecure.DirectoryExists(PluginDir))
-                            PInvoke.MakeSureDirectoryPathExists(PluginDir);
-
-                        var recordingPath = $@"{PluginDir}\{DateTime.Now:yyyyMMddTHHmmss}_recording.txt";
-                        _recordingFile = PInvoke.CreateFile(recordingPath, 2, 0, IntPtr.Zero, 1, 128, IntPtr.Zero);
-
-                        if (_recordingFile == null || _recordingFile.IsInvalid)
-                            SuperController.LogError($"Failed to create \"{recordingPath}\"!");
-                        else
-                            SuperController.LogMessage($"Started recording to \"{recordingPath}\"!");
-
-                        _recordingStart = Time.time;
-                    }
-                }
-
-                if (_recordingFile != null && !_recordingFile.IsInvalid && !_recordingFile.IsClosed)
-                {
-                    if (RecordingToggle.val)
-                    {
-                        var buffer = SerialReportText.val.Replace('\n', ' ').Trim();
-                        if (!string.IsNullOrEmpty(buffer) && buffer != _lastRecordingBuffer)
-                        {
-                            var bytes = System.Text.Encoding.ASCII.GetBytes($"{(Time.time - _recordingStart)};{buffer}\r\n");
-                            var written = 0u;
-                            var result = PInvoke.WriteFile(_recordingFile.DangerousGetHandle(), bytes, (uint)bytes.Length, out written, IntPtr.Zero);
-
-                            if (!result || written != bytes.Length)
-                                SuperController.LogError($"Write to file failed!");
-
-                            _lastRecordingBuffer = buffer;
-                        }
-                    }
-                    else
-                    {
-                        _recordingFile.Close();
-                        _recordingFile.SetHandleAsInvalid();
-                        _recordingFile = null;
-
-                        SuperController.LogMessage($"Recording stopped!");
-                    }
                 }
             }
             catch (Exception e)
@@ -168,21 +107,22 @@ namespace ToySerialController
 
         private void StartSerial()
         {
-            var comPort = ComPortChooser.val;
-            var baudRate = BaudRateChooser.val;
-            if (comPort != "None")
+            var portName = ComPortChooser.val;
+            if (portName != "None")
             {
-                // Add extra characters for COM ports > 9
-                if (comPort.Substring(0, 3) == "COM" && comPort.Length != 4)
-                    comPort = $@"\\.\{comPort}";
+                if (portName.Substring(0, 3) == "COM" && portName.Length != 4)
+                    portName = $@"\\.\{portName}";
 
-                _serial = new SerialPort(comPort, Convert.ToInt32(baudRate))
+                _serial = new SerialPort(portName, 115200)
                 {
-                    ReadTimeout = 10
+                    ReadTimeout = 1000,
+                    WriteTimeout = 1000,
+                    DtrEnable = true,
+                    RtsEnable = true
                 };
                 _serial.Open();
 
-                SuperController.LogMessage($"Serial connection started: {comPort}, baud {baudRate}");
+                SuperController.LogMessage($"Serial connection started: {portName}");
             }
         }
 
