@@ -5,7 +5,6 @@ using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
 using DebugUtils;
-using Leap.Unity;
 
 namespace ToySerialController.MotionSource
 {

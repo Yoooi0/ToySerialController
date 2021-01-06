@@ -1,7 +1,6 @@
 using CurveEditor;
 using CurveEditor.UI;
 using SimpleJSON;
-using System;
 using System.Collections.Generic;
 using ToySerialController.Config;
 using ToySerialController.UI;
