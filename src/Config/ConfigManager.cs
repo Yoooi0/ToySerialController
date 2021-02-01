@@ -31,16 +31,23 @@ namespace ToySerialController.Config
             if (!CheckPath(ref path))
                 return;
 
+            var directory = FileManagerSecure.GetDirectoryName(path);
+            if (!FileManagerSecure.DirectoryExists(directory))
+                FileManagerSecure.CreateDirectory(directory);
+
             var config = new JSONClass();
             provider.StoreConfig(config);
-            Controller.SaveJSON(config, path);
+            Controller.SaveJSON(config, path, () => SuperController.LogMessage($"Saved config! \"{path}\""), null, null);
 
-            SuperController.LogMessage($"Saved config! \"{path}\"");
         }
 
         public static void LoadConfig(string path, IConfigProvider provider)
         {
             if (!CheckPath(ref path))
+                return;
+
+            var directory = FileManagerSecure.GetDirectoryName(path);
+            if (!FileManagerSecure.DirectoryExists(directory))
                 return;
 
             var config = Controller.LoadJSON(path);
@@ -51,8 +58,8 @@ namespace ToySerialController.Config
 
         private static void OpenDialog(string defaultPath, string filter, bool textEntry, uFileBrowser.FileBrowserCallback callback)
         {
-            if(!FileManagerSecure.DirectoryExists(defaultPath))
-                PInvoke.MakeSureDirectoryPathExists(defaultPath);
+            if (!FileManagerSecure.DirectoryExists(defaultPath))
+                FileManagerSecure.CreateDirectory(defaultPath);
 
             Controller.mediaFileBrowserUI.fileRemovePrefix = null;
             Controller.mediaFileBrowserUI.hideExtension = false;
