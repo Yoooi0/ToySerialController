@@ -1,7 +1,6 @@
 using CurveEditor;
 using CurveEditor.UI;
 using SimpleJSON;
-using System;
 using System.Collections.Generic;
 using ToySerialController.Config;
 using ToySerialController.UI;
@@ -203,7 +202,7 @@ namespace ToySerialController
         {
             var group = new UIGroup(builder);
             var visible = false;
-            R1AxisTitle = builder.CreateButton("Pitch | R1", () => group.SetVisible(visible = !visible), Color.magenta * 0.8f, Color.white, true);
+            R1AxisTitle = builder.CreateButton("Roll | R1", () => group.SetVisible(visible = !visible), Color.magenta * 0.8f, Color.white, true);
             RangeMaxR1Slider = group.CreateSlider("Device:RangeMaxR1", "Range Max (+/-  \u00b0)", 30, 1, 89, true, true, true, "F0");
             OutputMaxR1Slider = group.CreateSlider("Device:OutputMaxR1", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
             OffsetR1Slider = group.CreateSlider("Device:OffsetR1", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
@@ -218,7 +217,7 @@ namespace ToySerialController
         {
             var group = new UIGroup(builder);
             var visible = false;
-            R2AxisTitle = builder.CreateButton("Roll | R2", () => group.SetVisible(visible = !visible), Color.yellow * 0.8f, Color.white, true);
+            R2AxisTitle = builder.CreateButton("Pitch | R2", () => group.SetVisible(visible = !visible), Color.yellow * 0.8f, Color.white, true);
             RangeMaxR2Slider = group.CreateSlider("Device:RangeMaxR2", "Range Max (+/-  \u00b0)", 30, 1, 89, true, true, true, "F0");
             OutputMaxR2Slider = group.CreateSlider("Device:OutputMaxR2", "Output Max (+/- %)", 0.5f, 0.01f, 0.5f, true, true, true, "P0");
             OffsetR2Slider = group.CreateSlider("Device:OffsetR2", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");

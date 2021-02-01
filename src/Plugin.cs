@@ -5,9 +5,6 @@ using ToySerialController.Config;
 using ToySerialController.MotionSource;
 using DebugUtils;
 using ToySerialController.Utils;
-using MVR.FileManagementSecure;
-using Microsoft.Win32.SafeHandles;
-using UnityEngine;
 
 namespace ToySerialController
 {
