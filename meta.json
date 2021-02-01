@@ -46,7 +46,6 @@
       "Custom\\Scripts\\Yoooi\\ToySerialController\\src\\Utils\\ComponentCache.cs",
       "Custom\\Scripts\\Yoooi\\ToySerialController\\src\\Utils\\Extensions.cs",
       "Custom\\Scripts\\Yoooi\\ToySerialController\\src\\Utils\\MathUtils.cs",
-      "Custom\\Scripts\\Yoooi\\ToySerialController\\src\\Utils\\PInvoke.cs",
       "Custom\\Scripts\\Yoooi\\ToySerialController\\"
    ], 
    "dependencies" : { 
