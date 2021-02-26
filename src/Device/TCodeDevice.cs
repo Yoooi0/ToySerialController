@@ -1,5 +1,6 @@
 using DebugUtils;
 using System.IO.Ports;
+using System.Linq;
 using System.Text;
 using ToySerialController.MotionSource;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace ToySerialController
     {
         protected readonly float[] XTarget, RTarget, ETarget;
         protected readonly float[] XCmd, RCmd, ECmd;
+        protected readonly float[] LastXCmd, LastRCmd, LastECmd;
+        private readonly StringBuilder _stringBuilder;
 
         private float? _lastNoCollisionTime;
         private bool _lastNoCollisionSmoothingEnabled;
@@ -28,49 +31,54 @@ namespace ToySerialController
             RCmd = new float[] { 0.5f, 0.5f, 0.5f };
             ECmd = new float[9];
 
+            LastXCmd = new float[] { float.NaN, float.NaN, float.NaN };
+            LastRCmd = new float[] { float.NaN, float.NaN, float.NaN };
+            LastECmd = Enumerable.Range(0, 9).Select(_ => float.NaN).ToArray();
+
             _lastNoCollisionTime = Time.time;
+            _stringBuilder = new StringBuilder();
         }
 
         public void Write(SerialPort serial)
         {
-            var ms = Mathf.RoundToInt(TCodeIntervalSlider.val);
-            var interval = ms > 0 ? $"I{ms}" : string.Empty;
+            _stringBuilder.Length = 0;
+            var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
+            var l1 = AppendIfChanged(_stringBuilder, "L1", XCmd[1], ref LastXCmd[1]);
+            var l2 = AppendIfChanged(_stringBuilder, "L2", XCmd[2], ref LastXCmd[2]);
+            var r0 = AppendIfChanged(_stringBuilder, "R0", RCmd[0], ref LastRCmd[0]);
+            var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
+            var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
+            var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
+            var v1 = AppendIfChanged(_stringBuilder, "V1", ECmd[1], ref LastECmd[1]);
+            var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
 
-            var l0 = $"L0{TCodeNumber(XCmd[0])}{interval}";
-            var l1 = $"L1{TCodeNumber(XCmd[1])}{interval}";
-            var l2 = $"L2{TCodeNumber(XCmd[2])}{interval}";
-            var r0 = $"R0{TCodeNumber(RCmd[0])}{interval}";
-            var r1 = $"R1{TCodeNumber(RCmd[1])}{interval}";
-            var r2 = $"R2{TCodeNumber(RCmd[2])}{interval}";
-            var v0 = $"V0{TCodeNumber(ECmd[0])}{interval}";
-            var v1 = $"V1{TCodeNumber(ECmd[1])}{interval}";
-            var l3 = $"L3{TCodeNumber(ECmd[2])}{interval}";
-
-            var data = $"{l0} {l1} {l2} {r0} {r1} {r2} {v0} {v1} {l3}\n";
-            if (serial?.IsOpen == true)
+            var data = $"{_stringBuilder}\n";
+            if (serial?.IsOpen == true && !string.IsNullOrEmpty(data.Trim()))
                 serial.Write(data);
 
-            var sb = new StringBuilder();
-            sb.Append("        Target   Cmd      Serial\n");
-            sb.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
-            sb.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
-            sb.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
-            sb.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
-            sb.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
-            sb.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
-            sb.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
-            sb.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
-            sb.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
-            DeviceReport = sb.ToString();
+            _stringBuilder.Length = 0;
+            _stringBuilder.Append("        Target   Cmd      Serial\n");
+            _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
+            _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
+            _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
+            _stringBuilder.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
+            _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
+            _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
+            _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
+            _stringBuilder.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
+            _stringBuilder.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
+            DeviceReport = _stringBuilder.ToString();
         }
 
-        private string TCodeNumber(float input)
+        private string AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, ref float lastCmd)
         {
-            input = Mathf.Clamp(input, 0, 1) * 1000;
+            if (!float.IsNaN(lastCmd) && Mathf.Abs(lastCmd - cmd) * 999 < 1)
+                return string.Empty;
 
-            if (input >= 999f) return "999";
-            else if (input >= 1f) return input.ToString("000");
-            return "000";
+            lastCmd = cmd;
+            var command = $"{axisName}{Mathf.RoundToInt(Mathf.Clamp01(cmd) * 999):000}I{Mathf.RoundToInt(Time.deltaTime * 1000)}";
+            stringBuilder.Append(command).Append(" ");
+            return command;
         }
 
         public bool Update(IMotionSource motionSource)
