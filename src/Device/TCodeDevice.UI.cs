@@ -15,7 +15,6 @@ namespace ToySerialController
         private JSONStorableFloat SmoothingSlider;
         private JSONStorableFloat ReferenceLengthScaleSlider;
         private JSONStorableFloat ReferenceRadiusScaleSlider;
-        private JSONStorableFloat TCodeIntervalSlider;
 
         private UIDynamicButton L0AxisTitle;
         private JSONStorableBool InvertL0Toggle;
@@ -104,7 +103,6 @@ namespace ToySerialController
             SmoothingSlider = group.CreateSlider("Plugin:Smoothing", "Smoothing (%)", 0.1f, 0.0f, 0.99f, true, true, true, "P0");
             ReferenceLengthScaleSlider = group.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 10, true, true, true, "P0");
             ReferenceRadiusScaleSlider = group.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 10, true, true, true, "P0");
-            TCodeIntervalSlider = group.CreateSlider("Device:TCodeInterval", "TCode Interval (ms)", 3, 0, 16, true, true, true, "F0");
 
             group.SetVisible(false);
 
