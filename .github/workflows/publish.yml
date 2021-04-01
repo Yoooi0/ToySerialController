@@ -1,0 +1,39 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2        
+      with:
+          fetch-depth: 0
+    - name: Set Version
+      id: version
+      run: echo "VERSION=$(echo ${GITHUB_REF/refs\/tags\/v/})" >> $env:GITHUB_ENV
+    - name: Build
+      run: python build.py ${{ steps.version.outputs.VERSION }}
+    - name: Create Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ToySerialController v${{ steps.version.outputs.VERSION }}
+        draft: true
+        prerelease: false
+    - name: Upload Release Artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_name: Yoooi.ToySerialController.${{ steps.version.outputs.VERSION }}.var
+        asset_path: ./Yoooi.ToySerialController.${{ steps.version.outputs.VERSION }}.var
+        asset_content_type: application/zip
