@@ -282,6 +282,7 @@ namespace ToySerialController.MotionSource
 
             return true;
         }
+
         private void FindFemales()
         {
             var people = Controller.GetAtoms().Where(a => a.type == "Person");

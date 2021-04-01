@@ -15,8 +15,8 @@ lib\vam-debug-utils\LineDrawer.cs
 src\Config\ConfigManager.cs
 src\Config\IConfigProvider.cs
 src\Device\IDevice.cs
-src\Device\TCodeDevice.cs
 src\Device\TCodeDevice.UI.cs
+src\Device\TCodeDevice.cs
 src\MotionSource\AbstractFemaleMotionSource.cs
 src\MotionSource\AbstractRefreshableMotionSource.cs
 src\MotionSource\AnimationMotionSource.cs
@@ -25,8 +25,8 @@ src\MotionSource\DildoFemaleMotionSource.cs
 src\MotionSource\IMotionSource.cs
 src\MotionSource\MaleFemaleMotionSource.cs
 src\MotionSource\RangeTestMotionSource.cs
-src\Plugin.cs
 src\Plugin.UI.cs
+src\Plugin.cs
 src\UI\Control\UIHorizontalGroup.cs
 src\UI\IUIBuilder.cs
 src\UI\IUIProvider.cs
