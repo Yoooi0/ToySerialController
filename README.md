@@ -1,8 +1,8 @@
 <div align="center">
     <h1>ToySerialController</h1>
     <br/>
-    <img src=".github/assets/screenshot-1.png" width="500"/>
-    <img src=".github/assets/screenshot-2.png" width="500"/>
+    <img src=".github/assets/screenshot-1.png" width="400"/>
+    <img src=".github/assets/screenshot-2.png" width="400"/>
 </div>
 
 <br/>
