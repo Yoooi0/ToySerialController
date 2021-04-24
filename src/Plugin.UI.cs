@@ -15,7 +15,9 @@ namespace ToySerialController
 
         private UIDynamicButton PluginTitle, MotionSourceTitle, HardwareTitle;
         private JSONStorableStringChooser ComPortChooser;
-        private JSONStorableStringChooser MotionSourceChooser;
+        private JSONStorableString UdpAddress;
+        private JSONStorableString UdpPort;
+	private JSONStorableStringChooser MotionSourceChooser;
         private UIDynamicButton StartSerialButton, StopSerialButton;
         private JSONStorableString DeviceReportText;
         private JSONStorableBool DebugDrawEnableToggle;
@@ -60,7 +62,10 @@ namespace ToySerialController
             var visible = false;
             HardwareTitle = _group.CreateButton("Hardware", () => hardwareGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
 
-            ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", SerialPort.GetPortNames().ToList(), "None", null);
+            var serialPortList = new List<string> (SerialPort.GetPortNames().ToList());
+            serialPortList.Add("UDP");
+            ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", serialPortList, "None", null);
+
 
             SerialButtonGroup = hardwareGroup.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateButtonEx());
             var startSerialButton = SerialButtonGroup.items[0].GetComponent<UIDynamicButton>();

@@ -9,7 +9,7 @@ namespace ToySerialController
     public interface IDevice : IUIProvider, IConfigProvider, IDisposable
     {
         bool Update(IMotionSource motionSource);
-        void Write(SerialPort serial);
+        void Write(SerialWrapper serial);
 
         string GetDeviceReport();
     }

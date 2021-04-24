@@ -1,5 +1,4 @@
 using DebugUtils;
-using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using ToySerialController.MotionSource;
@@ -39,7 +38,7 @@ namespace ToySerialController
             _stringBuilder = new StringBuilder();
         }
 
-        public void Write(SerialPort serial)
+        public void Write(SerialWrapper serial)
         {
             _stringBuilder.Length = 0;
             var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
@@ -53,7 +52,7 @@ namespace ToySerialController
             var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
 
             var data = $"{_stringBuilder}\n";
-            if (serial?.IsOpen == true && !string.IsNullOrEmpty(data.Trim()))
+            if (serial?.IsOpen() == true && !string.IsNullOrEmpty(data.Trim()))
                 serial.Write(data);
 
             _stringBuilder.Length = 0;

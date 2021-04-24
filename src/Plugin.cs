@@ -1,5 +1,4 @@
 using System;
-using System.IO.Ports;
 using System.Linq;
 using ToySerialController.Config;
 using ToySerialController.MotionSource;
@@ -14,7 +13,7 @@ namespace ToySerialController
         public static readonly string PluginAuthor = "Yoooi";
         public static readonly string PluginDir = $@"Custom\Scripts\{PluginAuthor}\{PluginName.Replace(" ", "")}";
 
-        private SerialPort _serial;
+        private SerialWrapper _serial;
         private IDevice _device;
         private IMotionSource _motionSource;
         private bool _initialized;
@@ -105,12 +104,18 @@ namespace ToySerialController
         private void StartSerial()
         {
             var portName = ComPortChooser.val;
-            if (portName != "None")
+            if (portName == "UDP")
+            {
+                _serial = new UdpSerial(UdpAddress.ToString(), UdpPort.ToString());
+                _serial.Open();
+                SuperController.LogMessage($"UDP connection started: {UdpAddress}:{UdpPort}");
+            }
+            else if (portName != "None")
             {
                 if (portName.Substring(0, 3) == "COM" && portName.Length != 4)
                     portName = $@"\\.\{portName}";
 
-                _serial = new SerialPort(portName, 115200)
+                _serial = new SerialWrapper(portName, 115200)
                 {
                     ReadTimeout = 1000,
                     WriteTimeout = 1000,
@@ -125,7 +130,7 @@ namespace ToySerialController
 
         private void StopSerial()
         {
-            if (_serial?.IsOpen == true)
+            if (_serial?.IsOpen() == true)
             {
                 _serial.Close();
                 SuperController.LogMessage("Serial connection stopped");
