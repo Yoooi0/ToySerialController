@@ -65,7 +65,8 @@ namespace ToySerialController
             var serialPortList = new List<string> (SerialPort.GetPortNames().ToList());
             serialPortList.Add("UDP");
             ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", serialPortList, "None", null);
-
+            UdpAddress = hardwareGroup.CreateTextField("Plugin:UdpAddress", UdpAddress?.ToString(), 0);
+            UdpPort = hardwareGroup.CreateTextField("Plugin:UdpPort", UdpPort?.ToString(), 0);
 
             SerialButtonGroup = hardwareGroup.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateButtonEx());
             var startSerialButton = SerialButtonGroup.items[0].GetComponent<UIDynamicButton>();

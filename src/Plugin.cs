@@ -106,9 +106,9 @@ namespace ToySerialController
             var portName = ComPortChooser.val;
             if (portName == "UDP")
             {
-                _serial = new UdpSerial(UdpAddress.ToString(), UdpPort.ToString());
+                _serial = new UdpSerial(UdpAddress.val, UdpPort.val);
                 _serial.Open();
-                SuperController.LogMessage($"UDP connection started: {UdpAddress}:{UdpPort}");
+                SuperController.LogMessage($"UDP connection started: {UdpAddress.val}:{UdpPort.val}");
             }
             else if (portName != "None")
             {
