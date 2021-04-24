@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 import glob
@@ -8,12 +9,12 @@ if len(sys.argv) == 2:
 else:
     version = int(input('var version: '))
 
-cslistName = 'ADD_ME.cslist'
+cslistName = 'ToySerialController.cslist'
 varName = 'Yoooi.ToySerialController.{}.var'.format(version)
-zipPath = 'Custom\\Scripts\\Yoooi\\ToySerialController\\'
+zipPath = 'Custom/Scripts/Yoooi/ToySerialController/'
 
 print('Creating "{}"'.format(cslistName))
-with open('ADD_ME.cslist', 'w+', encoding='utf-8') as cslist:
+with open(cslistName, 'w+', encoding='utf-8') as cslist:
     for file in sorted(glob.glob('**/*.cs', recursive=True)):
         if not file.startswith('src') and not file.startswith('lib'):
             continue
@@ -25,7 +26,7 @@ print('Creating "{}"'.format(varName))
 with open(cslistName, 'r', encoding = 'utf-8') as cslist:
     with ZipFile(varName, 'w') as var:
         var.write('meta.json')
-        var.write('LICENSE')
+        var.write('LICENSE.md')
         var.write(cslistName, os.path.join(zipPath, cslistName))
         for file in [x.strip() for x in cslist]:
             var.write(file, os.path.join(zipPath, file))
