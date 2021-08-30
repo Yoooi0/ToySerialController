@@ -31,11 +31,14 @@ namespace ToySerialController.UI
             gridLayout.cellSize = new Vector2((width - spacing.x * (count - 1)) / count, height);
             gridLayout.childAlignment = TextAnchor.MiddleCenter;
 
-            for (var i = 0; i < count; i++)
+            if (itemCreator != null)
             {
-                var item = itemCreator(i);
-                item.gameObject.transform.SetParent(gridLayout.transform, false);
-                items.Add(item.gameObject);
+                for (var i = 0; i < count; i++)
+                {
+                    var item = itemCreator(i);
+                    item.gameObject.transform.SetParent(gridLayout.transform, false);
+                    items.Add(item.gameObject);
+                }
             }
         }
     }

@@ -1,10 +1,10 @@
 using System;
-using System.IO.Ports;
 using System.Linq;
 using ToySerialController.Config;
 using ToySerialController.MotionSource;
 using DebugUtils;
 using ToySerialController.Utils;
+using ToySerialController.UI;
 
 namespace ToySerialController
 {
@@ -14,7 +14,6 @@ namespace ToySerialController
         public static readonly string PluginAuthor = "Yoooi";
         public static readonly string PluginDir = $@"Custom\Scripts\{PluginAuthor}\{PluginName.Replace(" ", "")}";
 
-        private SerialPort _serial;
         private IDevice _device;
         private IMotionSource _motionSource;
         private bool _initialized;
@@ -25,6 +24,9 @@ namespace ToySerialController
         public override void Init()
         {
             base.Init();
+
+            UIManager.Initialize(this);
+
             try
             {
                 try
@@ -90,9 +92,9 @@ namespace ToySerialController
         {
             try
             {
-                if (_motionSource?.Update() == true && _device?.Update(_motionSource) == true)
+                if (_motionSource?.Update() == true)
                 {
-                    _device.Write(_serial);
+                    _device?.Update(_motionSource, _outputTarget);
                     DeviceReportText.val = _device.GetDeviceReport() ?? string.Empty;
                 }
             }
@@ -102,42 +104,11 @@ namespace ToySerialController
             }
         }
 
-        private void StartSerial()
-        {
-            var portName = ComPortChooser.val;
-            if (portName != "None")
-            {
-                if (portName.Substring(0, 3) == "COM" && portName.Length != 4)
-                    portName = $@"\\.\{portName}";
-
-                _serial = new SerialPort(portName, 115200)
-                {
-                    ReadTimeout = 1000,
-                    WriteTimeout = 1000,
-                    DtrEnable = true,
-                    RtsEnable = true
-                };
-                _serial.Open();
-
-                SuperController.LogMessage($"Serial connection started: {portName}");
-            }
-        }
-
-        private void StopSerial()
-        {
-            if (_serial?.IsOpen == true)
-            {
-                _serial.Close();
-                SuperController.LogMessage("Serial connection stopped");
-            }
-        }
-
         protected void OnDestroy()
         {
             try
             {
                 DebugDraw.Clear();
-                StopSerial();
                 _device?.Dispose();
             }
             catch (Exception e)

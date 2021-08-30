@@ -1,7 +1,6 @@
 ﻿using MVR.FileManagementSecure;
 using SimpleJSON;
 using System.Linq;
-using ToySerialController.Utils;
 
 namespace ToySerialController.Config
 {

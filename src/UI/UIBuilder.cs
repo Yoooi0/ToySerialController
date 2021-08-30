@@ -5,29 +5,23 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace ToySerialController.UI
 {
     public class UIBuilder : IUIBuilder
     {
-        protected MVRScript Plugin { get; }
-
-        public UIBuilder(MVRScript plugin)
-        {
-            Plugin = plugin;
-        }
-
         public JSONStorableStringChooser CreatePopup(string paramName, string label, List<string> values, string startingValue, JSONStorableStringChooser.SetStringCallback callback, bool scrollable, bool rightSide = false)
         {
             var storable = new JSONStorableStringChooser(paramName, values, startingValue, label, callback);
             if (!scrollable)
             {
-                var popup = Plugin.CreatePopup(storable, rightSide);
+                var popup = UIManager.CreatePopup(storable, rightSide);
                 popup.labelWidth = 300;
             }
             else
             {
-                var popup = Plugin.CreateScrollablePopup(storable, rightSide);
+                var popup = UIManager.CreateScrollablePopup(storable, rightSide);
                 popup.labelWidth = 300;
             }
 
@@ -42,14 +36,14 @@ namespace ToySerialController.UI
 
         public UIDynamicButton CreateButton(string label, UnityAction callback, bool rightSide = false)
         {
-            var button = Plugin.CreateButton(label, rightSide);
+            var button = UIManager.CreateButton(label, rightSide);
             button.button.onClick.AddListener(callback);
             return button;
         }
 
         public UIDynamicButton CreateButton(string label, UnityAction callback, Color buttonColor, Color textColor, bool rightSide = false)
         {
-            var button = Plugin.CreateButton(label, rightSide);
+            var button = UIManager.CreateButton(label, rightSide);
             button.button.onClick.AddListener(callback);
             button.buttonColor = buttonColor;
             button.textColor = textColor;
@@ -58,7 +52,7 @@ namespace ToySerialController.UI
 
         public UIDynamicButton CreateDisabledButton(string label, Color buttonColor, Color textColor, bool rightSide = false)
         {
-            var button = Plugin.CreateButton(label, rightSide);
+            var button = UIManager.CreateButton(label, rightSide);
             button.buttonColor = Color.white;
             button.textColor = textColor;
 
@@ -73,8 +67,8 @@ namespace ToySerialController.UI
         public JSONStorableFloat CreateSlider(string paramName, string label, float startingValue, float minValue, float maxValue, JSONStorableFloat.SetFloatCallback callback, bool constrain, bool interactable, bool rightSide = false, string valueFormat = "F2")
         {
             var storable = new JSONStorableFloat(paramName, startingValue, callback, minValue, maxValue, constrain, interactable);
-            Plugin.RegisterFloat(storable);
-            var slider = Plugin.CreateSlider(storable, rightSide);
+            UIManager.RegisterFloat(storable);
+            var slider = UIManager.CreateSlider(storable, rightSide);
             slider.label = label;
             slider.valueFormat = valueFormat;
             return storable;
@@ -86,18 +80,30 @@ namespace ToySerialController.UI
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, JSONStorableString.SetStringCallback callback, bool rightSide = false)
         {
             var storable = new JSONStorableString(paramName, startingValue, callback);
-            var textField = Plugin.CreateTextField(storable, rightSide);
-            textField.height = height;
+            var textField = UIManager.CreateTextField(storable, rightSide);
+
+            UIManager.RegisterString(storable);
+
+            var layoutElement = textField.gameObject.GetComponent<LayoutElement>();
+            layoutElement.minHeight = height;
+            layoutElement.preferredHeight = height;
+
             return storable;
         }
 
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, bool rightSide = false)
             => CreateTextField(paramName, startingValue, height, null, rightSide);
 
+        public UITextInput CreateTextInput(string paramName, string label, string startingValue, float height, bool rightSide = false)
+        {
+            var container = CreateSpacer(height, rightSide);
+            return new UITextInput(container, height, label, paramName, startingValue);
+        }
+
         public JSONStorableBool CreateToggle(string paramName, string label, bool startingValue, JSONStorableBool.SetBoolCallback callback, bool rightSide = false)
         {
             var storable = new JSONStorableBool(paramName, startingValue, callback);
-            var toggle = Plugin.CreateToggle(storable, rightSide);
+            var toggle = UIManager.CreateToggle(storable, rightSide);
             toggle.label = label;
             return storable;
         }
@@ -107,7 +113,7 @@ namespace ToySerialController.UI
 
         public UIDynamic CreateSpacer(float height, bool rightSide = false)
         {
-            var spacer = Plugin.CreateSpacer(rightSide);
+            var spacer = UIManager.CreateSpacer(rightSide);
             spacer.height = height;
             return spacer;
         }
@@ -118,7 +124,7 @@ namespace ToySerialController.UI
 
             UICurveEditor curveEditor = null;
             var buttons = Enumerable.Range(0, 4)
-                .Select(_ => UnityEngine.Object.Instantiate(Plugin.manager.configurableButtonPrefab))
+                .Select(_ => UnityEngine.Object.Instantiate(UIManager.ConfigurableButtonPrefab))
                 .Select(t => t.GetComponent<UIDynamicButton>())
                 .ToList();
 
@@ -166,21 +172,22 @@ namespace ToySerialController.UI
             return new UIHorizontalGroup(container, Mathf.Clamp(width, 0, 510), height, spacing, count, itemCreator);
         }
 
-        public Transform CreateButtonEx() => GameObject.Instantiate<Transform>(Plugin.manager.configurableButtonPrefab);
-        public Transform CreateSliderEx() => GameObject.Instantiate<Transform>(Plugin.manager.configurableSliderPrefab);
-        public Transform CreateToggleEx() => GameObject.Instantiate<Transform>(Plugin.manager.configurableTogglePrefab);
-        public Transform CreatePopupEx() => GameObject.Instantiate<Transform>(Plugin.manager.configurablePopupPrefab);
+        public Transform CreateButtonEx() => GameObject.Instantiate<Transform>(UIManager.ConfigurableButtonPrefab);
+        public Transform CreateSliderEx() => GameObject.Instantiate<Transform>(UIManager.ConfigurableSliderPrefab);
+        public Transform CreateToggleEx() => GameObject.Instantiate<Transform>(UIManager.ConfigurableTogglePrefab);
+        public Transform CreatePopupEx() => GameObject.Instantiate<Transform>(UIManager.ConfigurablePopupPrefab);
 
         public void Destroy(object o)
         {
-            if (o is JSONStorableStringChooser) Plugin.RemovePopup((JSONStorableStringChooser)o);
-            else if (o is JSONStorableFloat) Plugin.RemoveSlider((JSONStorableFloat)o);
-            else if (o is JSONStorableBool) Plugin.RemoveToggle((JSONStorableBool)o);
-            else if (o is JSONStorableString) Plugin.RemoveTextField((JSONStorableString)o);
-            else if (o is UIDynamicButton) Plugin.RemoveButton((UIDynamicButton)o);
-            else if (o is UICurveEditor) Plugin.RemoveSpacer(((UICurveEditor)o).container);
-            else if (o is UIHorizontalGroup) Plugin.RemoveSpacer(((UIHorizontalGroup)o).container);
-            else if (o is UIDynamic) Plugin.RemoveSpacer((UIDynamic)o);
+            if (o is JSONStorableStringChooser) UIManager.RemovePopup((JSONStorableStringChooser)o);
+            else if (o is JSONStorableFloat) UIManager.RemoveSlider((JSONStorableFloat)o);
+            else if (o is JSONStorableBool) UIManager.RemoveToggle((JSONStorableBool)o);
+            else if (o is JSONStorableString) UIManager.RemoveTextField((JSONStorableString)o);
+            else if (o is UIDynamicButton) UIManager.RemoveButton((UIDynamicButton)o);
+            else if (o is UICurveEditor) UIManager.RemoveSpacer(((UICurveEditor)o).container);
+            else if (o is UIHorizontalGroup) UIManager.RemoveSpacer(((UIHorizontalGroup)o).container);
+            else if (o is UITextInput) UIManager.RemoveSpacer(((UITextInput)o).container);
+            else if (o is UIDynamic) UIManager.RemoveSpacer((UIDynamic)o);
         }
     }
 }
