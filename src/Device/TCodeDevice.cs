@@ -1,8 +1,8 @@
 using DebugUtils;
-using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using ToySerialController.MotionSource;
+using ToySerialController.Device.OutputTarget;
 using UnityEngine;
 
 namespace ToySerialController
@@ -39,37 +39,6 @@ namespace ToySerialController
             _stringBuilder = new StringBuilder();
         }
 
-        public void Write(SerialPort serial)
-        {
-            _stringBuilder.Length = 0;
-            var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
-            var l1 = AppendIfChanged(_stringBuilder, "L1", XCmd[1], ref LastXCmd[1]);
-            var l2 = AppendIfChanged(_stringBuilder, "L2", XCmd[2], ref LastXCmd[2]);
-            var r0 = AppendIfChanged(_stringBuilder, "R0", RCmd[0], ref LastRCmd[0]);
-            var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
-            var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
-            var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
-            var v1 = AppendIfChanged(_stringBuilder, "V1", ECmd[1], ref LastECmd[1]);
-            var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
-
-            var data = $"{_stringBuilder}\n";
-            if (serial?.IsOpen == true && !string.IsNullOrEmpty(data.Trim()))
-                serial.Write(data);
-
-            _stringBuilder.Length = 0;
-            _stringBuilder.Append("        Target   Cmd      Serial\n");
-            _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
-            _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
-            _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
-            _stringBuilder.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
-            _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
-            _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
-            _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
-            _stringBuilder.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
-            _stringBuilder.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
-            DeviceReport = _stringBuilder.ToString();
-        }
-
         private string AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, ref float lastCmd)
         {
             if (!float.IsNaN(lastCmd) && Mathf.Abs(lastCmd - cmd) * 999 < 1)
@@ -81,7 +50,7 @@ namespace ToySerialController
             return command;
         }
 
-        public bool Update(IMotionSource motionSource)
+        public bool Update(IMotionSource motionSource, IOutputTarget outputTarget)
         {
             var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
             var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
@@ -237,6 +206,33 @@ namespace ToySerialController
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
             DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
 
+            _stringBuilder.Length = 0;
+            var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
+            var l1 = AppendIfChanged(_stringBuilder, "L1", XCmd[1], ref LastXCmd[1]);
+            var l2 = AppendIfChanged(_stringBuilder, "L2", XCmd[2], ref LastXCmd[2]);
+            var r0 = AppendIfChanged(_stringBuilder, "R0", RCmd[0], ref LastRCmd[0]);
+            var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
+            var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
+            var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
+            var v1 = AppendIfChanged(_stringBuilder, "V1", ECmd[1], ref LastECmd[1]);
+            var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
+
+            var data = $"{_stringBuilder}\n";
+            if (!string.IsNullOrEmpty(data.Trim()))
+                outputTarget?.Write(data);
+
+            _stringBuilder.Length = 0;
+            _stringBuilder.Append("        Target   Cmd      Output\n");
+            _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
+            _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
+            _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
+            _stringBuilder.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
+            _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
+            _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
+            _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
+            _stringBuilder.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
+            _stringBuilder.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
+            DeviceReport = _stringBuilder.ToString();
             return true;
         }
 

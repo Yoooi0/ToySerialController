@@ -1,9 +1,12 @@
 using SimpleJSON;
+using System;
 using System.Collections.Generic;
-using System.IO.Ports;
+using System.Linq;
 using ToySerialController.Config;
+using ToySerialController.Device.OutputTarget;
 using ToySerialController.MotionSource;
 using ToySerialController.UI;
+using ToySerialController.Utils;
 using UnityEngine;
 
 namespace ToySerialController
@@ -12,21 +15,21 @@ namespace ToySerialController
     {
         private UIBuilder _builder;
         private UIGroup _group;
+        private IOutputTarget _outputTarget;
 
-        private UIDynamicButton PluginTitle, MotionSourceTitle, HardwareTitle;
-        private JSONStorableStringChooser ComPortChooser;
+        private OutputTargetSettings OutputTargetSettings;
+        private UIDynamicButton PluginTitle, MotionSourceTitle, DebugTitle;
         private JSONStorableStringChooser MotionSourceChooser;
-        private UIDynamicButton StartSerialButton, StopSerialButton;
         private JSONStorableString DeviceReportText;
         private JSONStorableBool DebugDrawEnableToggle;
 
-        private UIHorizontalGroup PresetButtonGroup, SerialButtonGroup;
+        private UIHorizontalGroup PresetButtonGroup;
 
         public void CreateUI()
         {
             pluginLabelJSON.val = PluginName;
 
-            _builder = new UIBuilder(this);
+            _builder = new UIBuilder();
             _group = new UIGroup(_builder);
             _group.BlacklistStorable("Device Report");
 
@@ -54,26 +57,17 @@ namespace ToySerialController
             defaultButton.textColor = Color.white;
             defaultButton.button.onClick.AddListener(SaveDefaultConfigCallback);
 
-            DebugDrawEnableToggle = _group.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
+            OutputTargetSettings = new OutputTargetSettings(t => _outputTarget = t);
+            OutputTargetSettings.CreateUI(_group);
 
-            var hardwareGroup = new UIGroup(_group);
+            var debugGroup = new UIGroup(_group);
             var visible = false;
-            HardwareTitle = _group.CreateButton("Hardware", () => hardwareGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
+            DebugTitle = _group.CreateButton("Debug", () => debugGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
 
-            ComPortChooser = hardwareGroup.CreatePopup("Plugin:ComPortChooser", "Select COM port", SerialPort.GetPortNames().ToList(), "None", null);
+            DebugDrawEnableToggle = debugGroup.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
+            DeviceReportText = debugGroup.CreateTextField("Device Report", "", 320);
 
-            SerialButtonGroup = hardwareGroup.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => _group.CreateButtonEx());
-            var startSerialButton = SerialButtonGroup.items[0].GetComponent<UIDynamicButton>();
-            startSerialButton.label = "Start Serial";
-            startSerialButton.button.onClick.AddListener(StartButtonCallback);
-
-            var stopSerialButton = SerialButtonGroup.items[1].GetComponent<UIDynamicButton>();
-            stopSerialButton.label = "Stop Serial";
-            stopSerialButton.button.onClick.AddListener(StopButtonCallback);
-
-            DeviceReportText = hardwareGroup.CreateTextField("Device Report", "", 320);
-
-            hardwareGroup.SetVisible(false);
+            debugGroup.SetVisible(false);
 
             MotionSourceTitle = _group.CreateDisabledButton("Motion Source", new Color(0.3f, 0.3f, 0.3f), Color.white);
             MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", new List<string> { "Male + Female", "Asset + Female", "Dildo + Female", "Animation Pattern", "Range Test" }, "Male + Female", MotionSourceChooserCallback);
@@ -84,6 +78,8 @@ namespace ToySerialController
 
         public void StoreConfig(JSONNode config)
         {
+            OutputTargetSettings?.StoreConfig(config);
+
             _group.StoreConfig(config);
             _device?.StoreConfig(config);
             _motionSource?.StoreConfig(config);
@@ -91,6 +87,8 @@ namespace ToySerialController
 
         public void RestoreConfig(JSONNode config)
         {
+            OutputTargetSettings?.RestoreConfig(config);
+
             _group.RestoreConfig(config);
             _device?.RestoreConfig(config);
             _motionSource?.RestoreConfig(config);
@@ -132,8 +130,104 @@ namespace ToySerialController
 
             _motionSource.CreateUI(_builder);
         }
-
-        protected void StartButtonCallback() => StartSerial();
-        protected void StopButtonCallback() => StopSerial();
     }
+
+    public class OutputTargetSettings : IUIProvider, IConfigProvider, IDisposable
+    {
+        private readonly Action<IOutputTarget> _callback;
+        private readonly Dictionary<string, IOutputTarget> _outputTargets;
+        private readonly Dictionary<string, UIGroup> _uiGroups;
+
+        private JSONStorableStringChooser OutputTargetChooser;
+
+        private string _selectedOutputTarget;
+
+        public OutputTargetSettings(Action<IOutputTarget> callback)
+        {
+            _callback = callback;
+            _outputTargets = new Dictionary<string, IOutputTarget>()
+            {
+                ["None"] = null,
+                ["Serial"] = new SerialOutputTarget(),
+                ["Udp"] = new UdpOutputTarget()
+            };
+            _uiGroups = new Dictionary<string, UIGroup>();
+        }
+
+        public void CreateUI(IUIBuilder builder)
+        {
+            var names = _outputTargets.Select(x => x.Key).ToList();
+            OutputTargetChooser = builder.CreateScrollablePopup("Device:OutputTarget", "Select Output Target", names, names.First(), OuputTargetChooserCallback);
+
+            foreach (var item in _outputTargets)
+            {
+                var group = new UIGroup(builder);
+                item.Value?.CreateUI(group);
+                group.SetVisible(false);
+                _uiGroups[item.Key] = group;
+            }
+
+            OuputTargetChooserCallback(OutputTargetChooser.val);
+
+        }
+
+        public void DestroyUI(IUIBuilder builder)
+        {
+            builder.Destroy(OutputTargetChooser);
+            foreach (var item in _uiGroups)
+                item.Value?.Destroy(builder);
+
+            _uiGroups.Clear();
+        }
+
+        public void RestoreConfig(JSONNode config)
+        {
+            config.Restore(OutputTargetChooser);
+            foreach (var item in _outputTargets)
+                item.Value?.RestoreConfig(config);
+        }
+
+        public void StoreConfig(JSONNode config)
+        {
+            config.Store(OutputTargetChooser);
+            foreach (var item in _outputTargets)
+                item.Value?.StoreConfig(config);
+        }
+
+        public void UpdateVisibility(bool parentVisible)
+        {
+            foreach (var item in _uiGroups)
+                item.Value?.SetVisible(false);
+
+            if (parentVisible && _selectedOutputTarget != null)
+                _uiGroups[_selectedOutputTarget]?.SetVisible(true);
+        }
+
+        private void OuputTargetChooserCallback(string s)
+        {
+            if (_selectedOutputTarget != null)
+                _uiGroups[_selectedOutputTarget]?.SetVisible(false);
+
+            _uiGroups[s]?.SetVisible(true);
+            _selectedOutputTarget = s;
+
+            if (s != null)
+                _callback(_outputTargets[s]);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            foreach (var item in _outputTargets)
+                item.Value?.Dispose();
+
+            _outputTargets.Clear();
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+    }
+
 }

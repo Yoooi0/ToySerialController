@@ -15,6 +15,9 @@ lib\vam-debug-utils\LineDrawer.cs
 src\Config\ConfigManager.cs
 src\Config\IConfigProvider.cs
 src\Device\IDevice.cs
+src\Device\OutputTarget\IOutputTarget.cs
+src\Device\OutputTarget\SerialOutputTarget.cs
+src\Device\OutputTarget\UdpOutputTarget.cs
 src\Device\TCodeDevice.UI.cs
 src\Device\TCodeDevice.cs
 src\MotionSource\AbstractFemaleMotionSource.cs
@@ -28,10 +31,12 @@ src\MotionSource\RangeTestMotionSource.cs
 src\Plugin.UI.cs
 src\Plugin.cs
 src\UI\Control\UIHorizontalGroup.cs
+src\UI\Control\UITextInput.cs
 src\UI\IUIBuilder.cs
 src\UI\IUIProvider.cs
 src\UI\UIBuilder.cs
 src\UI\UIGroup.cs
+src\UI\UIManager.cs
 src\Utils\ComponentCache.cs
 src\Utils\Extensions.cs
 src\Utils\MathUtils.cs
