@@ -41,5 +41,11 @@ namespace ToySerialController.MotionSource
         }
 
         protected abstract void RefreshButtonCallback();
+
+        public virtual void OnSceneChanging() { }
+        public virtual void OnSceneChanged()
+        {
+            RefreshButtonCallback();
+        }
     }
 }

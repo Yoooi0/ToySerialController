@@ -17,6 +17,7 @@ namespace ToySerialController
         private float? _lastNoCollisionTime;
         private bool _lastNoCollisionSmoothingEnabled;
         private float _lastNoCollisionSmoothingStartTime, _lastNoCollisionSmoothingDuration;
+        private bool _isLoading;
 
         protected string DeviceReport { get; set; }
         public string GetDeviceReport() => DeviceReport;
@@ -238,5 +239,8 @@ namespace ToySerialController
 
         public void Dispose() => Dispose(true);
         protected virtual void Dispose(bool disposing) { }
+
+        public virtual void OnSceneChanging() => _isLoading = true;
+        public virtual void OnSceneChanged() => _isLoading = false;
     }
 }

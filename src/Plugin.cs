@@ -17,6 +17,7 @@ namespace ToySerialController
         private IDevice _device;
         private IMotionSource _motionSource;
         private bool _initialized;
+        private bool _isLoading;
         private int _physicsIteration;
 
         private SuperController Controller => SuperController.singleton;
@@ -74,10 +75,17 @@ namespace ToySerialController
 
         protected void FixedUpdate()
         {
-            if (!_initialized || SuperController.singleton.isLoading)
+            if (!_initialized)
                 return;
 
-            if(_physicsIteration == 0)
+            var isLoading = SuperController.singleton.isLoading;
+            if (!_isLoading && isLoading)
+                OnSceneChanging();
+            else if (_isLoading && !isLoading)
+                OnSceneChanged();
+            _isLoading = isLoading;
+
+            if (_physicsIteration == 0)
                 DebugDraw.Clear();
 
             UpdateDevice();
@@ -102,6 +110,18 @@ namespace ToySerialController
             {
                 SuperController.LogError("Exception caught: " + e);
             }
+        }
+
+        protected void OnSceneChanging()
+        {
+            _device?.OnSceneChanging();
+            _motionSource?.OnSceneChanging();
+        }
+
+        protected void OnSceneChanged()
+        {
+            _device?.OnSceneChanged();
+            _motionSource?.OnSceneChanged();
         }
 
         protected void OnDestroy()

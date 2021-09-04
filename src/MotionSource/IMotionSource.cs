@@ -20,5 +20,8 @@ namespace ToySerialController.MotionSource
         Vector3 TargetForward { get; }
 
         bool Update();
+        void OnSceneChanging();
+        void OnSceneChanged();
+
     }
 }

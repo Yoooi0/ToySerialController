@@ -11,5 +11,7 @@ namespace ToySerialController
         bool Update(IMotionSource motionSource, IOutputTarget outputTarget);
 
         string GetDeviceReport();
+        void OnSceneChanging();
+        void OnSceneChanged();
     }
 }
