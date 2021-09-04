@@ -49,18 +49,6 @@ namespace ToySerialController.Device.OutputTarget
             if (_serial?.IsOpen == true)
                 _serial.Write(data);
         }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            StopSerial();
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
         private void StartSerial()
         {
             var portName = ComPortChooser.val;
@@ -90,6 +78,17 @@ namespace ToySerialController.Device.OutputTarget
                 _serial = null;
                 SuperController.LogMessage("Serial connection stopped");
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            StopSerial();
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

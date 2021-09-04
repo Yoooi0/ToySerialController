@@ -110,6 +110,7 @@ namespace ToySerialController
             {
                 DebugDraw.Clear();
                 _device?.Dispose();
+                _outputTarget?.Dispose();
             }
             catch (Exception e)
             {
