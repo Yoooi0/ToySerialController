@@ -71,7 +71,6 @@ namespace ToySerialController
         private UIDynamicButton V0AxisTitle;
         private UICurveEditor OutputV0CurveEditor;
         private JSONStorableAnimationCurve OutputV0Curve;
-        private JSONStorableStringChooser OutputV0CurveXAxisChooser;
         private JSONStorableFloat OverrideV0Slider;
         private JSONStorableBool EnableOverrideV0Toggle;
         private DeviceCurveEditorSettings OutputV0CurveEditorSettings;
@@ -79,7 +78,6 @@ namespace ToySerialController
         private UIDynamicButton V1AxisTitle;
         private UICurveEditor OutputV1CurveEditor;
         private JSONStorableAnimationCurve OutputV1Curve;
-        private JSONStorableStringChooser OutputV1CurveXAxisChooser;
         private JSONStorableFloat OverrideV1Slider;
         private JSONStorableBool EnableOverrideV1Toggle;
         private DeviceCurveEditorSettings OutputV1CurveEditorSettings;
@@ -87,7 +85,6 @@ namespace ToySerialController
         private UIDynamicButton L3AxisTitle;
         private UICurveEditor OutputL3CurveEditor;
         private JSONStorableAnimationCurve OutputL3Curve;
-        private JSONStorableStringChooser OutputL3CurveXAxisChooser;
         private JSONStorableFloat OverrideL3Slider;
         private JSONStorableBool EnableOverrideL3Toggle;
         private DeviceCurveEditorSettings OutputL3CurveEditorSettings;
