@@ -61,7 +61,7 @@ namespace ToySerialController
                                 || Vector3.Dot(diffPosition, motionSource.ReferenceUp) < 0;
 
             for (var i = 0; i < 5; i++)
-                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, Color.grey, radius);
+                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, motionSource.ReferenceRight, Color.grey, radius);
 
             var t = Mathf.Clamp(Vector3.Dot(motionSource.TargetPosition - motionSource.ReferencePosition, motionSource.ReferenceUp), 0f, length);
             var closestPoint = motionSource.ReferencePosition + motionSource.ReferenceUp * t;
@@ -203,8 +203,8 @@ namespace ToySerialController
             ECmd[1] = Mathf.Lerp(ECmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
             ECmd[2] = Mathf.Lerp(ECmd[2], l3CmdRaw, 1 - SmoothingSlider.val);
 
-            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
-            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
+            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, motionSource.TargetRight, Color.white, 0.05f);
+            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, motionSource.TargetRight, Color.white, 0.05f);
 
             _stringBuilder.Length = 0;
             var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);

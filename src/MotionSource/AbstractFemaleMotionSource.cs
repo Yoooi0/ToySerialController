@@ -1,4 +1,4 @@
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -227,7 +227,7 @@ namespace ToySerialController.MotionSource
             _targetForward = Vector3.Cross(_targetUp, _targetRight);
             _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
 
-            DebugDraw.DrawCircle(TargetPosition, TargetUp, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
+            DebugDraw.DrawCircle(TargetPosition, TargetUp, TargetRight, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
 
             return true;
         }

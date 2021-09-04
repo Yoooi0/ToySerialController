@@ -90,7 +90,7 @@ namespace ToySerialController.MotionSource
             else
                 _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
-            DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, Color.white, 0.33f);
+            DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferenceRight, Color.white, 0.33f);
             DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
             DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
             DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
