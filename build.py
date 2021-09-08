@@ -25,7 +25,7 @@ print('Creating "{}"'.format(varName))
 with open(cslistName, 'r', encoding = 'utf-8') as cslist:
     with ZipFile(varName, 'w') as var:
         var.write('meta.json')
-        var.write('LICENSE')
+        var.write('LICENSE.md')
         var.write(cslistName, os.path.join(zipPath, cslistName))
         for file in [x.strip() for x in cslist]:
             var.write(file, os.path.join(zipPath, file))
