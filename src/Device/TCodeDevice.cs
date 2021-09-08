@@ -16,6 +16,7 @@ namespace ToySerialController
 
         private float? _lastNoCollisionTime;
         private bool _lastNoCollisionSmoothingEnabled;
+        private float _lastCollisionSmoothingT;
         private float _lastNoCollisionSmoothingStartTime, _lastNoCollisionSmoothingDuration;
         private bool _isLoading;
 
@@ -79,100 +80,20 @@ namespace ToySerialController
 
         public void UpdateValues(IOutputTarget outputTarget)
         {
-            var l0t = (XTarget[0] - RangeMinL0Slider.val) / (RangeMaxL0Slider.val - RangeMinL0Slider.val);
-            var l1t = (XTarget[1] + RangeMaxL1Slider.val) / (2 * RangeMaxL1Slider.val);
-            var l2t = (XTarget[2] + RangeMaxL2Slider.val) / (2 * RangeMaxL2Slider.val);
-            var r0t = 0.5f + (RTarget[0] / 2) / (RangeMaxR0Slider.val / 180);
-            var r1t = 0.5f + (RTarget[1] / 2) / (RangeMaxR1Slider.val / 90);
-            var r2t = 0.5f + (RTarget[2] / 2) / (RangeMaxR2Slider.val / 90);
-            var v0t = ETarget[0];
-            var a0t = ETarget[1];
-            var a1t = ETarget[2];
-            var a2t = ETarget[3];
-
-            l0t = Mathf.Clamp01(l0t);
-            l1t = Mathf.Clamp01(l1t);
-            l2t = Mathf.Clamp01(l2t);
-            r0t = Mathf.Clamp01(r0t);
-            r1t = Mathf.Clamp01(r1t);
-            r2t = Mathf.Clamp01(r2t);
-            v0t = Mathf.Clamp01(v0t);
-            a0t = Mathf.Clamp01(a0t);
-            a1t = Mathf.Clamp01(a1t);
-            a2t = Mathf.Clamp01(a2t);
-
-            var l0CmdRaw = Mathf.Lerp(OutputMinL0Slider.val, OutputMaxL0Slider.val, l0t);
-            var l1CmdRaw = OffsetL1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxL1Slider.val, OutputMaxL1Slider.val, l1t);
-            var l2CmdRaw = OffsetL2Slider.val + 0.5f + Mathf.Lerp(-OutputMaxL2Slider.val, OutputMaxL2Slider.val, l2t);
-            var r0CmdRaw = OffsetR0Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR0Slider.val, OutputMaxR0Slider.val, r0t);
-            var r1CmdRaw = OffsetR1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR1Slider.val, OutputMaxR1Slider.val, r1t);
-            var r2CmdRaw = OffsetR2Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR2Slider.val, OutputMaxR2Slider.val, r2t);
-            var v0CmdRaw = v0t;
-            var a0CmdRaw = a0t;
-            var a1CmdRaw = a1t;
-            var a2CmdRaw = a2t;
-
-            l0CmdRaw = Mathf.Clamp01(l0CmdRaw);
-            l1CmdRaw = Mathf.Clamp01(l1CmdRaw);
-            l2CmdRaw = Mathf.Clamp01(l2CmdRaw);
-            r0CmdRaw = Mathf.Clamp01(r0CmdRaw);
-            r1CmdRaw = Mathf.Clamp01(r1CmdRaw);
-            r2CmdRaw = Mathf.Clamp01(r2CmdRaw);
-            v0CmdRaw = Mathf.Clamp01(v0CmdRaw);
-            a0CmdRaw = Mathf.Clamp01(a0CmdRaw);
-            a1CmdRaw = Mathf.Clamp01(a1CmdRaw);
-            a2CmdRaw = Mathf.Clamp01(a2CmdRaw);
-
-            if (InvertL0Toggle.val) l0CmdRaw = 1f - l0CmdRaw;
-            if (InvertL1Toggle.val) l1CmdRaw = 1f - l1CmdRaw;
-            if (InvertL2Toggle.val) l2CmdRaw = 1f - l2CmdRaw;
-            if (InvertR0Toggle.val) r0CmdRaw = 1f - r0CmdRaw;
-            if (InvertR1Toggle.val) r1CmdRaw = 1f - r1CmdRaw;
-            if (InvertR2Toggle.val) r2CmdRaw = 1f - r2CmdRaw;
-
-            if (EnableOverrideL0Toggle.val) l0CmdRaw = OverrideL0Slider.val;
-            if (EnableOverrideL1Toggle.val) l1CmdRaw = OverrideL1Slider.val;
-            if (EnableOverrideL2Toggle.val) l2CmdRaw = OverrideL2Slider.val;
-            if (EnableOverrideR0Toggle.val) r0CmdRaw = OverrideR0Slider.val;
-            if (EnableOverrideR1Toggle.val) r1CmdRaw = OverrideR1Slider.val;
-            if (EnableOverrideR2Toggle.val) r2CmdRaw = OverrideR2Slider.val;
-            if (EnableOverrideV0Toggle.val) v0CmdRaw = OverrideV0Slider.val;
-            if (EnableOverrideA0Toggle.val) a0CmdRaw = OverrideA0Slider.val;
-            if (EnableOverrideA1Toggle.val) a1CmdRaw = OverrideA1Slider.val;
-            if (EnableOverrideA2Toggle.val) a2CmdRaw = OverrideA2Slider.val;
-
             if (_lastNoCollisionSmoothingEnabled)
             {
-                var lastCollisionSmoothingT = Mathf.Pow(2, 10 * ((Time.time - _lastNoCollisionSmoothingStartTime) / _lastNoCollisionSmoothingDuration - 1));
-                if (lastCollisionSmoothingT >= 1.0f)
+                _lastCollisionSmoothingT = Mathf.Pow(2, 10 * ((Time.time - _lastNoCollisionSmoothingStartTime) / _lastNoCollisionSmoothingDuration - 1));
+                if (_lastCollisionSmoothingT > 1.0f)
                 {
                     _lastNoCollisionSmoothingEnabled = false;
-                }
-                else
-                {
-                    l0CmdRaw = Mathf.Lerp(XCmd[0], l0CmdRaw, lastCollisionSmoothingT);
-                    l1CmdRaw = Mathf.Lerp(XCmd[1], l1CmdRaw, lastCollisionSmoothingT);
-                    l2CmdRaw = Mathf.Lerp(XCmd[2], l2CmdRaw, lastCollisionSmoothingT);
-                    r0CmdRaw = Mathf.Lerp(RCmd[0], r0CmdRaw, lastCollisionSmoothingT);
-                    r1CmdRaw = Mathf.Lerp(RCmd[1], r1CmdRaw, lastCollisionSmoothingT);
-                    r2CmdRaw = Mathf.Lerp(RCmd[2], r2CmdRaw, lastCollisionSmoothingT);
-                    v0CmdRaw = Mathf.Lerp(ECmd[0], v0CmdRaw, lastCollisionSmoothingT);
-                    a0CmdRaw = Mathf.Lerp(ECmd[1], a0CmdRaw, lastCollisionSmoothingT);
-                    a1CmdRaw = Mathf.Lerp(ECmd[2], a1CmdRaw, lastCollisionSmoothingT);
-                    a2CmdRaw = Mathf.Lerp(ECmd[3], a2CmdRaw, lastCollisionSmoothingT);
+                    _lastCollisionSmoothingT = 0;
                 }
             }
 
-            XCmd[0] = Mathf.Lerp(XCmd[0], l0CmdRaw, 1 - SmoothingSlider.val);
-            XCmd[1] = Mathf.Lerp(XCmd[1], l1CmdRaw, 1 - SmoothingSlider.val);
-            XCmd[2] = Mathf.Lerp(XCmd[2], l2CmdRaw, 1 - SmoothingSlider.val);
-            RCmd[0] = Mathf.Lerp(RCmd[0], r0CmdRaw, 1 - SmoothingSlider.val);
-            RCmd[1] = Mathf.Lerp(RCmd[1], r1CmdRaw, 1 - SmoothingSlider.val);
-            RCmd[2] = Mathf.Lerp(RCmd[2], r2CmdRaw, 1 - SmoothingSlider.val);
-            ECmd[0] = Mathf.Lerp(ECmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
-            ECmd[1] = Mathf.Lerp(ECmd[1], a0CmdRaw, 1 - SmoothingSlider.val);
-            ECmd[2] = Mathf.Lerp(ECmd[2], a1CmdRaw, 1 - SmoothingSlider.val);
-            ECmd[3] = Mathf.Lerp(ECmd[3], a2CmdRaw, 1 - SmoothingSlider.val);
+            UpdateL0(); UpdateL1(); UpdateL2();
+            UpdateR0(); UpdateR1(); UpdateR2();
+            UpdateV0();
+            UpdateA0(); UpdateA1(); UpdateA2();
 
             _stringBuilder.Length = 0;
             var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
@@ -203,6 +124,128 @@ namespace ToySerialController
             _stringBuilder.Append("A1\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").AppendLine(a1);
             _stringBuilder.Append("A2\t").AppendFormat("{0,5:0.00}", ETarget[3]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[3]).Append(",\t").Append(a2);
             DeviceReport = _stringBuilder.ToString();
+        }
+
+        public void UpdateL0()
+        {
+            var t = Mathf.Clamp01((XTarget[0] - RangeMinL0Slider.val) / (RangeMaxL0Slider.val - RangeMinL0Slider.val));
+            var output = Mathf.Clamp01(Mathf.Lerp(OutputMinL0Slider.val, OutputMaxL0Slider.val, t));
+
+            if (InvertL0Toggle.val) output = 1f - output;
+            if (EnableOverrideL0Toggle.val) output = OverrideL0Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(XCmd[0], output, _lastCollisionSmoothingT);
+
+            XCmd[0] = Mathf.Lerp(XCmd[0], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateL1()
+        {
+            var t = Mathf.Clamp01((XTarget[1] + RangeMaxL1Slider.val) / (2 * RangeMaxL1Slider.val));
+            var output = Mathf.Clamp01(OffsetL1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxL1Slider.val, OutputMaxL1Slider.val, t));
+
+            if (InvertL1Toggle.val) output = 1f - output;
+            if (EnableOverrideL1Toggle.val) output = OverrideL1Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(XCmd[1], output, _lastCollisionSmoothingT);
+
+            XCmd[1] = Mathf.Lerp(XCmd[1], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateL2()
+        {
+            var t = Mathf.Clamp01((XTarget[2] + RangeMaxL2Slider.val) / (2 * RangeMaxL2Slider.val));
+            var output = Mathf.Clamp01(OffsetL2Slider.val + 0.5f + Mathf.Lerp(-OutputMaxL2Slider.val, OutputMaxL2Slider.val, t));
+
+            if (InvertL2Toggle.val) output = 1f - output;
+            if (EnableOverrideL2Toggle.val) output = OverrideL2Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(XCmd[2], output, _lastCollisionSmoothingT);
+
+            XCmd[2] = Mathf.Lerp(XCmd[2], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateR0()
+        {
+            var t = Mathf.Clamp01(0.5f + (RTarget[0] / 2) / (RangeMaxR0Slider.val / 180));
+            var output = Mathf.Clamp01(OffsetR0Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR0Slider.val, OutputMaxR0Slider.val, t));
+
+            if (InvertR0Toggle.val) output = 1f - output;
+            if (EnableOverrideR0Toggle.val) output = OverrideR0Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(RCmd[0], output, _lastCollisionSmoothingT);
+
+            RCmd[0] = Mathf.Lerp(RCmd[0], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateR1()
+        {
+            var t = Mathf.Clamp01(0.5f + (RTarget[1] / 2) / (RangeMaxR1Slider.val / 90));
+            var output = Mathf.Clamp01(OffsetR1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR1Slider.val, OutputMaxR1Slider.val, t));
+
+            if (InvertR1Toggle.val) output = 1f - output;
+            if (EnableOverrideR1Toggle.val) output = OverrideR1Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(RCmd[1], output, _lastCollisionSmoothingT);
+
+            RCmd[1] = Mathf.Lerp(RCmd[1], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateR2()
+        {
+            var t = Mathf.Clamp01(0.5f + (RTarget[2] / 2) / (RangeMaxR2Slider.val / 90));
+            var output = Mathf.Clamp01(OffsetR2Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR2Slider.val, OutputMaxR2Slider.val, t));
+
+            if (InvertR2Toggle.val) output = 1f - output;
+            if (EnableOverrideR2Toggle.val) output = OverrideR2Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(RCmd[2], output, _lastCollisionSmoothingT);
+
+            RCmd[2] = Mathf.Lerp(RCmd[2], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateV0()
+        {
+            var output = Mathf.Clamp01(ETarget[0]);
+
+            if (EnableOverrideV0Toggle.val) output = OverrideV0Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(ECmd[0], output, _lastCollisionSmoothingT);
+
+            ECmd[0] = Mathf.Lerp(ECmd[0], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateA0()
+        {
+            var output = Mathf.Clamp01(ETarget[1]);
+
+            if (EnableOverrideA0Toggle.val) output = OverrideA0Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(ECmd[1], output, _lastCollisionSmoothingT);
+
+            ECmd[1] = Mathf.Lerp(ECmd[1], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateA1()
+        {
+            var output = Mathf.Clamp01(ETarget[2]);
+
+            if (EnableOverrideA1Toggle.val) output = OverrideA1Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(ECmd[2], output, _lastCollisionSmoothingT);
+
+            ECmd[2] = Mathf.Lerp(ECmd[2], output, 1 - SmoothingSlider.val);
+        }
+
+        public void UpdateA2()
+        {
+            var output = Mathf.Clamp01(ETarget[3]);
+
+            if (EnableOverrideA2Toggle.val) output = OverrideA2Slider.val;
+            if (_lastNoCollisionSmoothingEnabled)
+                output = Mathf.Lerp(ECmd[3], output, _lastCollisionSmoothingT);
+
+            ECmd[3] = Mathf.Lerp(ECmd[3], output, 1 - SmoothingSlider.val);
         }
 
         public bool UpdateMotion(IMotionSource motionSource)
