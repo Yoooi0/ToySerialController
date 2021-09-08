@@ -66,6 +66,8 @@ namespace ToySerialController
 
             DebugDrawEnableToggle = debugGroup.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
             DeviceReportText = debugGroup.CreateTextField("Device Report", "", 320);
+            DeviceReportText.text.font = Font.CreateDynamicFontFromOSFont("Consolas", 24);
+            DeviceReportText.text.fontSize = 24;
 
             debugGroup.SetVisible(false);
 

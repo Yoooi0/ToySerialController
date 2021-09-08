@@ -112,7 +112,7 @@ namespace ToySerialController
                 outputTarget?.Write(data);
 
             _stringBuilder.Length = 0;
-            _stringBuilder.Append("        Target   Cmd      Output\n");
+            _stringBuilder.Append("    Target    Cmd    Output\n");
             _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
             _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
             _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
