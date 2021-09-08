@@ -86,8 +86,9 @@ namespace ToySerialController
             var r1t = 0.5f + (RTarget[1] / 2) / (RangeMaxR1Slider.val / 90);
             var r2t = 0.5f + (RTarget[2] / 2) / (RangeMaxR2Slider.val / 90);
             var v0t = ETarget[0];
-            var v1t = ETarget[1];
-            var l3t = ETarget[2];
+            var a0t = ETarget[1];
+            var a1t = ETarget[2];
+            var a2t = ETarget[3];
 
             l0t = Mathf.Clamp01(l0t);
             l1t = Mathf.Clamp01(l1t);
@@ -96,8 +97,9 @@ namespace ToySerialController
             r1t = Mathf.Clamp01(r1t);
             r2t = Mathf.Clamp01(r2t);
             v0t = Mathf.Clamp01(v0t);
-            v1t = Mathf.Clamp01(v1t);
-            l3t = Mathf.Clamp01(l3t);
+            a0t = Mathf.Clamp01(a0t);
+            a1t = Mathf.Clamp01(a1t);
+            a2t = Mathf.Clamp01(a2t);
 
             var l0CmdRaw = Mathf.Lerp(OutputMinL0Slider.val, OutputMaxL0Slider.val, l0t);
             var l1CmdRaw = OffsetL1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxL1Slider.val, OutputMaxL1Slider.val, l1t);
@@ -106,8 +108,9 @@ namespace ToySerialController
             var r1CmdRaw = OffsetR1Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR1Slider.val, OutputMaxR1Slider.val, r1t);
             var r2CmdRaw = OffsetR2Slider.val + 0.5f + Mathf.Lerp(-OutputMaxR2Slider.val, OutputMaxR2Slider.val, r2t);
             var v0CmdRaw = v0t;
-            var v1CmdRaw = v1t;
-            var l3CmdRaw = l3t;
+            var a0CmdRaw = a0t;
+            var a1CmdRaw = a1t;
+            var a2CmdRaw = a2t;
 
             l0CmdRaw = Mathf.Clamp01(l0CmdRaw);
             l1CmdRaw = Mathf.Clamp01(l1CmdRaw);
@@ -116,8 +119,9 @@ namespace ToySerialController
             r1CmdRaw = Mathf.Clamp01(r1CmdRaw);
             r2CmdRaw = Mathf.Clamp01(r2CmdRaw);
             v0CmdRaw = Mathf.Clamp01(v0CmdRaw);
-            v1CmdRaw = Mathf.Clamp01(v1CmdRaw);
-            l3CmdRaw = Mathf.Clamp01(l3CmdRaw);
+            a0CmdRaw = Mathf.Clamp01(a0CmdRaw);
+            a1CmdRaw = Mathf.Clamp01(a1CmdRaw);
+            a2CmdRaw = Mathf.Clamp01(a2CmdRaw);
 
             if (InvertL0Toggle.val) l0CmdRaw = 1f - l0CmdRaw;
             if (InvertL1Toggle.val) l1CmdRaw = 1f - l1CmdRaw;
@@ -133,8 +137,9 @@ namespace ToySerialController
             if (EnableOverrideR1Toggle.val) r1CmdRaw = OverrideR1Slider.val;
             if (EnableOverrideR2Toggle.val) r2CmdRaw = OverrideR2Slider.val;
             if (EnableOverrideV0Toggle.val) v0CmdRaw = OverrideV0Slider.val;
-            if (EnableOverrideV1Toggle.val) v1CmdRaw = OverrideV1Slider.val;
-            if (EnableOverrideL3Toggle.val) l3CmdRaw = OverrideL3Slider.val;
+            if (EnableOverrideA0Toggle.val) a0CmdRaw = OverrideA0Slider.val;
+            if (EnableOverrideA1Toggle.val) a1CmdRaw = OverrideA1Slider.val;
+            if (EnableOverrideA2Toggle.val) a2CmdRaw = OverrideA2Slider.val;
 
             if (_lastNoCollisionSmoothingEnabled)
             {
@@ -152,8 +157,9 @@ namespace ToySerialController
                     r1CmdRaw = Mathf.Lerp(RCmd[1], r1CmdRaw, lastCollisionSmoothingT);
                     r2CmdRaw = Mathf.Lerp(RCmd[2], r2CmdRaw, lastCollisionSmoothingT);
                     v0CmdRaw = Mathf.Lerp(ECmd[0], v0CmdRaw, lastCollisionSmoothingT);
-                    v1CmdRaw = Mathf.Lerp(ECmd[1], v1CmdRaw, lastCollisionSmoothingT);
-                    l3CmdRaw = Mathf.Lerp(ECmd[2], l3CmdRaw, lastCollisionSmoothingT);
+                    a0CmdRaw = Mathf.Lerp(ECmd[1], a0CmdRaw, lastCollisionSmoothingT);
+                    a1CmdRaw = Mathf.Lerp(ECmd[2], a1CmdRaw, lastCollisionSmoothingT);
+                    a2CmdRaw = Mathf.Lerp(ECmd[3], a2CmdRaw, lastCollisionSmoothingT);
                 }
             }
 
@@ -164,8 +170,9 @@ namespace ToySerialController
             RCmd[1] = Mathf.Lerp(RCmd[1], r1CmdRaw, 1 - SmoothingSlider.val);
             RCmd[2] = Mathf.Lerp(RCmd[2], r2CmdRaw, 1 - SmoothingSlider.val);
             ECmd[0] = Mathf.Lerp(ECmd[0], v0CmdRaw, 1 - SmoothingSlider.val);
-            ECmd[1] = Mathf.Lerp(ECmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
-            ECmd[2] = Mathf.Lerp(ECmd[2], l3CmdRaw, 1 - SmoothingSlider.val);
+            ECmd[1] = Mathf.Lerp(ECmd[1], a0CmdRaw, 1 - SmoothingSlider.val);
+            ECmd[2] = Mathf.Lerp(ECmd[2], a1CmdRaw, 1 - SmoothingSlider.val);
+            ECmd[3] = Mathf.Lerp(ECmd[3], a2CmdRaw, 1 - SmoothingSlider.val);
 
             _stringBuilder.Length = 0;
             var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
@@ -175,8 +182,9 @@ namespace ToySerialController
             var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
             var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
             var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
-            var v1 = AppendIfChanged(_stringBuilder, "V1", ECmd[1], ref LastECmd[1]);
-            var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
+            var a0 = AppendIfChanged(_stringBuilder, "A0", ECmd[1], ref LastECmd[1]);
+            var a1 = AppendIfChanged(_stringBuilder, "A1", ECmd[2], ref LastECmd[2]);
+            var a2 = AppendIfChanged(_stringBuilder, "A2", ECmd[3], ref LastECmd[3]);
 
             var data = $"{_stringBuilder}\n";
             if (!string.IsNullOrEmpty(data.Trim()))
@@ -191,8 +199,9 @@ namespace ToySerialController
             _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
             _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
             _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
-            _stringBuilder.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
-            _stringBuilder.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
+            _stringBuilder.Append("A0\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(a0);
+            _stringBuilder.Append("A1\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").AppendLine(a1);
+            _stringBuilder.Append("A2\t").AppendFormat("{0,5:0.00}", ETarget[3]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[3]).Append(",\t").Append(a2);
             DeviceReport = _stringBuilder.ToString();
         }
 
@@ -242,8 +251,9 @@ namespace ToySerialController
                 RTarget[2] = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceRight), motionSource.ReferenceRight) / 90;
 
                 ETarget[0] = OutputV0CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[1] = OutputV1CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[2] = OutputL3CurveEditorSettings.Evaluate(XTarget, RTarget);
+                ETarget[1] = OutputA0CurveEditorSettings.Evaluate(XTarget, RTarget);
+                ETarget[2] = OutputA1CurveEditorSettings.Evaluate(XTarget, RTarget);
+                ETarget[3] = OutputA2CurveEditorSettings.Evaluate(XTarget, RTarget);
 
                 if (_lastNoCollisionTime != null)
                 {
