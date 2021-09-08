@@ -1,8 +1,11 @@
 using CurveEditor;
 using CurveEditor.UI;
 using SimpleJSON;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using ToySerialController.Config;
+using ToySerialController.Device.OutputTarget;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
@@ -68,26 +71,23 @@ namespace ToySerialController
         private UIDynamicButton V0AxisTitle;
         private UICurveEditor OutputV0CurveEditor;
         private JSONStorableAnimationCurve OutputV0Curve;
-        private JSONStorableStringChooser OutputV0CurveXAxisChooser;
         private JSONStorableFloat OverrideV0Slider;
         private JSONStorableBool EnableOverrideV0Toggle;
-        private AbstractGenericDeviceCurveSettings OutputV0CurveEditorSettings;
+        private DeviceCurveEditorSettings OutputV0CurveEditorSettings;
 
         private UIDynamicButton V1AxisTitle;
         private UICurveEditor OutputV1CurveEditor;
         private JSONStorableAnimationCurve OutputV1Curve;
-        private JSONStorableStringChooser OutputV1CurveXAxisChooser;
         private JSONStorableFloat OverrideV1Slider;
         private JSONStorableBool EnableOverrideV1Toggle;
-        private AbstractGenericDeviceCurveSettings OutputV1CurveEditorSettings;
+        private DeviceCurveEditorSettings OutputV1CurveEditorSettings;
 
         private UIDynamicButton L3AxisTitle;
         private UICurveEditor OutputL3CurveEditor;
         private JSONStorableAnimationCurve OutputL3Curve;
-        private JSONStorableStringChooser OutputL3CurveXAxisChooser;
         private JSONStorableFloat OverrideL3Slider;
         private JSONStorableBool EnableOverrideL3Toggle;
-        private AbstractGenericDeviceCurveSettings OutputL3CurveEditorSettings;
+        private DeviceCurveEditorSettings OutputL3CurveEditorSettings;
 
         private UIGroup _group;
 
@@ -117,7 +117,6 @@ namespace ToySerialController
             CreateL3AxisUI(_group);
         }
 
-        public virtual void CreateCustomUI(UIGroup group) { }
         public virtual void DestroyUI(IUIBuilder builder) => _group.Destroy();
         public virtual void StoreConfig(JSONNode config)
         {
@@ -239,7 +238,7 @@ namespace ToySerialController
             OutputV0Curve = group.CreateCurve("Device:OutputV0Curve", OutputV0CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
             OutputV0CurveEditor.SetDrawScale(OutputV0Curve, Vector2.one, Vector2.zero, true);
 
-            OutputV0CurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputV0CurveSettings", OutputV0CurveEditor, OutputV0Curve);
+            OutputV0CurveEditorSettings = new DeviceCurveEditorSettings("OutputV0CurveSettings", OutputV0CurveEditor, OutputV0Curve);
             OutputV0CurveEditorSettings.CreateUI(group);
 
             EnableOverrideV0Toggle = group.CreateToggle("Device:EnableOverrideV0", "Enable Override", true, true);
@@ -261,7 +260,7 @@ namespace ToySerialController
             OutputV1Curve = group.CreateCurve("Device:OutputV1Curve", OutputV1CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
             OutputV1CurveEditor.SetDrawScale(OutputV1Curve, Vector2.one, Vector2.zero, true);
 
-            OutputV1CurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputV1CurveSettings", OutputV1CurveEditor, OutputV1Curve);
+            OutputV1CurveEditorSettings = new DeviceCurveEditorSettings("OutputV1CurveSettings", OutputV1CurveEditor, OutputV1Curve);
             OutputV1CurveEditorSettings.CreateUI(group);
 
             EnableOverrideV1Toggle = group.CreateToggle("Device:EnableOverrideV1", "Enable Override", true, true);
@@ -283,7 +282,7 @@ namespace ToySerialController
             OutputL3Curve = group.CreateCurve("Device:OutputL3Curve", OutputL3CurveEditor, new List<Keyframe> { new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0) });
             OutputL3CurveEditor.SetDrawScale(OutputL3Curve, Vector2.one, Vector2.zero, true);
 
-            OutputL3CurveEditorSettings = new AbstractGenericDeviceCurveSettings("OutputL3CurveSettings", OutputL3CurveEditor, OutputL3Curve);
+            OutputL3CurveEditorSettings = new DeviceCurveEditorSettings("OutputL3CurveSettings", OutputL3CurveEditor, OutputL3Curve);
             OutputL3CurveEditorSettings.CreateUI(group);
 
             EnableOverrideL3Toggle = group.CreateToggle("Device:EnableOverrideL3", "Enable Override", true, true);
@@ -293,7 +292,7 @@ namespace ToySerialController
         }
     }
 
-    public class AbstractGenericDeviceCurveSettings : IUIProvider, IConfigProvider
+    public class DeviceCurveEditorSettings : IUIProvider, IConfigProvider
     {
         private readonly string _name;
         private readonly UICurveEditor _editor;
@@ -310,7 +309,7 @@ namespace ToySerialController
         private JSONStorableBool TineRunningToggle;
         private JSONStorableBool TimeLoopingToggle;
 
-        public AbstractGenericDeviceCurveSettings(string name, UICurveEditor editor, JSONStorableAnimationCurve storable, Vector2 offset = new Vector2())
+        public DeviceCurveEditorSettings(string name, UICurveEditor editor, JSONStorableAnimationCurve storable, Vector2 offset = new Vector2())
         {
             _name = name;
             _editor = editor;

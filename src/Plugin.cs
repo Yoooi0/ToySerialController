@@ -1,10 +1,10 @@
 using System;
-using System.IO.Ports;
 using System.Linq;
 using ToySerialController.Config;
 using ToySerialController.MotionSource;
 using DebugUtils;
 using ToySerialController.Utils;
+using ToySerialController.UI;
 
 namespace ToySerialController
 {
@@ -14,10 +14,10 @@ namespace ToySerialController
         public static readonly string PluginAuthor = "Yoooi";
         public static readonly string PluginDir = $@"Custom\Scripts\{PluginAuthor}\{PluginName.Replace(" ", "")}";
 
-        private SerialPort _serial;
         private IDevice _device;
         private IMotionSource _motionSource;
         private bool _initialized;
+        private bool _isLoading;
         private int _physicsIteration;
 
         private SuperController Controller => SuperController.singleton;
@@ -25,6 +25,9 @@ namespace ToySerialController
         public override void Init()
         {
             base.Init();
+
+            UIManager.Initialize(this);
+
             try
             {
                 try
@@ -72,10 +75,17 @@ namespace ToySerialController
 
         protected void FixedUpdate()
         {
-            if (!_initialized || SuperController.singleton.isLoading)
+            if (!_initialized)
                 return;
 
-            if(_physicsIteration == 0)
+            var isLoading = SuperController.singleton.isLoading;
+            if (!_isLoading && isLoading)
+                OnSceneChanging();
+            else if (_isLoading && !isLoading)
+                OnSceneChanged();
+            _isLoading = isLoading;
+
+            if (_physicsIteration == 0)
                 DebugDraw.Clear();
 
             UpdateDevice();
@@ -90,11 +100,9 @@ namespace ToySerialController
         {
             try
             {
-                if (_motionSource?.Update() == true && _device?.Update(_motionSource) == true)
-                {
-                    _device.Write(_serial);
-                    DeviceReportText.val = _device.GetDeviceReport() ?? string.Empty;
-                }
+                var motionValid = _motionSource?.Update() == true;
+                _device?.Update(motionValid ? _motionSource : null, _outputTarget);
+                DeviceReportText.val = _device.GetDeviceReport() ?? string.Empty;
             }
             catch (Exception e)
             {
@@ -102,34 +110,16 @@ namespace ToySerialController
             }
         }
 
-        private void StartSerial()
+        protected void OnSceneChanging()
         {
-            var portName = ComPortChooser.val;
-            if (portName != "None")
-            {
-                if (portName.Substring(0, 3) == "COM" && portName.Length != 4)
-                    portName = $@"\\.\{portName}";
-
-                _serial = new SerialPort(portName, 115200)
-                {
-                    ReadTimeout = 1000,
-                    WriteTimeout = 1000,
-                    DtrEnable = true,
-                    RtsEnable = true
-                };
-                _serial.Open();
-
-                SuperController.LogMessage($"Serial connection started: {portName}");
-            }
+            _device?.OnSceneChanging();
+            _motionSource?.OnSceneChanging();
         }
 
-        private void StopSerial()
+        protected void OnSceneChanged()
         {
-            if (_serial?.IsOpen == true)
-            {
-                _serial.Close();
-                SuperController.LogMessage("Serial connection stopped");
-            }
+            _device?.OnSceneChanged();
+            _motionSource?.OnSceneChanged();
         }
 
         protected void OnDestroy()
@@ -137,8 +127,8 @@ namespace ToySerialController
             try
             {
                 DebugDraw.Clear();
-                StopSerial();
                 _device?.Dispose();
+                _outputTarget?.Dispose();
             }
             catch (Exception e)
             {

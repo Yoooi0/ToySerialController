@@ -77,6 +77,13 @@ namespace ToySerialController.UI
         public JSONStorableString CreateTextField(string paramName, string startingValue, float height, bool rightSide = false)
             => CreateTextField(paramName, startingValue, height, null, rightSide);
 
+        public UITextInput CreateTextInput(string paramName, string label, string startingValue, float height, bool rightSide = false)
+        {
+            var o = _builder.CreateTextInput(paramName, label, startingValue, height, rightSide);
+            _objects.Add(o);
+            return o;
+        }
+
         public JSONStorableBool CreateToggle(string paramName, string label, bool startingValue, JSONStorableBool.SetBoolCallback callback, bool rightSide = false)
         {
             var storable = _builder.CreateToggle(paramName, label, startingValue, callback, rightSide);
@@ -142,6 +149,7 @@ namespace ToySerialController.UI
                 else if (o is UIDynamicButton) ((UIDynamicButton)o).button.transform.gameObject.SetActive(visible);
                 else if (o is UICurveEditor) ((UICurveEditor)o).container.transform.gameObject.SetActive(visible);
                 else if (o is UIHorizontalGroup) ((UIHorizontalGroup)o).container.transform.gameObject.SetActive(visible);
+                else if (o is UITextInput) ((UITextInput)o).container.transform.gameObject.SetActive(visible);
                 else if (o is UIDynamic) ((UIDynamic)o).transform.gameObject.SetActive(visible);
             }
         }

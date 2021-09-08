@@ -1,8 +1,8 @@
 using DebugUtils;
-using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using ToySerialController.MotionSource;
+using ToySerialController.Device.OutputTarget;
 using UnityEngine;
 
 namespace ToySerialController
@@ -17,6 +17,7 @@ namespace ToySerialController
         private float? _lastNoCollisionTime;
         private bool _lastNoCollisionSmoothingEnabled;
         private float _lastNoCollisionSmoothingStartTime, _lastNoCollisionSmoothingDuration;
+        private bool _isLoading;
 
         protected string DeviceReport { get; set; }
         public string GetDeviceReport() => DeviceReport;
@@ -39,37 +40,6 @@ namespace ToySerialController
             _stringBuilder = new StringBuilder();
         }
 
-        public void Write(SerialPort serial)
-        {
-            _stringBuilder.Length = 0;
-            var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
-            var l1 = AppendIfChanged(_stringBuilder, "L1", XCmd[1], ref LastXCmd[1]);
-            var l2 = AppendIfChanged(_stringBuilder, "L2", XCmd[2], ref LastXCmd[2]);
-            var r0 = AppendIfChanged(_stringBuilder, "R0", RCmd[0], ref LastRCmd[0]);
-            var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
-            var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
-            var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
-            var v1 = AppendIfChanged(_stringBuilder, "V1", ECmd[1], ref LastECmd[1]);
-            var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
-
-            var data = $"{_stringBuilder}\n";
-            if (serial?.IsOpen == true && !string.IsNullOrEmpty(data.Trim()))
-                serial.Write(data);
-
-            _stringBuilder.Length = 0;
-            _stringBuilder.Append("        Target   Cmd      Serial\n");
-            _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
-            _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
-            _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
-            _stringBuilder.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
-            _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
-            _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
-            _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
-            _stringBuilder.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
-            _stringBuilder.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
-            DeviceReport = _stringBuilder.ToString();
-        }
-
         private string AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, ref float lastCmd)
         {
             if (!float.IsNaN(lastCmd) && Mathf.Abs(lastCmd - cmd) * 999 < 1)
@@ -81,71 +51,34 @@ namespace ToySerialController
             return command;
         }
 
-        public bool Update(IMotionSource motionSource)
+        public bool Update(IMotionSource motionSource, IOutputTarget outputTarget)
         {
-            var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
-            var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
-            var referenceEnding = motionSource.ReferencePosition + motionSource.ReferenceUp * length;
-            var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
-            var diffEnding = motionSource.TargetPosition - referenceEnding;
-            var aboveTarget = (Vector3.Dot(diffPosition, motionSource.TargetUp) < 0 && Vector3.Dot(diffEnding, motionSource.TargetUp) < 0)
-                                || Vector3.Dot(diffPosition, motionSource.ReferenceUp) < 0;
-
-            for (var i = 0; i < 5; i++)
-                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, Color.grey, radius);
-
-            var t = Mathf.Clamp(Vector3.Dot(motionSource.TargetPosition - motionSource.ReferencePosition, motionSource.ReferenceUp), 0f, length);
-            var closestPoint = motionSource.ReferencePosition + motionSource.ReferenceUp * t;
-
-            if (Vector3.Magnitude(closestPoint - motionSource.TargetPosition) <= radius)
+            if (_isLoading)
             {
-                if (diffPosition.magnitude > 0.0001f)
+                for (var i = 0; i < 9; i++)
+                    ETarget[i] = Mathf.Lerp(ETarget[i], 0f, 0.05f);
+
+                for (var i = 0; i < 3; i++)
                 {
-                    XTarget[0] = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
-                    if (aboveTarget)
-                        XTarget[0] = XTarget[0] > 0 ? 1 : 0;
-
-                    var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
-                    var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
-                    var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
-                    XTarget[1] = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
-                    XTarget[2] = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
-                }
-                else
-                {
-                    XTarget[0] = 1;
-                    XTarget[1] = 0;
-                    XTarget[2] = 0;
-                }
-
-                var correctedRight = Vector3.ProjectOnPlane(motionSource.TargetRight, motionSource.ReferenceUp);
-                if (Vector3.Dot(correctedRight, motionSource.ReferenceRight) < 0)
-                    correctedRight -= 2 * Vector3.Project(correctedRight, motionSource.ReferenceRight);
-
-                RTarget[0] = Vector3.SignedAngle(motionSource.ReferenceRight, correctedRight, motionSource.ReferenceUp) / 180;
-                RTarget[1] = -Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceForward), motionSource.ReferenceForward) / 90;
-                RTarget[2] = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceRight), motionSource.ReferenceRight) / 90;
-
-                ETarget[0] = OutputV0CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[1] = OutputV1CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[2] = OutputL3CurveEditorSettings.Evaluate(XTarget, RTarget);
-
-                if (_lastNoCollisionTime != null)
-                {
-                    _lastNoCollisionSmoothingEnabled = true;
-                    _lastNoCollisionSmoothingStartTime = Time.time;
-                    _lastNoCollisionSmoothingDuration = Mathf.Clamp(Time.time - _lastNoCollisionTime.Value, 0.5f, 2);
-                    _lastNoCollisionTime = null;
+                    XTarget[i] = Mathf.Lerp(XTarget[i], 0.5f, 0.05f);
+                    RTarget[i] = Mathf.Lerp(RTarget[i], 0f, 0.05f);
                 }
             }
-            else
+            else if(motionSource != null)
             {
-                if (_lastNoCollisionTime == null)
-                    _lastNoCollisionTime = Time.time;
+                UpdateMotion(motionSource);
 
-                return false;
+                DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, motionSource.TargetRight, Color.white, 0.05f);
+                DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, motionSource.TargetRight, Color.white, 0.05f);
             }
 
+            UpdateValues(outputTarget);
+
+            return true;
+        }
+
+        public void UpdateValues(IOutputTarget outputTarget)
+        {
             var l0t = (XTarget[0] - RangeMinL0Slider.val) / (RangeMaxL0Slider.val - RangeMinL0Slider.val);
             var l1t = (XTarget[1] + RangeMaxL1Slider.val) / (2 * RangeMaxL1Slider.val);
             var l2t = (XTarget[2] + RangeMaxL2Slider.val) / (2 * RangeMaxL2Slider.val);
@@ -234,13 +167,115 @@ namespace ToySerialController
             ECmd[1] = Mathf.Lerp(ECmd[1], v1CmdRaw, 1 - SmoothingSlider.val);
             ECmd[2] = Mathf.Lerp(ECmd[2], l3CmdRaw, 1 - SmoothingSlider.val);
 
-            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
-            DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, Color.white, 0.05f);
+            _stringBuilder.Length = 0;
+            var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
+            var l1 = AppendIfChanged(_stringBuilder, "L1", XCmd[1], ref LastXCmd[1]);
+            var l2 = AppendIfChanged(_stringBuilder, "L2", XCmd[2], ref LastXCmd[2]);
+            var r0 = AppendIfChanged(_stringBuilder, "R0", RCmd[0], ref LastRCmd[0]);
+            var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
+            var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
+            var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
+            var v1 = AppendIfChanged(_stringBuilder, "V1", ECmd[1], ref LastECmd[1]);
+            var l3 = AppendIfChanged(_stringBuilder, "L3", ECmd[2], ref LastECmd[2]);
 
-            return true;
+            var data = $"{_stringBuilder}\n";
+            if (!string.IsNullOrEmpty(data.Trim()))
+                outputTarget?.Write(data);
+
+            _stringBuilder.Length = 0;
+            _stringBuilder.Append("        Target   Cmd      Output\n");
+            _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
+            _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
+            _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
+            _stringBuilder.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
+            _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
+            _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
+            _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
+            _stringBuilder.Append("V1\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(v1);
+            _stringBuilder.Append("L3\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").Append(l3);
+            DeviceReport = _stringBuilder.ToString();
+        }
+
+        public bool UpdateMotion(IMotionSource motionSource)
+        {
+            var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
+            var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
+            var referenceEnding = motionSource.ReferencePosition + motionSource.ReferenceUp * length;
+            var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
+            var diffEnding = motionSource.TargetPosition - referenceEnding;
+            var aboveTarget = (Vector3.Dot(diffPosition, motionSource.TargetUp) < 0 && Vector3.Dot(diffEnding, motionSource.TargetUp) < 0)
+                                || Vector3.Dot(diffPosition, motionSource.ReferenceUp) < 0;
+
+            for (var i = 0; i < 5; i++)
+                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, motionSource.ReferenceRight, Color.grey, radius);
+
+            var t = Mathf.Clamp(Vector3.Dot(motionSource.TargetPosition - motionSource.ReferencePosition, motionSource.ReferenceUp), 0f, length);
+            var closestPoint = motionSource.ReferencePosition + motionSource.ReferenceUp * t;
+
+            if (Vector3.Magnitude(closestPoint - motionSource.TargetPosition) <= radius)
+            {
+                if (diffPosition.magnitude > 0.0001f)
+                {
+                    XTarget[0] = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
+                    if (aboveTarget)
+                        XTarget[0] = XTarget[0] > 0 ? 1 : 0;
+
+                    var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
+                    var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
+                    var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
+                    XTarget[1] = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
+                    XTarget[2] = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
+                }
+                else
+                {
+                    XTarget[0] = 1;
+                    XTarget[1] = 0;
+                    XTarget[2] = 0;
+                }
+
+                var correctedRight = Vector3.ProjectOnPlane(motionSource.TargetRight, motionSource.ReferenceUp);
+                if (Vector3.Dot(correctedRight, motionSource.ReferenceRight) < 0)
+                    correctedRight -= 2 * Vector3.Project(correctedRight, motionSource.ReferenceRight);
+
+                RTarget[0] = Vector3.SignedAngle(motionSource.ReferenceRight, correctedRight, motionSource.ReferenceUp) / 180;
+                RTarget[1] = -Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceForward), motionSource.ReferenceForward) / 90;
+                RTarget[2] = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceRight), motionSource.ReferenceRight) / 90;
+
+                ETarget[0] = OutputV0CurveEditorSettings.Evaluate(XTarget, RTarget);
+                ETarget[1] = OutputV1CurveEditorSettings.Evaluate(XTarget, RTarget);
+                ETarget[2] = OutputL3CurveEditorSettings.Evaluate(XTarget, RTarget);
+
+                if (_lastNoCollisionTime != null)
+                {
+                    _lastNoCollisionSmoothingEnabled = true;
+                    _lastNoCollisionSmoothingStartTime = Time.time;
+                    _lastNoCollisionSmoothingDuration = Mathf.Clamp(Time.time - _lastNoCollisionTime.Value, 0.5f, 2);
+                    _lastNoCollisionTime = null;
+                }
+
+                return true;
+            }
+            else
+            {
+                if (_lastNoCollisionTime == null)
+                    _lastNoCollisionTime = Time.time;
+
+                return false;
+            }
         }
 
         public void Dispose() => Dispose(true);
         protected virtual void Dispose(bool disposing) { }
+
+        public virtual void OnSceneChanging() => _isLoading = true;
+        public virtual void OnSceneChanged()
+        {
+            _lastNoCollisionSmoothingEnabled = true;
+            _lastNoCollisionSmoothingStartTime = Time.time;
+            _lastNoCollisionSmoothingDuration = 2;
+            _lastNoCollisionTime = null;
+
+            _isLoading = false;
+        }
     }
 }

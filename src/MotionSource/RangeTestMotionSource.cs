@@ -110,5 +110,8 @@ namespace ToySerialController.MotionSource
 
             _time = 0;
         }
+
+        public virtual void OnSceneChanging() { }
+        public virtual void OnSceneChanged() { }
     }
 }

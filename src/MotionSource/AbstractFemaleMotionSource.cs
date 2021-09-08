@@ -6,6 +6,8 @@ using ToySerialController.Utils;
 using UnityEngine;
 using DebugUtils;
 using System;
+using Leap.Unity.Infix;
+using Leap.Unity;
 
 namespace ToySerialController.MotionSource
 {
@@ -29,7 +31,7 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
-            var targets = new List<string> { "Auto", "Vagina", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet" };
+            var targets = new List<string> { "Auto", "Vagina", "Pelvis", "Hips", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet" };
             var defaultTarget = "Vagina";
 
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
@@ -81,6 +83,8 @@ namespace ToySerialController.MotionSource
         {
             if (TargetChooser.val == "Auto") return UpdateAutoTarget();
             else if (TargetChooser.val == "Vagina") return UpdateVaginaTarget();
+            else if (TargetChooser.val == "Pelvis") return UpdateFreeControllerTarget("pelvisControl");
+            else if (TargetChooser.val == "Hips") return UpdateFreeControllerTarget("hipControl");
             else if (TargetChooser.val == "Anus") return UpdateAnusTarget();
             else if (TargetChooser.val == "Mouth") return UpdateMouthTarget();
             else if (TargetChooser.val == "Left Hand") return UpdateLeftHandTarget();
@@ -143,6 +147,55 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
+        private bool UpdateFreeControllerTarget(string id)
+        {
+            var control = _femaleAtom.GetStorableByID(id) as FreeControllerV3;
+            if (control == null)
+                return false;
+
+            var followBody = control.followWhenOffRB;
+            var labiaTrigger = _femaleAtom.GetRigidBodyByName("LabiaTrigger");
+            var vaginaTrigger = _femaleAtom.GetRigidBodyByName("VaginaTrigger");
+            var positionOffsetCollider = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointB");
+
+            if (followBody == null || labiaTrigger == null || vaginaTrigger == null || positionOffsetCollider == null)
+                return false;
+
+            var vaginaPosition = labiaTrigger.transform.position;
+            var vaginaUp = (vaginaTrigger.transform.position - labiaTrigger.transform.position).normalized;
+            var vaginaRight = vaginaTrigger.transform.right;
+            var vaginaForward = Vector3.Cross(vaginaRight, vaginaUp);
+
+            var positionOffset = positionOffsetCollider.transform.position
+                + positionOffsetCollider.transform.forward * positionOffsetCollider.radius
+                - vaginaUp * 0.0025f;
+            vaginaPosition += vaginaUp * Vector3.Dot(positionOffset - vaginaPosition, vaginaUp);
+
+            var controlToBody = control.control.position - followBody.position;
+            var referenceToVagina = vaginaPosition - ReferencePosition;
+
+            var controlToBodyRotation = Quaternion.Slerp(control.control.rotation, followBody.rotation, 0.5f).ToNormalized();
+            var vaginaRotation = Quaternion.LookRotation(vaginaForward, vaginaUp);
+            var rotation = Quaternion.Slerp(vaginaRotation, controlToBodyRotation, 0.125f).ToNormalized();
+
+            _targetUp = rotation.GetUp();
+            _targetRight = rotation.GetRight();
+            _targetForward = rotation.GetForward();
+
+            var maxOffsetDistance = Mathf.Min(0.05f, referenceToVagina.magnitude);
+            var maxControlDistance = 0.25f;
+
+            var controlToBodyUp = Vector3.Project(controlToBody, vaginaUp);
+            var controlT = Mathf.Clamp01(controlToBodyUp.magnitude / maxControlDistance);
+            var strength = controlT < 0.5 ? 2 * controlT * controlT : -1 + (4 - 2 * controlT) * controlT;
+            var sign = -Mathf.Sign(Vector3.Dot(vaginaUp, controlToBodyUp));
+            var offsetN = referenceToVagina.normalized;
+            var offset = offsetN * sign * maxOffsetDistance * strength;
+
+            _targetPosition = vaginaPosition - offset;
+            return true;
+        }
+
         private bool UpdateAnusTarget()
         {
             var anusLeft = _femaleAtom.GetComponentByName<CapsuleCollider>("_JointAl");
@@ -174,7 +227,7 @@ namespace ToySerialController.MotionSource
             _targetForward = Vector3.Cross(_targetUp, _targetRight);
             _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
 
-            DebugDraw.DrawCircle(TargetPosition, TargetUp, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
+            DebugDraw.DrawCircle(TargetPosition, TargetUp, TargetRight, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
 
             return true;
         }
