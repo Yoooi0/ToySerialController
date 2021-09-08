@@ -47,7 +47,7 @@ namespace ToySerialController
                 return string.Empty;
 
             lastCmd = cmd;
-            var command = $"{axisName}{Mathf.RoundToInt(Mathf.Clamp01(cmd) * 999):000}I{Mathf.RoundToInt(Time.deltaTime * 1000)}";
+            var command = $"{axisName}{Mathf.RoundToInt(Mathf.Clamp01(cmd) * 9999):0000}I{Mathf.RoundToInt(Time.deltaTime * 1000)}";
             stringBuilder.Append(command).Append(" ");
             return command;
         }
