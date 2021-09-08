@@ -1,4 +1,4 @@
-﻿using CurveEditor;
+using CurveEditor;
 using CurveEditor.UI;
 using System;
 using System.Collections.Generic;
@@ -67,7 +67,6 @@ namespace ToySerialController.UI
         public JSONStorableFloat CreateSlider(string paramName, string label, float startingValue, float minValue, float maxValue, JSONStorableFloat.SetFloatCallback callback, bool constrain, bool interactable, bool rightSide = false, string valueFormat = "F2")
         {
             var storable = new JSONStorableFloat(paramName, startingValue, callback, minValue, maxValue, constrain, interactable);
-            UIManager.RegisterFloat(storable);
             var slider = UIManager.CreateSlider(storable, rightSide);
             slider.label = label;
             slider.valueFormat = valueFormat;
@@ -81,9 +80,6 @@ namespace ToySerialController.UI
         {
             var storable = new JSONStorableString(paramName, startingValue, callback);
             var textField = UIManager.CreateTextField(storable, rightSide);
-
-            UIManager.RegisterString(storable);
-
             var layoutElement = textField.gameObject.GetComponent<LayoutElement>();
             layoutElement.minHeight = height;
             layoutElement.preferredHeight = height;

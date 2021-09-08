@@ -94,6 +94,30 @@ namespace ToySerialController
             _motionSource?.RestoreConfig(config);
         }
 
+        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
+        {
+            if (!awakecalled)
+                Awake();
+
+            needsStore = false;
+            var config = ConfigManager.GetJSON(this);
+            config["id"] = storeId;
+            needsStore = true;
+
+            return config;
+        }
+
+
+        public override void RestoreFromJSON(JSONClass jc, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
+        {
+            insideRestore = true;
+            if (!awakecalled)
+                Awake();
+
+            ConfigManager.RestoreFromJSON(jc, this);
+            insideRestore = false;
+        }
+
         protected void SaveConfigCallback() => ConfigManager.OpenSaveDialog(SaveDialogCallback);
         protected void LoadConfigCallback() => ConfigManager.OpenLoadDialog(LoadDialogCallback);
         protected void SaveDefaultConfigCallback() => ConfigManager.SaveConfig($@"{PluginDir}\default.json", this);

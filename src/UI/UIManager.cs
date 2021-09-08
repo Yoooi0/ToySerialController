@@ -40,8 +40,5 @@ namespace ToySerialController.UI
         public static UIDynamicButton CreateButton(string label, bool rightSide) => _instance._plugin.CreateButton(label, rightSide);
         public static UIDynamicPopup CreateScrollablePopup(JSONStorableStringChooser storable, bool rightSide) => _instance._plugin.CreateScrollablePopup(storable, rightSide);
         public static UIDynamicPopup CreatePopup(JSONStorableStringChooser storable, bool rightSide) => _instance._plugin.CreatePopup(storable, rightSide);
-
-        public static void RegisterString(JSONStorableString storable) => _instance._plugin.RegisterString(storable);
-        public static void RegisterFloat(JSONStorableFloat storable) => _instance._plugin.RegisterFloat(storable);
     }
 }

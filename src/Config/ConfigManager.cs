@@ -37,7 +37,15 @@ namespace ToySerialController.Config
             var config = new JSONClass();
             provider.StoreConfig(config);
             Controller.SaveJSON(config, path, () => SuperController.LogMessage($"Saved config! \"{path}\""), null, null);
+        }
 
+        public static JSONClass GetJSON(IConfigProvider provider)
+        {
+            var config = new JSONClass();
+            provider.StoreConfig(config);
+
+            SuperController.LogMessage("Saved config to json!");
+            return config;
         }
 
         public static void LoadConfig(string path, IConfigProvider provider)
@@ -53,6 +61,12 @@ namespace ToySerialController.Config
             provider.RestoreConfig(config);
 
             SuperController.LogMessage($"Loaded config! \"{path}\"");
+        }
+
+        public static void RestoreFromJSON(JSONClass config, IConfigProvider provider)
+        {
+            provider.RestoreConfig(config);
+            SuperController.LogMessage("Loaded config from json!");
         }
 
         private static void OpenDialog(string defaultPath, string filter, bool textEntry, uFileBrowser.FileBrowserCallback callback)

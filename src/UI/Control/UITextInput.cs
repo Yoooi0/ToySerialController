@@ -11,10 +11,8 @@ namespace ToySerialController.UI
             : base(container, 510, height, new Vector2(10, 0), 2, null)
         {
             storable = new JSONStorableString(paramName, startingValue);
-            UIManager.RegisterString(storable);
 
             var gridLayout = gameObject.GetComponent<GridLayoutGroup>();
-
             var labelTransform = new GameObject();
             labelTransform.transform.SetParent(gridLayout.transform, false);
 
