@@ -11,7 +11,9 @@ namespace ToySerialController.Device.OutputTarget
 {
     public class UdpOutputTarget : IOutputTarget
     {
+        private UITextInput AddressInput;
         private UITextInput PortInput;
+        private JSONStorableString IpText;
         private JSONStorableString PortText;
         private UIHorizontalGroup ButtonGroup;
 
@@ -19,7 +21,9 @@ namespace ToySerialController.Device.OutputTarget
 
         public void CreateUI(IUIBuilder builder)
         {
+            AddressInput = builder.CreateTextInput("OutputTarget:Udp:Address", "Address:", "127.0.0.1", 50);
             PortInput = builder.CreateTextInput("OutputTarget:Udp:Port", "Port:", "8889", 50);
+            IpText = AddressInput.storable;
             PortText = PortInput.storable;
 
             ButtonGroup = builder.CreateHorizontalGroup(510, 50, new Vector2(10, 0), 2, idx => builder.CreateButtonEx());
@@ -34,17 +38,20 @@ namespace ToySerialController.Device.OutputTarget
 
         public void DestroyUI(IUIBuilder builder)
         {
+            builder.Destroy(AddressInput);
             builder.Destroy(PortInput);
             builder.Destroy(ButtonGroup);
         }
 
         public void RestoreConfig(JSONNode config)
         {
+            config.Restore(IpText);
             config.Restore(PortText);
         }
 
         public void StoreConfig(JSONNode config)
         {
+            config.Store(IpText);
             config.Store(PortText);
         }
 
@@ -55,8 +62,9 @@ namespace ToySerialController.Device.OutputTarget
 
             try
             {
+                var address = IPAddress.Parse(IpText.val);
                 var port = int.Parse(PortText.val);
-                var endpoint = new IPEndPoint(IPAddress.Loopback, port);
+                var endpoint = new IPEndPoint(address, port);
                 _client = new UdpClient
                 {
                     ExclusiveAddressUse = false
@@ -64,7 +72,7 @@ namespace ToySerialController.Device.OutputTarget
 
                 _client.Client.Blocking = false;
                 _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                _client.Client.Bind(endpoint);
+                _client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
                 _client.Connect(endpoint);
 
                 SuperController.LogMessage($"Upd started on port: {port}");
@@ -72,6 +80,7 @@ namespace ToySerialController.Device.OutputTarget
             catch (Exception e)
             {
                 SuperController.LogError(e.ToString());
+                StopUdp();
             }
         }
 
@@ -89,9 +98,8 @@ namespace ToySerialController.Device.OutputTarget
                 SuperController.LogError(e.ToString());
             }
 
-            _client = null;
-
             SuperController.LogMessage("Upd stopped");
+            _client = null;
         }
 
 
