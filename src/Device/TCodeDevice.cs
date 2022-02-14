@@ -273,10 +273,10 @@ namespace ToySerialController
                         XTarget[0] = XTarget[0] > 0 ? 1 : 0;
 
                     var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
-                    var yOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
-                    var zOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
-                    XTarget[1] = yOffset.magnitude * Mathf.Sign(Vector3.Dot(yOffset, motionSource.ReferenceRight));
-                    XTarget[2] = zOffset.magnitude * Mathf.Sign(Vector3.Dot(zOffset, motionSource.ReferenceForward));
+                    var rightOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
+                    var forwardOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
+                    XTarget[1] = forwardOffset.magnitude * Mathf.Sign(Vector3.Dot(forwardOffset, motionSource.ReferenceForward));
+                    XTarget[2] = rightOffset.magnitude * Mathf.Sign(Vector3.Dot(rightOffset, motionSource.ReferenceRight));
                 }
                 else
                 {

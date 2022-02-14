@@ -166,7 +166,7 @@ namespace ToySerialController
         {
             var group = new UIGroup(builder);
             var visible = false;
-            L1AxisTitle = builder.CreateButton("Left/Right | L1", () => group.SetVisible(visible = !visible), Color.green * 0.8f, Color.white, true);
+            L1AxisTitle = builder.CreateButton("Forward/Backward | L1", () => group.SetVisible(visible = !visible), Color.green * 0.8f, Color.white, true);
             RangeMaxL1Slider = group.CreateSlider("Device:L1:RangeMax", "Range Max (+/- cm)", 0.15f, 0.01f, 1f, true, true, true, "P2");
             OutputMaxL1Slider = group.CreateSlider("Device:L1:OutputMax", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
             OffsetL1Slider = group.CreateSlider("Device:L1:Offset", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
@@ -181,7 +181,7 @@ namespace ToySerialController
         {
             var group = new UIGroup(builder);
             var visible = false;
-            L2AxisTitle = builder.CreateButton("Forward/Backward | L2", () => group.SetVisible(visible = !visible), Color.blue * 0.8f, Color.white, true);
+            L2AxisTitle = builder.CreateButton("Left/Right | L2", () => group.SetVisible(visible = !visible), Color.blue * 0.8f, Color.white, true);
             RangeMaxL2Slider = group.CreateSlider("Device:L2:RangeMax", "Range Max (+/- cm)", 0.15f, 0.01f, 1f, true, true, true, "P2");
             OutputMaxL2Slider = group.CreateSlider("Device:L2:OutputMax", "Output Max (+/- %)", 0.5f, 0f, 0.5f, true, true, true, "P0");
             OffsetL2Slider = group.CreateSlider("Device:L2:Offset", "Offset (%)", 0f, -0.25f, 0.25f, true, true, true, "P0");
