@@ -16,6 +16,8 @@ namespace ToySerialController.UI
         private readonly List<object> _objects;
         private readonly List<string> _storableBlacklist;
 
+        public bool IsVisible { get; private set; } = true;
+
         public UIGroup(IUIBuilder builder)
         {
             _builder = builder;
@@ -140,6 +142,11 @@ namespace ToySerialController.UI
 
         public void SetVisible(bool visible)
         {
+            var group = _builder as UIGroup;
+            if (group != null && !group.IsVisible)
+                visible = false;
+
+            IsVisible = visible;
             foreach (var o in _objects)
             {
                 if (o is JSONStorableStringChooser) ((JSONStorableStringChooser)o).popup.transform.gameObject.SetActive(visible);
@@ -163,9 +170,28 @@ namespace ToySerialController.UI
 
         public void RestoreConfig(JSONNode config)
         {
-            foreach (var s in _objects.OfType<JSONStorableParam>().ToList())
-                if (!_storableBlacklist.Contains(s.name))
+            var toRestore = default(List<JSONStorableParam>);
+            var restored = new List<JSONStorableParam>();
+
+            var tryCount = 0;
+            do
+            {
+                toRestore = _objects.OfType<JSONStorableParam>()
+                                    .Except(restored)
+                                    .Where(s => !_storableBlacklist.Contains(s.name))
+                                    .ToList();
+
+                foreach (var s in toRestore)
+                {
                     config.Restore(s);
+                    restored.Add(s);
+                }
+
+                if (toRestore.Count == 0)
+                    tryCount++;
+                else
+                    tryCount = 0;
+            } while (tryCount < 2);
         }
     }
 }
