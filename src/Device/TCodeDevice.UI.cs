@@ -411,6 +411,7 @@ namespace ToySerialController
 
         public void StoreConfig(JSONNode config)
         {
+            config.Store(_storable);
             config.Store(CurveXAxisChooser);
             config.Store(TimeSpanSlider);
             config.Store(TineRunningToggle);
@@ -419,6 +420,7 @@ namespace ToySerialController
 
         public void RestoreConfig(JSONNode config)
         {
+            config.Restore(_storable);
             config.Restore(CurveXAxisChooser);
             CurveXAxisChooserCallback(CurveXAxisChooser.val);
 
