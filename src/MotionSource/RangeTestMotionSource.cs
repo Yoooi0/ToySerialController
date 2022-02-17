@@ -1,4 +1,4 @@
-using DebugUtils;
+﻿using DebugUtils;
 using SimpleJSON;
 using System.Collections.Generic;
 using ToySerialController.UI;

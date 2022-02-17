@@ -1,4 +1,4 @@
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -66,7 +66,7 @@ namespace ToySerialController.MotionSource
 
         public override bool Update()
         {
-            if (_femaleAtom == null)
+            if (_femaleAtom == null || !_femaleAtom.on)
                 return false;
 
             if (UpdateTarget())

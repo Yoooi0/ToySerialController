@@ -1,4 +1,4 @@
-using SimpleJSON;
+﻿using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,7 @@ using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {
+    //TODO: support futa
     public class MaleFemaleMotionSource : AbstractFemaleMotionSource
     {
         private float _penisLength;
@@ -65,7 +66,7 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateMale()
         {
-            if (_maleAtom == null)
+            if (_maleAtom == null || !_maleAtom.on)
                 return false;
 
             var penisColliders = new List<string> {

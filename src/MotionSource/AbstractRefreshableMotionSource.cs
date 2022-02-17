@@ -8,6 +8,7 @@ namespace ToySerialController.MotionSource
     public abstract class AbstractRefreshableMotionSource : IMotionSource
     {
         private UIDynamicButton RefreshButton;
+        private UIDynamic Spacer;
 
         public abstract Vector3 ReferencePosition { get; }
         public abstract Vector3 ReferenceUp { get; }
@@ -33,11 +34,14 @@ namespace ToySerialController.MotionSource
             });
             RefreshButton.buttonColor = new Color(0, 0.75f, 1f) * 0.8f;
             RefreshButton.textColor = Color.white;
+
+            Spacer = builder.CreateSpacer(200);
         }
 
         public virtual void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(RefreshButton);
+            builder.Destroy(Spacer);
         }
 
         protected abstract void RefreshButtonCallback();

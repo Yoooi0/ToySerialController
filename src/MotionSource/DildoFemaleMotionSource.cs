@@ -1,4 +1,4 @@
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
@@ -61,7 +61,7 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateDildo()
         {
-            if (_dildoAtom == null)
+            if (_dildoAtom == null || !_dildoAtom.on)
                 return false;
 
             var baseCollider = _dildoAtom.GetComponentByName<Transform>("b1").GetComponentByName<CapsuleCollider>("_Collider1");
@@ -71,7 +71,7 @@ namespace ToySerialController.MotionSource
             if (baseCollider == null || midCollider == null || tipCollider == null)
                 return false;
 
-            var basePosition = baseCollider.transform.position - baseCollider.transform.up * baseCollider.radius;
+            var basePosition = baseCollider.transform.position - baseCollider.transform.up * baseCollider.radius / 2;
             var midPosition = midCollider.transform.position;
             var tipPosition = tipCollider.transform.position + tipCollider.transform.up * tipCollider.height;
 

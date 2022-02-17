@@ -1,4 +1,4 @@
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -81,7 +81,7 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateAsset()
         {
-            if (_assetAtom == null || _assetComponent == null)
+            if (_assetAtom == null || _assetComponent == null || !_assetAtom.on)
                 return false;
 
             if (DebugDraw.Enabled)
