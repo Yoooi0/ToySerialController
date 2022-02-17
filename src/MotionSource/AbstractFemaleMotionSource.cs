@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -37,9 +37,9 @@ namespace ToySerialController.MotionSource
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
             TargetChooser = builder.CreateScrollablePopup("MotionSource:FemaleTarget", "Select Target Point", targets, defaultTarget, null);
 
-            FindFemales();
-
             base.CreateUI(builder);
+
+            FindFemales();
         }
 
         public override void DestroyUI(IUIBuilder builder)
@@ -61,8 +61,7 @@ namespace ToySerialController.MotionSource
             config.Restore(FemaleChooser);
             config.Restore(TargetChooser);
 
-            if (_femaleAtom == null)
-                FemaleChooser.valNoCallback = "None";
+            FindFemales(FemaleChooser.val);
         }
 
         public override bool Update()
@@ -336,7 +335,7 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private void FindFemales()
+        private void FindFemales(string defaultUid = null)
         {
             var people = Controller.GetAtoms().Where(a => a.type == "Person");
             var femaleUids = people
@@ -344,11 +343,13 @@ namespace ToySerialController.MotionSource
                 .Select(a => a.uid)
                 .ToList();
 
-            var defaultFemale = femaleUids.FirstOrDefault(uid => uid == _femaleAtom?.uid) ?? femaleUids.FirstOrDefault() ?? "None";
+            if (!femaleUids.Contains(defaultUid))
+                defaultUid = femaleUids.FirstOrDefault(uid => uid == _femaleAtom?.uid) ?? femaleUids.FirstOrDefault() ?? "None";
+
             femaleUids.Insert(0, "None");
 
             FemaleChooser.choices = femaleUids;
-            FemaleChooserCallback(defaultFemale);
+            FemaleChooserCallback(defaultUid);
         }
 
         protected void FemaleChooserCallback(string s)
@@ -357,6 +358,6 @@ namespace ToySerialController.MotionSource
             FemaleChooser.valNoCallback = _femaleAtom == null ? "None" : s;
         }
 
-        protected override void RefreshButtonCallback() => FindFemales();
+        protected override void RefreshButtonCallback() => FindFemales(FemaleChooser.val);
     }
 }

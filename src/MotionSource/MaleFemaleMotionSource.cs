@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,16 +34,32 @@ namespace ToySerialController.MotionSource
         public override void CreateUI(IUIBuilder builder)
         {
             MaleChooser = builder.CreatePopup("MotionSource:Male", "Select Male", null, null, MaleChooserCallback);
-            FindMales();
 
             base.CreateUI(builder);
+
+            FindMales();
         }
 
         public override void DestroyUI(IUIBuilder builder)
         {
-            builder.Destroy(MaleChooser);
             base.DestroyUI(builder);
+            builder.Destroy(MaleChooser);
         }
+
+        public override void StoreConfig(JSONNode config)
+        {
+            base.StoreConfig(config);
+            config.Store(MaleChooser);
+        }
+
+        public override void RestoreConfig(JSONNode config)
+        {
+            base.RestoreConfig(config);
+            config.Restore(MaleChooser);
+
+            FindMales(MaleChooser.val);
+        }
+
 
         public override bool Update() => UpdateMale() && base.Update();
 
@@ -98,7 +114,7 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private void FindMales()
+        private void FindMales(string defaultUid = null)
         {
             var people = Controller.GetAtoms().Where(a => a.type == "Person");
             var maleUids = people
@@ -106,23 +122,13 @@ namespace ToySerialController.MotionSource
                 .Select(a => a.uid)
                 .ToList();
 
-            var defaultMale = maleUids.FirstOrDefault(uid => uid == _maleAtom?.uid) ?? maleUids.FirstOrDefault() ?? "None";
+            if (!maleUids.Contains(defaultUid))
+                defaultUid = maleUids.FirstOrDefault(uid => uid == _maleAtom?.uid) ?? maleUids.FirstOrDefault() ?? "None";
+
             maleUids.Insert(0, "None");
 
             MaleChooser.choices = maleUids;
-            MaleChooserCallback(defaultMale);
-        }
-
-        public override void StoreConfig(JSONNode config)
-        {
-            config.Store(MaleChooser);
-            base.StoreConfig(config);
-        }
-
-        public override void RestoreConfig(JSONNode config)
-        {
-            config.Restore(MaleChooser);
-            base.RestoreConfig(config);
+            MaleChooserCallback(defaultUid);
         }
 
         protected void MaleChooserCallback(string s)
@@ -134,7 +140,7 @@ namespace ToySerialController.MotionSource
         protected override void RefreshButtonCallback()
         {
             base.RefreshButtonCallback();
-            FindMales();
+            FindMales(MaleChooser.val);
         }
     }
 }

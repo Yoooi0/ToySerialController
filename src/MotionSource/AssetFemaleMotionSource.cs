@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -17,7 +17,6 @@ namespace ToySerialController.MotionSource
         private float _assetRadius;
         private Vector3 _assetPosition;
         private Vector3 _assetUp, _assetRight, _assetForward;
-        private UIGroup _group;
 
         private JSONStorableStringChooser AssetChooser, ComponentChooser, UpDirectionChooser;
         private JSONStorableFloat PositionOffsetSlider, LengthScaleSlider;
@@ -34,34 +33,48 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
-            _group = new UIGroup(builder);
-            AssetChooser = _group.CreatePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
-            ComponentChooser = _group.CreateScrollablePopup("MotionSource:Component", "Select Component", null, null, ComponentChooserCallback);
-            UpDirectionChooser = _group.CreateScrollablePopup("MotionSource:UpDirection", "Select Up Direction", new List<string> { "+Up", "+Right", "+Forward", "-Up", "-Right", "-Forward" }, "+Up", null);
-            PositionOffsetSlider = _group.CreateSlider("MotionSource:PositionOffset", "Position Offset", 0, 0, 1, true, true);
-            LengthScaleSlider = _group.CreateSlider("MotionSource:LengthScale", "Length Scale", 1, 0, 1, true, true);
-
-            FindAssets();
+            AssetChooser = builder.CreateScrollablePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
+            ComponentChooser = builder.CreateScrollablePopup("MotionSource:Component", "Select Component", null, null, ComponentChooserCallback);
+            UpDirectionChooser = builder.CreateScrollablePopup("MotionSource:UpDirection", "Select Up Direction", new List<string> { "+Up", "+Right", "+Forward", "-Up", "-Right", "-Forward" }, "+Up", null);
+            PositionOffsetSlider = builder.CreateSlider("MotionSource:PositionOffset", "Position Offset", 0, 0, 1, true, true);
+            LengthScaleSlider = builder.CreateSlider("MotionSource:LengthScale", "Length Scale", 1, 0, 1, true, true);
 
             base.CreateUI(builder);
+
+            FindAssets();
         }
 
         public override void DestroyUI(IUIBuilder builder)
         {
-            _group.Destroy();
             base.DestroyUI(builder);
+            builder.Destroy(AssetChooser);
+            builder.Destroy(ComponentChooser);
+            builder.Destroy(UpDirectionChooser);
+            builder.Destroy(PositionOffsetSlider);
+            builder.Destroy(LengthScaleSlider);
         }
 
         public override void StoreConfig(JSONNode config)
         {
-            _group.StoreConfig(config);
             base.StoreConfig(config);
+            config.Store(AssetChooser);
+            config.Store(ComponentChooser);
+            config.Store(UpDirectionChooser);
+            config.Store(PositionOffsetSlider);
+            config.Store(LengthScaleSlider);
         }
 
         public override void RestoreConfig(JSONNode config)
         {
-            _group.RestoreConfig(config);
             base.RestoreConfig(config);
+            config.Restore(AssetChooser);
+            config.Restore(ComponentChooser);
+            config.Restore(UpDirectionChooser);
+            config.Restore(PositionOffsetSlider);
+            config.Restore(LengthScaleSlider);
+
+            FindAssets(AssetChooser.val);
+            ComponentChooserCallback(ComponentChooser.val);
         }
 
         public override bool Update() => UpdateAsset() && base.Update();
@@ -121,18 +134,20 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private void FindAssets()
+        private void FindAssets(string defaultUid = null)
         {
             var assetUids = Controller.GetAtoms()
                 .Where(a => a.type == "CustomUnityAsset")
                 .Select(a => a.uid)
                 .ToList();
 
-            var defaultAsset = assetUids.FirstOrDefault(uid => uid == _assetAtom?.uid) ?? assetUids.FirstOrDefault() ?? "None";
+            if (!assetUids.Contains(defaultUid))
+                defaultUid = assetUids.FirstOrDefault(uid => uid == _assetAtom?.uid) ?? assetUids.FirstOrDefault() ?? "None";
+
             assetUids.Insert(0, "None");
 
             AssetChooser.choices = assetUids;
-            AssetChooserCallback(defaultAsset);
+            AssetChooserCallback(defaultUid);
         }
 
         protected void AssetChooserCallback(string s)
@@ -157,17 +172,21 @@ namespace ToySerialController.MotionSource
             componentNames.Insert(0, "None");
 
             ComponentChooser.choices = componentNames;
-            ComponentChooser.valNoCallback = defaultComponent;
             ComponentChooserCallback(defaultComponent);
         }
 
-        protected void ComponentChooserCallback(string s) => _assetComponent = (Component)_assetAtom?.GetComponentByName<MeshFilter>(s)
-                                                                            ?? (Component)_assetAtom?.GetComponentByName<SkinnedMeshRenderer>(s);
+        protected void ComponentChooserCallback(string s)
+        {
+            _assetComponent = (Component)_assetAtom?.GetComponentByName<MeshFilter>(s)
+                           ?? (Component)_assetAtom?.GetComponentByName<SkinnedMeshRenderer>(s);
+
+            ComponentChooser.valNoCallback = _assetComponent == null ? "None" : s;
+        }
 
         protected override void RefreshButtonCallback()
         {
             base.RefreshButtonCallback();
-            FindAssets();
+            FindAssets(AssetChooser.val);
         }
     }
 }

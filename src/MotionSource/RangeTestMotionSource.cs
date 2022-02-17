@@ -1,4 +1,4 @@
-﻿using DebugUtils;
+using DebugUtils;
 using SimpleJSON;
 using System.Collections.Generic;
 using ToySerialController.UI;
@@ -20,7 +20,6 @@ namespace ToySerialController.MotionSource
         public Vector3 TargetRight { get; private set; }
         public Vector3 TargetForward { get; private set; }
 
-        private UIGroup _group;
         private JSONStorableFloat SpeedSlider;
         private JSONStorableStringChooser AxisChooser, MotionTypeChooser;
         private float _time;
@@ -49,16 +48,17 @@ namespace ToySerialController.MotionSource
 
         public void CreateUI(IUIBuilder builder)
         {
-            _group = new UIGroup(builder);
-            SpeedSlider = _group.CreateSlider("MotionSource:Speed", "Speed", 1, 0, 10, true, true);
-            AxisChooser = _group.CreateScrollablePopup("MotionSource:Axis", "Select Axis", new List<string> { "L0", "L1", "L2", "R0", "R1", "R2" }, "L0", AxisChooserCallback);
-            MotionTypeChooser = _group.CreateScrollablePopup("MotionSource:Value", "Select Value", new List<string> { "Min", "Center", "Max", "Linear", "Smooth" }, "Min", AxisChooserCallback);
+            SpeedSlider = builder.CreateSlider("MotionSource:Speed", "Speed", 1, 0, 10, true, true);
+            AxisChooser = builder.CreateScrollablePopup("MotionSource:Axis", "Select Axis", new List<string> { "L0", "L1", "L2", "R0", "R1", "R2" }, "L0", AxisChooserCallback);
+            MotionTypeChooser = builder.CreateScrollablePopup("MotionSource:Value", "Select Value", new List<string> { "Min", "Center", "Max", "Linear", "Smooth" }, "Min", AxisChooserCallback);
 
         }
         
         public void DestroyUI(IUIBuilder builder)
         {
-            _group.Destroy();
+            builder.Destroy(SpeedSlider);
+            builder.Destroy(AxisChooser);
+            builder.Destroy(MotionTypeChooser);
         }
 
         public void RestoreConfig(JSONNode config) { }

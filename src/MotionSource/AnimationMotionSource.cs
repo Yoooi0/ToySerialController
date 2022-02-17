@@ -39,15 +39,15 @@ namespace ToySerialController.MotionSource
         {
             AnimationChooser = builder.CreatePopup("MotionSource:Animation", "Select Animation", null, null, AnimationChooserCallback);
 
-            FindAnimations();
-
             base.CreateUI(builder);
+
+            FindAnimations();
         }
 
         public override void DestroyUI(IUIBuilder builder)
         {
-            builder.Destroy(AnimationChooser);
             base.DestroyUI(builder);
+            builder.Destroy(AnimationChooser);
         }
 
         public override void StoreConfig(JSONNode config)
@@ -58,6 +58,7 @@ namespace ToySerialController.MotionSource
         public override void RestoreConfig(JSONNode config)
         {
             config.Restore(AnimationChooser);
+            FindAnimations(AnimationChooser.val);
         }
 
         public override bool Update()
@@ -99,18 +100,20 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private void FindAnimations()
+        private void FindAnimations(string defaultUid = null)
         {
             var animationUids = Controller.GetAtoms()
                 .SelectMany(a => a.GetComponentsInChildren<AnimationPattern>())
                 .Select(a => a.uid)
                 .ToList();
 
-            var defaultAnimation = animationUids.FirstOrDefault(uid => uid == _animation?.uid) ?? animationUids.FirstOrDefault() ?? "None";
+            if (!animationUids.Contains(defaultUid))
+                defaultUid = animationUids.FirstOrDefault(uid => uid == _animation?.uid) ?? animationUids.FirstOrDefault() ?? "None";
+
             animationUids.Insert(0, "None");
 
             AnimationChooser.choices = animationUids;
-            AnimationChooserCallback(defaultAnimation);
+            AnimationChooserCallback(defaultUid);
         }
 
         protected void AnimationChooserCallback(string s)
@@ -121,6 +124,6 @@ namespace ToySerialController.MotionSource
             AnimationChooser.valNoCallback = _animation == null ? "None" : s;
         }
 
-        protected override void RefreshButtonCallback() => FindAnimations();
+        protected override void RefreshButtonCallback() => FindAnimations(AnimationChooser.val);
     }
 }

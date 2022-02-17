@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
@@ -15,7 +15,6 @@ namespace ToySerialController.MotionSource
         private float _dildoRadius;
         private Vector3 _dildoPosition;
         private Vector3 _dildoUp, _dildoRight, _dildoForward, _dildoPlaneNormal;
-        private UIGroup _group;
 
         private JSONStorableStringChooser DildoChooser;
 
@@ -31,30 +30,31 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
-            _group = new UIGroup(builder);
-            DildoChooser = _group.CreatePopup("MotionSource:Dildo", "Select Dildo", null, null, DildoChooserCallback);
-
-            FindDildos();
+            DildoChooser = builder.CreatePopup("MotionSource:Dildo", "Select Dildo", null, null, DildoChooserCallback);
 
             base.CreateUI(builder);
+
+            FindDildos();
         }
 
         public override void DestroyUI(IUIBuilder builder)
         {
-            _group.Destroy();
             base.DestroyUI(builder);
+            builder.Destroy(DildoChooser);
         }
 
         public override void StoreConfig(JSONNode config)
         {
-            _group.StoreConfig(config);
             base.StoreConfig(config);
+            config.Store(DildoChooser);
         }
 
         public override void RestoreConfig(JSONNode config)
         {
-            _group.RestoreConfig(config);
             base.RestoreConfig(config);
+            config.Restore(DildoChooser);
+
+            FindDildos(DildoChooser.val);
         }
 
         public override bool Update() => UpdateDildo() && base.Update();
@@ -91,37 +91,32 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private void FindDildos()
+        private void FindDildos(string defaultUid = null)
         {
             var dildoUids = Controller.GetAtoms()
                 .Where(a => a.type == "Dildo")
                 .Select(a => a.uid)
                 .ToList();
 
-            var defaultDildo = dildoUids.FirstOrDefault(uid => uid == _dildoAtom?.uid) ?? dildoUids.FirstOrDefault() ?? "None";
+            if (!dildoUids.Contains(defaultUid))
+                defaultUid = dildoUids.FirstOrDefault(uid => uid == _dildoAtom?.uid) ?? dildoUids.FirstOrDefault() ?? "None";
+
             dildoUids.Insert(0, "None");
 
             DildoChooser.choices = dildoUids;
-            DildoChooserCallback(defaultDildo);
+            DildoChooserCallback(defaultUid);
         }
 
         protected void DildoChooserCallback(string s)
         {
             _dildoAtom = Controller.GetAtomByUid(s);
-
-            if(_dildoAtom == null)
-            {
-                DildoChooser.valNoCallback = "None";
-                return;
-            }
-
-            DildoChooser.valNoCallback = s;
+            DildoChooser.valNoCallback = _dildoAtom == null ? "None" : s;
         }
 
         protected override void RefreshButtonCallback()
         {
             base.RefreshButtonCallback();
-            FindDildos();
+            FindDildos(DildoChooser.val);
         }
     }
 }
