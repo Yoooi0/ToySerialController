@@ -158,7 +158,7 @@ namespace ToySerialController.MotionSource
             {
                 AssetChooser.valNoCallback = "None";
                 ComponentChooser.choices = new List<string> { "None" };
-                ComponentChooser.valNoCallback = "None";
+                ComponentChooserCallback("None");
                 return;
             }
 

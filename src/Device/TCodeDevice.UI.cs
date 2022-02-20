@@ -108,8 +108,8 @@ namespace ToySerialController
             MainTitle = _group.CreateButton("Main", () => group.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white, true);
 
             SmoothingSlider = group.CreateSlider("Plugin:Smoothing", "Smoothing (%)", 0.1f, 0.0f, 0.99f, true, true, true, "P0");
-            ReferenceLengthScaleSlider = group.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 10, true, true, true, "P0");
-            ReferenceRadiusScaleSlider = group.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 10, true, true, true, "P0");
+            ReferenceLengthScaleSlider = group.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 3, true, true, true, "P0");
+            ReferenceRadiusScaleSlider = group.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 5, true, true, true, "P0");
 
             group.SetVisible(false);
 
