@@ -21,10 +21,11 @@ namespace ToySerialController.MotionSource
 
         private JSONStorableStringChooser FemaleChooser;
         private JSONStorableStringChooser TargetChooser;
+        private JSONStorableFloat TargetOffsetSlider;
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 TargetPosition => _targetPosition;
+        public override Vector3 TargetPosition => _targetPosition + _targetUp * TargetOffsetSlider.val;
         public override Vector3 TargetUp => _targetUp;
         public override Vector3 TargetRight => _targetRight;
         public override Vector3 TargetForward => _targetForward;
@@ -36,6 +37,7 @@ namespace ToySerialController.MotionSource
 
             FemaleChooser = builder.CreatePopup("MotionSource:Female", "Select Female", null, null, FemaleChooserCallback);
             TargetChooser = builder.CreateScrollablePopup("MotionSource:FemaleTarget", "Select Target Point", targets, defaultTarget, null);
+            TargetOffsetSlider = builder.CreateSlider("MotionSource:TargetOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, true, true, valueFormat: "P2");
 
             base.CreateUI(builder);
 
@@ -46,6 +48,7 @@ namespace ToySerialController.MotionSource
         {
             builder.Destroy(FemaleChooser);
             builder.Destroy(TargetChooser);
+            builder.Destroy(TargetOffsetSlider);
 
             base.DestroyUI(builder);
         }
@@ -54,12 +57,14 @@ namespace ToySerialController.MotionSource
         {
             config.Store(FemaleChooser);
             config.Store(TargetChooser);
+            config.Store(TargetOffsetSlider);
         }
 
         public override void RestoreConfig(JSONNode config)
         {
             config.Restore(FemaleChooser);
             config.Restore(TargetChooser);
+            config.Restore(TargetOffsetSlider);
 
             FindFemales(FemaleChooser.val);
         }
