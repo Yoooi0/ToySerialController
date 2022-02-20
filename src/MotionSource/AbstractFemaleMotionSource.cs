@@ -244,7 +244,7 @@ namespace ToySerialController.MotionSource
         {
             var carpal = _femaleAtom.GetRigidBodyByName($"{side}Carpal2");
             var fingerBase = carpal?.GetComponentByName<CapsuleCollider>("_Collider3");
-            var fingerTip = _femaleAtom.GetRigidBodyByName($"{side}Pinky3").GetComponentInChildren<CapsuleCollider>();
+            var fingerTip = _femaleAtom.GetRigidBodyByName($"{side}Pinky3")?.GetComponentInChildren<CapsuleCollider>();
 
             if (carpal == null || fingerBase == null || fingerTip == null)
                 return false;
@@ -272,9 +272,9 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateChestTarget()
         {
-            var left = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderslNipple1").jointCollider as CapsuleCollider;
-            var right = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoCollidersrNipple1").jointCollider as CapsuleCollider;
-            var chest = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderschest2c").jointCollider as CapsuleCollider;
+            var left = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderslNipple1")?.jointCollider as CapsuleCollider;
+            var right = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoCollidersrNipple1")?.jointCollider as CapsuleCollider;
+            var chest = _femaleAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderschest2c")?.jointCollider as CapsuleCollider;
 
             if (left == null || right == null || chest == null)
                 return false;
@@ -298,10 +298,9 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateFootTarget(string side)
         {
-            var foot = _femaleAtom.GetRigidBodyByName($"{side}Foot");
-            var footBase = foot?.GetComponentByName<CapsuleCollider>("_Collider6");
+            var footBase = _femaleAtom.GetRigidBodyByName($"{side}Foot")?.GetComponentByName<CapsuleCollider>("_Collider6");
 
-            if (foot == null || footBase == null)
+            if (footBase == null)
                 return false;
 
             _targetRight = footBase.transform.forward;
@@ -319,12 +318,10 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateFeetTarget()
         {
-            var leftFoot = _femaleAtom.GetRigidBodyByName("lFoot");
-            var rightFoot = _femaleAtom.GetRigidBodyByName("rFoot");
-            var leftFootBase = leftFoot?.GetComponentByName<CapsuleCollider>("_Collider6");
-            var rightFootBase = rightFoot?.GetComponentByName<CapsuleCollider>("_Collider6");
+            var leftFootBase = _femaleAtom.GetRigidBodyByName("lFoot")?.GetComponentByName<CapsuleCollider>("_Collider6");
+            var rightFootBase = _femaleAtom.GetRigidBodyByName("rFoot")?.GetComponentByName<CapsuleCollider>("_Collider6");
 
-            if (leftFoot == null || rightFoot == null || leftFootBase == null || rightFootBase == null)
+            if (leftFootBase == null || rightFootBase == null)
                 return false;
 
             var leftPosition = leftFootBase.transform.position - leftFootBase.transform.up * leftFootBase.radius;
