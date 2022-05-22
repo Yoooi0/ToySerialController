@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace ToySerialController.UI
 {
@@ -6,6 +7,7 @@ namespace ToySerialController.UI
     {
         private static UIManager Instance;
         private MVRScript plugin;
+        private Dictionary<JSONStorableFloat, UIDynamicSlider> jsonStorableFloatToSlider;
 
         public static Transform ConfigurableTextFieldPrefab => Instance.plugin.manager.configurableTextFieldPrefab;
         public static Transform ConfigurablePopupPrefab => Instance.plugin.manager.configurablePopupPrefab;
@@ -16,6 +18,8 @@ namespace ToySerialController.UI
         private UIManager(MVRScript plugin)
         {
             this.plugin = plugin;
+
+            jsonStorableFloatToSlider = new Dictionary<JSONStorableFloat, UIDynamicSlider>();
         }
 
         public static void Initialize(MVRScript plugin)
@@ -43,8 +47,11 @@ namespace ToySerialController.UI
 
         public static void RemoveSlider(JSONStorableFloat storable)
         {
+            var dynamicSlider = Instance.jsonStorableFloatToSlider[storable];
+            Instance.jsonStorableFloatToSlider.Remove(storable);
+
             Instance.plugin.DeregisterFloat(storable);
-            Instance.plugin.RemoveSlider(storable);
+            Instance.plugin.RemoveSlider(dynamicSlider);
         }
 
         public static void RemovePopup(JSONStorableStringChooser storable)
@@ -71,7 +78,10 @@ namespace ToySerialController.UI
         public static UIDynamicSlider CreateSlider(JSONStorableFloat storable, bool rightSide)
         {
             Instance.plugin.RegisterFloat(storable);
-            return Instance.plugin.CreateSlider(storable, rightSide);
+            var dynamicSlider = Instance.plugin.CreateSlider(storable, rightSide);
+
+            Instance.jsonStorableFloatToSlider.Add(storable, dynamicSlider);
+            return dynamicSlider;
         }
 
         public static UIDynamicPopup CreateScrollablePopup(JSONStorableStringChooser storable, bool rightSide)
