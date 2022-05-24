@@ -12,6 +12,9 @@ namespace ToySerialController.Device.OutputTarget
         private JSONStorableStringChooser ComPortChooser;
         private UIHorizontalGroup  ButtonGroup;
 
+        private JSONStorableAction StartSerialAction;
+        private JSONStorableAction StopSerialAction;
+
         private SerialPort _serial;
 
         public void CreateUI(IUIBuilder builder)
@@ -26,12 +29,18 @@ namespace ToySerialController.Device.OutputTarget
             var stopSerialButton = ButtonGroup.items[1].GetComponent<UIDynamicButton>();
             stopSerialButton.label = "Stop Serial";
             stopSerialButton.button.onClick.AddListener(StopSerial);
+
+            StartSerialAction = UIManager.CreateAction("Start Serial", StartSerial);
+            StopSerialAction = UIManager.CreateAction("Stop Serial", StopSerial);
         }
 
         public void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(ComPortChooser);
             builder.Destroy(ButtonGroup);
+
+            UIManager.RemoveAction(StartSerialAction);
+            UIManager.RemoveAction(StopSerialAction);
         }
 
         public void RestoreConfig(JSONNode config)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ToySerialController.UI
@@ -29,6 +30,15 @@ namespace ToySerialController.UI
             
             Instance = new UIManager(plugin);
         }
+
+        public static JSONStorableAction CreateAction(string name, Action callback)
+        {
+            var action = new JSONStorableAction(name, new JSONStorableAction.ActionCallback(callback));
+            Instance.plugin.RegisterAction(action);
+            return action;
+        }
+
+        public static void RemoveAction(JSONStorableAction action) => Instance.plugin.DeregisterAction(action);
 
         public static void RemoveSpacer(UIDynamic o) => Instance.plugin.RemoveSpacer(o);
         public static void RemoveButton(UIDynamicButton o) => Instance.plugin.RemoveButton(o);

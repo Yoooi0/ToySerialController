@@ -17,6 +17,9 @@ namespace ToySerialController.Device.OutputTarget
         private JSONStorableString PortText;
         private UIHorizontalGroup ButtonGroup;
 
+        private JSONStorableAction StartUdpAction;
+        private JSONStorableAction StopUdpAction;
+
         private UdpClient _client;
 
         public void CreateUI(IUIBuilder builder)
@@ -34,6 +37,9 @@ namespace ToySerialController.Device.OutputTarget
             var stopSerialButton = ButtonGroup.items[1].GetComponent<UIDynamicButton>();
             stopSerialButton.label = "Stop Udp";
             stopSerialButton.button.onClick.AddListener(StopUdp);
+
+            StartUdpAction = UIManager.CreateAction("Start Udp", StartUdp);
+            StopUdpAction = UIManager.CreateAction("Stop Udp", StopUdp);
         }
 
         public void DestroyUI(IUIBuilder builder)
@@ -41,6 +47,9 @@ namespace ToySerialController.Device.OutputTarget
             builder.Destroy(AddressInput);
             builder.Destroy(PortInput);
             builder.Destroy(ButtonGroup);
+
+            UIManager.RemoveAction(StartUdpAction);
+            UIManager.RemoveAction(StopUdpAction);
         }
 
         public void RestoreConfig(JSONNode config)

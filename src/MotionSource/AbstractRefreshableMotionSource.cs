@@ -10,6 +10,8 @@ namespace ToySerialController.MotionSource
         private UIDynamicButton RefreshButton;
         private UIDynamic Spacer;
 
+        private JSONStorableAction RefreshAction;
+
         public abstract Vector3 ReferencePosition { get; }
         public abstract Vector3 ReferenceUp { get; }
         public abstract Vector3 ReferenceRight { get; }
@@ -28,7 +30,8 @@ namespace ToySerialController.MotionSource
 
         public virtual void CreateUI(IUIBuilder builder)
         {
-            RefreshButton = builder.CreateButton("Refresh", () => {
+            RefreshButton = builder.CreateButton("Refresh", () => 
+            {
                 ComponentCache.Clear();
                 RefreshButtonCallback();
             });
@@ -36,12 +39,20 @@ namespace ToySerialController.MotionSource
             RefreshButton.textColor = Color.white;
 
             Spacer = builder.CreateSpacer(200);
+
+            RefreshAction = UIManager.CreateAction("Refresh Motion Source", () => 
+            {
+                ComponentCache.Clear();
+                RefreshButtonCallback();
+            });
         }
 
         public virtual void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(RefreshButton);
             builder.Destroy(Spacer);
+
+            UIManager.RemoveAction(RefreshAction);
         }
 
         protected abstract void RefreshButtonCallback();
