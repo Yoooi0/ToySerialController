@@ -14,9 +14,11 @@ namespace ToySerialController.MotionSource
     {
         private float _penisLength;
         private float _penisRadius;
-        private Transform _penisOrigin;
+        private Vector3 _penisUp;
+        private Vector3 _penisRight;
+        private Vector3 _penisForward;
         private Vector3 _planeNormal;
-        private Vector3 _referencePosition;
+        private Vector3 _penisPosition;
 
         private Atom _maleAtom;
 
@@ -24,10 +26,10 @@ namespace ToySerialController.MotionSource
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 ReferencePosition => _referencePosition;
-        public override Vector3 ReferenceUp => _penisOrigin.up;
-        public override Vector3 ReferenceRight => -_penisOrigin.forward;
-        public override Vector3 ReferenceForward => _penisOrigin.right;
+        public override Vector3 ReferencePosition => _penisPosition;
+        public override Vector3 ReferenceUp => _penisUp;
+        public override Vector3 ReferenceRight => _penisRight;
+        public override Vector3 ReferenceForward => _penisForward;
         public override float ReferenceLength => _penisLength;
         public override float ReferenceRadius => _penisRadius;
         public override Vector3 ReferencePlaneNormal => _planeNormal;
@@ -69,41 +71,33 @@ namespace ToySerialController.MotionSource
             if (_maleAtom == null || !_maleAtom.on)
                 return false;
 
-            var penisColliders = new List<string> {
-                "AutoColliderGen1Hard",
-                "AutoColliderGen2Hard",
-                "AutoColliderGen3aHard",
-                "AutoColliderGen3bHard"
-            };
+            var gen1Collider = _maleAtom.GetComponentByName<CapsuleCollider>("AutoColliderGen1Hard");
+            var gen2Collider = _maleAtom.GetComponentByName<CapsuleCollider>("AutoColliderGen2Hard");
+            var gen3aCollider = _maleAtom.GetComponentByName<CapsuleCollider>("AutoColliderGen3aHard");
+            var gen3bCollider = _maleAtom.GetComponentByName<CapsuleCollider>("AutoColliderGen3bHard");
 
-            var penisTransforms = _maleAtom
-                .GetComponentsInChildren<Collider>()
-                .Where(c => penisColliders.Contains(c.name))
-                .OrderBy(c => c.name, StringComparer.OrdinalIgnoreCase)
-                .Select(c => c.transform)
-                .ToList();
-
-            if (penisTransforms.Count != 4)
+            if (gen1Collider == null || gen2Collider == null || gen3aCollider == null || gen3bCollider == null)
                 return false;
 
-            _penisLength = 0.0f;
-            for (int i = 0, j = 1; j < penisTransforms.Count; i = j++)
-                _penisLength += Vector3.Distance(penisTransforms[i].position, penisTransforms[j].position);
+            var gen1Transform = gen1Collider.transform;
+            var gen1Position = gen1Transform.position - gen1Transform.up * (gen1Collider.height / 2 - gen1Collider.radius);
+            var gen2Position = gen2Collider.transform.position;
+            var gen3aPosition = gen3aCollider.transform.position;
+            var gen3bPosition = gen3bCollider.transform.position + gen3bCollider.transform.right * gen3bCollider.radius;
 
-            _penisOrigin = penisTransforms[0];
-
-            var positionOffset = -_penisOrigin.up * (penisTransforms[1].position - penisTransforms[0].position).magnitude * 0.15f;
-            _referencePosition = _penisOrigin.position + positionOffset;
-            _penisLength += positionOffset.magnitude;
-            _penisLength += penisTransforms[3].GetComponent<CapsuleCollider>().radius;
-            _penisRadius = penisTransforms[1].GetComponent<CapsuleCollider>().radius;
+            _penisUp = gen1Transform.up;
+            _penisRight = -gen1Transform.forward;
+            _penisForward = gen1Transform.right;
+            _penisPosition = gen1Position;
+            _penisRadius = gen2Collider.radius;
+            _penisLength = Vector3.Distance(gen1Position, gen2Position) + Vector3.Distance(gen2Position, gen3aPosition) + Vector3.Distance(gen3aPosition, gen3bPosition);
 
             var pelvisRight = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFR3Joint")?.transform;
             var pelvidLeft = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFL3Joint")?.transform;
             var pelvisMid = _maleAtom.GetComponentByName<Transform>("AutoColliderpelvisF1")?.GetComponentByName<Collider>("AutoColliderpelvisF4Joint")?.transform;
 
             if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
-                _planeNormal = _penisOrigin.up;
+                _planeNormal = _penisUp;
             else
                 _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
