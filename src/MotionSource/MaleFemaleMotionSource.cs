@@ -23,6 +23,7 @@ namespace ToySerialController.MotionSource
         private Atom _maleAtom;
 
         private JSONStorableStringChooser MaleChooser;
+        private JSONStorableFloat PenisBaseOffset;
 
         private SuperController Controller => SuperController.singleton;
 
@@ -37,6 +38,7 @@ namespace ToySerialController.MotionSource
         public override void CreateUI(IUIBuilder builder)
         {
             MaleChooser = builder.CreatePopup("MotionSource:Male", "Select Male", null, null, MaleChooserCallback);
+            PenisBaseOffset = builder.CreateSlider("MotionSource:PenisBaseOffset", "Penis base offset", 0, -0.05f, 0.05f, true, true);
 
             base.CreateUI(builder);
 
@@ -47,18 +49,21 @@ namespace ToySerialController.MotionSource
         {
             base.DestroyUI(builder);
             builder.Destroy(MaleChooser);
+            builder.Destroy(PenisBaseOffset);
         }
 
         public override void StoreConfig(JSONNode config)
         {
             base.StoreConfig(config);
             config.Store(MaleChooser);
+            config.Store(PenisBaseOffset);
         }
 
         public override void RestoreConfig(JSONNode config)
         {
             base.RestoreConfig(config);
             config.Restore(MaleChooser);
+            config.Restore(PenisBaseOffset);
 
             FindMales(MaleChooser.val);
         }
@@ -80,7 +85,7 @@ namespace ToySerialController.MotionSource
                 return false;
 
             var gen1Transform = gen1Collider.transform;
-            var gen1Position = gen1Transform.position - gen1Transform.up * (gen1Collider.height / 2 - gen1Collider.radius);
+            var gen1Position = gen1Transform.position - gen1Transform.up * (gen1Collider.height / 2 - gen1Collider.radius + PenisBaseOffset.val);
             var gen2Position = gen2Collider.transform.position;
             var gen3aPosition = gen3aCollider.transform.position;
             var gen3bPosition = gen3bCollider.transform.position + gen3bCollider.transform.right * gen3bCollider.radius;
