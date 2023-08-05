@@ -341,7 +341,10 @@ namespace ToySerialController.MotionSource
         {
             var people = Controller.GetAtoms().Where(a => a.type == "Person");
             var femaleUids = people
-                .Where(a => a.GetComponentInChildren<DAZCharacterSelector>().gender == DAZCharacterSelector.Gender.Female)
+                .Where(a => {
+                    var character = a.GetComponentInChildren<DAZCharacterSelector>();
+                    return character != null && character.gender == DAZCharacterSelector.Gender.Female;
+                })
                 .Select(a => a.uid)
                 .ToList();
 
