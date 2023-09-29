@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using ToySerialController.Utils;
 using UnityEngine;
 using Leap.Unity.Infix;
@@ -10,21 +10,16 @@ namespace ToySerialController.MotionSource
     {
         protected override DAZCharacterSelector.Gender TargetGender => DAZCharacterSelector.Gender.Female;
 
-        protected override IList<string> Targets { get; } = new List<string>
-        {
-            "Auto", "Vagina", "Pelvis", "Hips", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet"
-        };
-
         protected override string DefaultTarget => "Vagina";
 
         public FemaleTarget() : base()
         {
-            RegisterUpdater("Vagina", UpdateVaginaTarget);
-            RegisterUpdater("Pelvis", r => UpdateFreeControllerTarget("pelvisControl", r));
-            RegisterUpdater("Hips", r => UpdateFreeControllerTarget("hipControl", r));
-            RegisterUpdater("Chest", UpdateChestTarget);
+            RegisterTarget("Vagina", UpdateVaginaTarget);
+            RegisterTarget("Pelvis", r => UpdateFreeControllerTarget("pelvisControl", r));
+            RegisterTarget("Hips", r => UpdateFreeControllerTarget("hipControl", r));
+            RegisterTarget("Chest", UpdateChestTarget);
 
-            RegisterAutoUpdater(UpdateVaginaTarget);
+            RegisterAutoUpdater("Vagina");
         }
 
         private bool UpdateVaginaTarget(IMotionSourceReference reference)

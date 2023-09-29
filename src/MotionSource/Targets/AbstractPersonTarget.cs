@@ -1,4 +1,4 @@
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -11,13 +11,16 @@ namespace ToySerialController.MotionSource
 {
     public abstract class AbstractPersonTarget : IMotionSourceTarget
     {
+        private readonly Dictionary<string, Func<IMotionSourceReference, bool>> _targets;
+        private readonly List<Func<IMotionSourceReference, bool>> _autoUpdaters;
+
         protected Atom _personAtom;
         protected Vector3 _position;
 
         private JSONStorableStringChooser PersonChooser;
         private JSONStorableStringChooser TargetChooser;
         private JSONStorableFloat TargetOffsetSlider;
-        
+
         protected SuperController Controller => SuperController.singleton;
 
         public Vector3 Position => _position + Up * TargetOffsetSlider.val;
@@ -25,62 +28,37 @@ namespace ToySerialController.MotionSource
         public Vector3 Right { get; protected set; }
         public Vector3 Forward { get; protected set; }
 
-        private IDictionary<string, Func<IMotionSourceReference, bool>> TargetUpdaters { get; }
-
-        private IList<Func<IMotionSourceReference, bool>> AutoUpdaters { get; }
-
-        protected abstract IList<string> Targets { get; }
-
         protected abstract string DefaultTarget { get; }
 
         protected abstract DAZCharacterSelector.Gender TargetGender { get; }
 
         protected AbstractPersonTarget()
         {
-            TargetUpdaters = new Dictionary<string, Func<IMotionSourceReference, bool>>
-            {
-                { "Auto",  UpdateAutoTarget },
-                { "Anus",  UpdateAnusTarget },
-                { "Mouth",  UpdateMouthTarget },
-                { "Left Hand",  UpdateLeftHandTarget },
-                { "Right Hand",  UpdateRightHandTarget },
-                { "Left Foot",  UpdateLeftFootTarget },
-                { "Right Foot",  UpdateRightFootTarget },
-                { "Feet",  UpdateFeetTarget }
-            };
+            _targets = new Dictionary<string, Func<IMotionSourceReference, bool>>();
+            _autoUpdaters = new List<Func<IMotionSourceReference, bool>>();
 
-            AutoUpdaters = new List<Func<IMotionSourceReference, bool>>
-            {
-                UpdateMouthTarget,
-                UpdateLeftHandTarget,
-                UpdateRightHandTarget
-            };
+            RegisterTarget("Auto",  UpdateAutoTarget);
+            RegisterTarget("Anus",  UpdateAnusTarget);
+            RegisterTarget("Mouth",  UpdateMouthTarget);
+            RegisterTarget("Left Hand",  UpdateLeftHandTarget);
+            RegisterTarget("Right Hand",  UpdateRightHandTarget);
+            RegisterTarget("Left Foot",  UpdateLeftFootTarget);
+            RegisterTarget("Right Foot",  UpdateRightFootTarget);
+            RegisterTarget("Feet", UpdateFeetTarget);
+
+            RegisterAutoUpdater("Mouth");
+            RegisterAutoUpdater("Left Hand");
+            RegisterAutoUpdater("Right Hand");
         }
 
-        protected void RegisterUpdater(string key, Func<IMotionSourceReference, bool> updater)
-        {
-            TargetUpdaters[key] = updater;
-        }
-
-        protected void RegisterAutoUpdater(Func<IMotionSourceReference, bool> updater)
-        {
-            AutoUpdaters.Add(updater);
-        }
-
-        protected void RegisterAutoUpdater(string key)
-        {
-            if (!TargetUpdaters.ContainsKey(key))
-            {
-                throw new ArgumentException("No matching updater found. Did you call RegisterUpdater?", key);
-            }
-
-            RegisterAutoUpdater(TargetUpdaters[key]);
-        }
+        protected void RegisterTarget(string key, Func<IMotionSourceReference, bool> updater) => _targets.Add(key, updater);
+        protected void RegisterAutoUpdater(Func<IMotionSourceReference, bool> updater) => _autoUpdaters.Add(updater);
+        protected void RegisterAutoUpdater(string key) => RegisterAutoUpdater(_targets[key]);
 
         public void CreateUI(IUIBuilder builder)
         {
             PersonChooser = builder.CreatePopup($"MotionSource:{TargetGender}", $"Select {TargetGender}", null, null, TargetPersonChooserCallback);
-            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetGender}Target", "Select Target Point", Targets.ToList(), DefaultTarget, null);
+            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetGender}Target", "Select Target Point", _targets.Keys.ToList(), DefaultTarget, null);
             TargetOffsetSlider = builder.CreateSlider("MotionSource:TargetOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, true, true, valueFormat: "P2");
 
             FindTargets();
@@ -114,15 +92,15 @@ namespace ToySerialController.MotionSource
             if (_personAtom == null || !_personAtom.on)
                 return false;
 
-            return TargetUpdaters.ContainsKey(TargetChooser.val) && TargetUpdaters[TargetChooser.val](reference);
+            return _targets.ContainsKey(TargetChooser.val) && _targets[TargetChooser.val](reference);
         }
 
         private bool UpdateAutoTarget(IMotionSourceReference reference)
         {
-            var bestPick = AutoUpdaters.First();
+            var bestPick = _autoUpdaters.First();
             var bestDistance = float.MaxValue;
 
-            foreach (var target in AutoUpdaters)
+            foreach (var target in _autoUpdaters)
             {
                 if (target(reference))
                 {
