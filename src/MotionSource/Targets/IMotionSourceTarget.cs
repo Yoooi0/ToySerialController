@@ -1,24 +1,19 @@
-﻿using SimpleJSON;
+﻿using ToySerialController.Config;
 using ToySerialController.UI;
 using UnityEngine;
 
 namespace ToySerialController.MotionSource
 {
-    public interface IMotionSourceTarget
+    public interface IMotionSourceTarget : IUIProvider, IConfigProvider
     {
         IMotionSourceReference Reference { get; set; }
 
-        Vector3 TargetPosition { get; }
-        Vector3 TargetUp { get; }
-        Vector3 TargetRight { get; }
-        Vector3 TargetForward { get; }
+        Vector3 Position { get; }
+        Vector3 Up { get; }
+        Vector3 Right { get; }
+        Vector3 Forward { get; }
 
-        void RefreshButtonCallback();
-        void RestoreConfig(JSONNode config);
-        void StoreConfig(JSONNode config);
+        void Refresh();
         bool Update();
-
-        void CreateUI(IUIBuilder builder);
-        void DestroyUI(IUIBuilder builder);
     }
 }

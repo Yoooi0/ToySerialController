@@ -10,7 +10,7 @@ namespace ToySerialController.MotionSource
     {
         protected override DAZCharacterSelector.Gender TargetGender => DAZCharacterSelector.Gender.Female;
 
-        protected override IEnumerable<string> Targets { get; } = new List<string>
+        protected override IList<string> Targets { get; } = new List<string>
         {
             "Auto", "Vagina", "Pelvis", "Hips", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet"
         };
@@ -18,6 +18,7 @@ namespace ToySerialController.MotionSource
         protected override string DefaultTarget => "Vagina";
         protected override string TargetPersonStorageKey => "Female";
         protected override string TargetPointStorageKey => "FemaleTarget";
+        protected override string TargetPersonChooserLabel => "Select Female";
 
         public FemaleTarget() : base()
         {
@@ -38,15 +39,15 @@ namespace ToySerialController.MotionSource
             if (labiaTrigger == null || vaginaTrigger == null || positionOffsetCollider == null)
                 return false;
 
-            _targetPosition = labiaTrigger.transform.position;
-            _targetUp = (vaginaTrigger.transform.position - labiaTrigger.transform.position).normalized;
-            _targetRight = vaginaTrigger.transform.right;
-            _targetForward = Vector3.Cross(_targetRight, _targetUp);
+            _position = labiaTrigger.transform.position;
+            Up = (vaginaTrigger.transform.position - labiaTrigger.transform.position).normalized;
+            Right = vaginaTrigger.transform.right;
+            Forward = Vector3.Cross(Right, Up);
 
             var positionOffset = positionOffsetCollider.transform.position
                 + positionOffsetCollider.transform.forward * positionOffsetCollider.radius
-                - _targetUp * 0.0025f;
-            _targetPosition += _targetUp * Vector3.Dot(positionOffset - _targetPosition, _targetUp);
+                - Up * 0.0025f;
+            _position += Up * Vector3.Dot(positionOffset - _position, Up);
 
             return true;
         }
@@ -82,9 +83,9 @@ namespace ToySerialController.MotionSource
             var vaginaRotation = Quaternion.LookRotation(vaginaForward, vaginaUp);
             var rotation = Quaternion.Slerp(vaginaRotation, controlToBodyRotation, 0.125f).ToNormalized();
 
-            _targetUp = rotation.GetUp();
-            _targetRight = rotation.GetRight();
-            _targetForward = rotation.GetForward();
+            Up = rotation.GetUp();
+            Right = rotation.GetRight();
+            Forward = rotation.GetForward();
 
             var maxOffsetDistance = Mathf.Min(0.05f, referenceToVagina.magnitude);
             var maxControlDistance = 0.25f;
@@ -96,7 +97,7 @@ namespace ToySerialController.MotionSource
             var offsetN = referenceToVagina.normalized;
             var offset = offsetN * sign * maxOffsetDistance * strength;
 
-            _targetPosition = vaginaPosition - offset;
+            _position = vaginaPosition - offset;
             return true;
         }
 
@@ -111,13 +112,13 @@ namespace ToySerialController.MotionSource
 
             var leftPosition = left.transform.position;
             var rightPosition = right.transform.position;
-            var chestPosition = chest.transform.position + _targetForward * chest.radius;
+            var chestPosition = chest.transform.position + Forward * chest.radius;
 
-            _targetRight = (rightPosition - leftPosition).normalized;
-            _targetForward = chest.transform.forward;
-            _targetUp = Vector3.Cross(_targetForward, _targetRight);
+            Right = (rightPosition - leftPosition).normalized;
+            Forward = chest.transform.forward;
+            Up = Vector3.Cross(Forward, Right);
 
-            _targetPosition = Vector3.Lerp(chestPosition, (leftPosition + rightPosition) / 2, 0.3f);
+            _position = Vector3.Lerp(chestPosition, (leftPosition + rightPosition) / 2, 0.3f);
 
             return true;
         }

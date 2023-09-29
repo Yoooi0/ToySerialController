@@ -19,10 +19,10 @@ namespace ToySerialController.MotionSource
         public override float ReferenceLength => Reference.Length;
         public override float ReferenceRadius => Reference.Radius;
         public override Vector3 ReferencePlaneNormal => Reference.PlaneNormal;
-        public override Vector3 TargetPosition => Target.TargetPosition;
-        public override Vector3 TargetUp => Target.TargetUp;
-        public override Vector3 TargetRight => Target.TargetRight;
-        public override Vector3 TargetForward => Target.TargetForward;
+        public override Vector3 TargetPosition => Target.Position;
+        public override Vector3 TargetUp => Target.Up;
+        public override Vector3 TargetRight => Target.Right;
+        public override Vector3 TargetForward => Target.Forward;
 
         public CompositeMotionSource() : base()
         {
@@ -74,8 +74,8 @@ namespace ToySerialController.MotionSource
 
         protected override void RefreshButtonCallback()
         {
-            Reference.RefreshButtonCallback();
-            Target.RefreshButtonCallback();
+            Reference.Refresh();
+            Target.Refresh();
         }
     }
 }

@@ -115,7 +115,7 @@ namespace ToySerialController.MotionSource
             MaleChooser.valNoCallback = _maleAtom == null ? "None" : s;
         }
 
-        public void RefreshButtonCallback()
+        public void Refresh()
         {
             FindMales(MaleChooser.val);
         }

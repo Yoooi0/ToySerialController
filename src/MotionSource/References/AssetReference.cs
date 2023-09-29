@@ -167,7 +167,7 @@ namespace ToySerialController.MotionSource
             ComponentChooser.valNoCallback = _assetComponent == null ? "None" : s;
         }
 
-        public void RefreshButtonCallback()
+        public void Refresh()
         {
             FindAssets(AssetChooser.val);
         }

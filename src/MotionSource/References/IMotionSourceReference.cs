@@ -1,5 +1,4 @@
-﻿using SimpleJSON;
-using ToySerialController.Config;
+﻿using ToySerialController.Config;
 using ToySerialController.UI;
 using UnityEngine;
 
@@ -15,7 +14,7 @@ namespace ToySerialController.MotionSource
         float Radius { get; }
         Vector3 PlaneNormal { get; }
 
-        void RefreshButtonCallback();
+        void Refresh();
         bool Update();
     }
 }

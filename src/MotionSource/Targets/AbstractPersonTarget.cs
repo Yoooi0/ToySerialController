@@ -12,10 +12,7 @@ namespace ToySerialController.MotionSource
     public abstract class AbstractPersonTarget : IMotionSourceTarget
     {
         protected Atom _personAtom;
-        protected Vector3 _targetPosition;
-        protected Vector3 _targetUp;
-        protected Vector3 _targetRight;
-        protected Vector3 _targetForward;
+        protected Vector3 _position;
 
         private JSONStorableStringChooser PersonChooser;
         private JSONStorableStringChooser TargetChooser;
@@ -25,16 +22,16 @@ namespace ToySerialController.MotionSource
 
         public IMotionSourceReference Reference { get; set; }
 
-        public Vector3 TargetPosition => _targetPosition + _targetUp * TargetOffsetSlider.val;
-        public Vector3 TargetUp => _targetUp;
-        public Vector3 TargetRight => _targetRight;
-        public Vector3 TargetForward => _targetForward;
+        public Vector3 Position => _position + Up * TargetOffsetSlider.val;
+        public Vector3 Up { get; protected set; }
+        public Vector3 Right { get; protected set; }
+        public Vector3 Forward { get; protected set; }
 
         private IDictionary<string, Func<bool>> TargetUpdaters { get; }
 
         private IList<Func<bool>> AutoUpdaters { get; }
 
-        protected abstract IEnumerable<string> Targets { get; }
+        protected abstract IList<string> Targets { get; }
 
         protected abstract string DefaultTarget { get; }
 
@@ -42,7 +39,7 @@ namespace ToySerialController.MotionSource
 
         protected virtual string TargetPointStorageKey => "TargetPoint";
 
-        protected virtual string DropDownLabel => "Select Target";
+        protected virtual string TargetPersonChooserLabel => "Select Target";
 
         protected abstract DAZCharacterSelector.Gender TargetGender { get; }
 
@@ -90,10 +87,8 @@ namespace ToySerialController.MotionSource
 
         public void CreateUI(IUIBuilder builder)
         {
-            var targets = new List<string>(Targets);
-
-            PersonChooser = builder.CreatePopup($"MotionSource:{TargetPersonStorageKey}", DropDownLabel, null, null, TargetPersonChooserCallback);
-            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetPointStorageKey}", "Select Target Point", targets, DefaultTarget, null);
+            PersonChooser = builder.CreatePopup($"MotionSource:{TargetPersonStorageKey}", TargetPersonChooserLabel, null, null, TargetPersonChooserCallback);
+            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetPointStorageKey}", "Select Target Point", Targets.ToList(), DefaultTarget, null);
             TargetOffsetSlider = builder.CreateSlider("MotionSource:TargetOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, true, true, valueFormat: "P2");
 
             FindTargets();
@@ -139,15 +134,14 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateAutoTarget()
         {
-            var targets = AutoUpdaters.ToArray();
-            var bestPick = targets.First();
+            var bestPick = AutoUpdaters.First();
             var bestDistance = float.MaxValue;
 
-            foreach (var target in targets)
+            foreach (var target in AutoUpdaters)
             {
                 if (target())
                 {
-                    var distance = Vector3.Distance(Reference.Position, TargetPosition);
+                    var distance = Vector3.Distance(Reference.Position, Position);
                     if (distance < bestDistance)
                     {
                         bestPick = target;
@@ -167,10 +161,10 @@ namespace ToySerialController.MotionSource
             if (anusLeft == null || anusRight == null)
                 return false;
 
-            _targetUp = ((anusLeft.transform.up + anusRight.transform.up) / 2).normalized;
-            _targetRight = ((anusLeft.transform.right + anusRight.transform.right) / 2).normalized;
-            _targetForward = ((anusLeft.transform.forward + anusRight.transform.forward) / 2).normalized;
-            _targetPosition = (anusLeft.transform.position + anusRight.transform.position) / 2;
+            Up = ((anusLeft.transform.up + anusRight.transform.up) / 2).normalized;
+            Right = ((anusLeft.transform.right + anusRight.transform.right) / 2).normalized;
+            Forward = ((anusLeft.transform.forward + anusRight.transform.forward) / 2).normalized;
+            _position = (anusLeft.transform.position + anusRight.transform.position) / 2;
 
             return true;
         }
@@ -185,12 +179,12 @@ namespace ToySerialController.MotionSource
                 return false;
 
             var center = (topLip.transform.position + bottomLip.transform.position) / 2;
-            _targetUp = (mouthTrigger.transform.position - center).normalized;
-            _targetRight = mouthTrigger.transform.right;
-            _targetForward = Vector3.Cross(_targetUp, _targetRight);
-            _targetPosition = center - TargetUp * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
+            Up = (mouthTrigger.transform.position - center).normalized;
+            Right = mouthTrigger.transform.right;
+            Forward = Vector3.Cross(Up, Right);
+            _position = center - Up * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
 
-            DebugDraw.DrawCircle(TargetPosition, TargetUp, TargetRight, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
+            DebugDraw.DrawCircle(Position, Up, Right, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
 
             return true;
         }
@@ -210,18 +204,18 @@ namespace ToySerialController.MotionSource
 
             var fingerBasePosition = fingerBase.transform.position - fingerBase.transform.right * (fingerBase.height / 2 - fingerBase.radius) - fingerBase.transform.up * fingerBase.radius;
             var fingerTipPosition = fingerTip.transform.position - fingerTip.transform.right * (fingerTip.height / 2 - fingerTip.radius) - fingerTip.transform.up * fingerTip.radius;
-            _targetPosition = (fingerBasePosition + fingerTipPosition) / 2;
-            _targetUp = fingerBase.transform.forward;
+            _position = (fingerBasePosition + fingerTipPosition) / 2;
+            Up = fingerBase.transform.forward;
 
             if (side == "l")
             {
-                _targetRight = -fingerBase.transform.up;
-                _targetForward = -fingerBase.transform.right;
+                Right = -fingerBase.transform.up;
+                Forward = -fingerBase.transform.right;
             }
             else if (side == "r")
             {
-                _targetRight = fingerBase.transform.up;
-                _targetForward = fingerBase.transform.right;
+                Right = fingerBase.transform.up;
+                Forward = fingerBase.transform.right;
             }
 
             DebugDraw.DrawLine(fingerBasePosition, fingerTipPosition, Color.gray);
@@ -240,15 +234,15 @@ namespace ToySerialController.MotionSource
             if (footBase == null)
                 return false;
 
-            _targetRight = footBase.transform.forward;
-            _targetForward = -footBase.transform.up;
+            Right = footBase.transform.forward;
+            Forward = -footBase.transform.up;
 
             if (side == "l")
-                _targetUp = footBase.transform.right;
+                Up = footBase.transform.right;
             else if (side == "r")
-                _targetUp = -footBase.transform.right;
+                Up = -footBase.transform.right;
 
-            _targetPosition = footBase.transform.position + _targetForward * footBase.radius;
+            _position = footBase.transform.position + Forward * footBase.radius;
 
             return true;
         }
@@ -264,12 +258,12 @@ namespace ToySerialController.MotionSource
             var leftPosition = leftFootBase.transform.position - leftFootBase.transform.up * leftFootBase.radius;
             var rightPosition = rightFootBase.transform.position - rightFootBase.transform.up * rightFootBase.radius;
 
-            _targetPosition = (leftPosition + rightPosition) / 2;
-            _targetForward = ((leftFootBase.transform.forward + rightFootBase.transform.forward) / 2).normalized;
-            _targetUp = Vector3.Cross((leftPosition - rightPosition).normalized, _targetForward).normalized;
-            _targetRight = Vector3.Cross(_targetUp, _targetForward).normalized;
+            _position = (leftPosition + rightPosition) / 2;
+            Forward = ((leftFootBase.transform.forward + rightFootBase.transform.forward) / 2).normalized;
+            Up = Vector3.Cross((leftPosition - rightPosition).normalized, Forward).normalized;
+            Right = Vector3.Cross(Up, Forward).normalized;
 
-            DebugDraw.DrawCircle(_targetPosition, Quaternion.FromToRotation(Vector3.up, _targetUp), Color.white, (leftPosition - rightPosition).magnitude / 2);
+            DebugDraw.DrawCircle(_position, Quaternion.FromToRotation(Vector3.up, Up), Color.white, (leftPosition - rightPosition).magnitude / 2);
 
             return true;
         }
@@ -297,6 +291,6 @@ namespace ToySerialController.MotionSource
             PersonChooser.valNoCallback = _personAtom == null ? "None" : s;
         }
 
-        public void RefreshButtonCallback() => FindTargets(PersonChooser.val);
+        public void Refresh() => FindTargets(PersonChooser.val);
     }
 }
