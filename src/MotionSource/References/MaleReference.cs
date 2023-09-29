@@ -94,7 +94,7 @@ namespace ToySerialController.MotionSource
 
         private void FindMales(string defaultUid = null)
         {
-            var people = Controller.GetAtoms().Where(a => a.enabled && a.type == "Person");
+            var people = Controller.GetAtoms().Where(a => a.type == "Person");
             var maleUids = people
                 .Where(a => a.GetComponentInChildren<DAZCharacterSelector>()?.gender == DAZCharacterSelector.Gender.Male)
                 .Select(a => a.uid)
