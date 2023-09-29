@@ -1,5 +1,6 @@
 ﻿using SimpleJSON;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace ToySerialController.Utils
@@ -51,6 +52,15 @@ namespace ToySerialController.Utils
             storable.name = dummyNodeName;
             storable.RestoreFromJSON(dummyNode);
             storable.name = oldName;
+        }
+
+        public static StringBuilder AppendCommand(this StringBuilder stringBuilder, string axisName, float cmd)
+        {
+            return stringBuilder.Append(axisName)
+                .AppendFormat("{0:0000}", Mathf.RoundToInt(Mathf.Clamp01(cmd) * 9999))
+                .Append('I')
+                .Append(Mathf.RoundToInt(Time.deltaTime * 1000))
+                .Append(' ');
         }
     }
 }
