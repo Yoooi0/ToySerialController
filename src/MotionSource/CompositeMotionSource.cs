@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ToySerialController.MotionSource
 {
-    public class CompositeMotionSource : AbstractRefreshableMotionSource, IMotionSource
+    public class CompositeMotionSource : AbstractRefreshableMotionSource
     {
         protected IMotionSourceReference Reference { get; }
         protected IMotionSourceTarget Target { get; }

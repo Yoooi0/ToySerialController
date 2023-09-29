@@ -97,7 +97,7 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateAutoTarget(IMotionSourceReference reference)
         {
-            var bestPick = _autoUpdaters.First();
+            var bestPick = _autoUpdaters[0];
             var bestDistance = float.MaxValue;
 
             foreach (var target in _autoUpdaters)

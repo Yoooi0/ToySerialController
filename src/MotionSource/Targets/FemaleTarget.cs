@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ToySerialController.Utils;
 using UnityEngine;
 using Leap.Unity.Infix;
@@ -12,7 +12,7 @@ namespace ToySerialController.MotionSource
 
         protected override string DefaultTarget => "Vagina";
 
-        public FemaleTarget() : base()
+        public FemaleTarget()
         {
             RegisterTarget("Vagina", UpdateVaginaTarget);
             RegisterTarget("Pelvis", r => UpdateFreeControllerTarget("pelvisControl", r));

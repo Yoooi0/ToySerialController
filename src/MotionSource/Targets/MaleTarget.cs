@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ToySerialController.MotionSource
 {
@@ -8,7 +8,7 @@ namespace ToySerialController.MotionSource
 
         protected override string DefaultTarget => "Auto";
 
-        public MaleTarget() : base()
+        public MaleTarget()
         {
             RegisterAutoUpdater("Anus");
         }
