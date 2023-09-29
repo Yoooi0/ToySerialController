@@ -102,7 +102,11 @@ namespace ToySerialController
             {
                 var motionValid = _motionSource?.Update() == true;
                 _device?.Update(motionValid ? _motionSource : null, _outputTarget);
-                DeviceReportText.val = _device?.GetDeviceReport() ?? string.Empty;
+
+                if (DebugDrawEnableToggle.val)
+                {
+                    DeviceReportText.val = _device?.GetDeviceReport() ?? string.Empty;
+                }
             }
             catch (Exception e)
             {

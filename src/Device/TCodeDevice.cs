@@ -4,6 +4,7 @@ using System.Text;
 using ToySerialController.MotionSource;
 using ToySerialController.Device.OutputTarget;
 using UnityEngine;
+using ToySerialController.Utils;
 
 namespace ToySerialController
 {
@@ -13,6 +14,7 @@ namespace ToySerialController
         protected readonly float[] XCmd, RCmd, ECmd;
         protected readonly float[] LastXCmd, LastRCmd, LastECmd;
         private readonly StringBuilder _stringBuilder;
+        private readonly StringBuilder _deviceReportBuilder;
 
         private float? _lastNoCollisionTime;
         private bool _lastNoCollisionSmoothingEnabled;
@@ -20,8 +22,24 @@ namespace ToySerialController
         private float _lastNoCollisionSmoothingStartTime, _lastNoCollisionSmoothingDuration;
         private bool _isLoading;
 
-        protected string DeviceReport { get; set; }
-        public string GetDeviceReport() => DeviceReport;
+        public string GetDeviceReport()
+        {
+            const string format = "{0,5:0.00},\t";
+
+            _deviceReportBuilder.Length = 0;
+            return _deviceReportBuilder.Append("    Target    Cmd    Output\n")
+                .Append("L0\t").AppendFormat(format, XTarget[0]).AppendFormat(format, XCmd[0]).AppendTCode("L0", XCmd[0]).AppendLine()
+                .Append("L1\t").AppendFormat(format, XTarget[1]).AppendFormat(format, XCmd[1]).AppendTCode("L1", XCmd[1]).AppendLine()
+                .Append("L2\t").AppendFormat(format, XTarget[2]).AppendFormat(format, XCmd[2]).AppendTCode("L2", XCmd[2]).AppendLine()
+                .Append("R0\t").AppendFormat(format, RTarget[0]).AppendFormat(format, RCmd[0]).AppendTCode("R0", RCmd[0]).AppendLine()
+                .Append("R1\t").AppendFormat(format, RTarget[1]).AppendFormat(format, RCmd[1]).AppendTCode("R1", RCmd[1]).AppendLine()
+                .Append("R2\t").AppendFormat(format, RTarget[2]).AppendFormat(format, RCmd[2]).AppendTCode("R2", RCmd[2]).AppendLine()
+                .Append("V0\t").AppendFormat(format, ETarget[0]).AppendFormat(format, ECmd[0]).AppendTCode("V0", ECmd[0]).AppendLine()
+                .Append("A0\t").AppendFormat(format, ETarget[1]).AppendFormat(format, ECmd[1]).AppendTCode("A0", ECmd[1]).AppendLine()
+                .Append("A1\t").AppendFormat(format, ETarget[2]).AppendFormat(format, ECmd[2]).AppendTCode("A1", ECmd[2]).AppendLine()
+                .Append("A2\t").AppendFormat(format, ETarget[3]).AppendFormat(format, ECmd[3]).AppendTCode("A2", ECmd[3])
+                .ToString();
+        }
 
         public TCodeDevice()
         {
@@ -39,17 +57,13 @@ namespace ToySerialController
 
             _lastNoCollisionTime = Time.time;
             _stringBuilder = new StringBuilder();
+            _deviceReportBuilder = new StringBuilder();
         }
 
-        private string AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, ref float lastCmd)
+        private static void AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, float lastCmd)
         {
-            if (!float.IsNaN(lastCmd) && Mathf.Abs(lastCmd - cmd) * 999 < 1)
-                return string.Empty;
-
-            lastCmd = cmd;
-            var command = $"{axisName}{Mathf.RoundToInt(Mathf.Clamp01(cmd) * 9999):0000}I{Mathf.RoundToInt(Time.deltaTime * 1000)}";
-            stringBuilder.Append(command).Append(" ");
-            return command;
+            if (float.IsNaN(lastCmd) || Mathf.Abs(lastCmd - cmd) * 999 >= 1)
+                stringBuilder.AppendTCode(axisName, cmd).Append(" ");
         }
 
         public bool Update(IMotionSource motionSource, IOutputTarget outputTarget)
@@ -96,34 +110,23 @@ namespace ToySerialController
             UpdateA0(); UpdateA1(); UpdateA2();
 
             _stringBuilder.Length = 0;
-            var l0 = AppendIfChanged(_stringBuilder, "L0", XCmd[0], ref LastXCmd[0]);
-            var l1 = AppendIfChanged(_stringBuilder, "L1", XCmd[1], ref LastXCmd[1]);
-            var l2 = AppendIfChanged(_stringBuilder, "L2", XCmd[2], ref LastXCmd[2]);
-            var r0 = AppendIfChanged(_stringBuilder, "R0", RCmd[0], ref LastRCmd[0]);
-            var r1 = AppendIfChanged(_stringBuilder, "R1", RCmd[1], ref LastRCmd[1]);
-            var r2 = AppendIfChanged(_stringBuilder, "R2", RCmd[2], ref LastRCmd[2]);
-            var v0 = AppendIfChanged(_stringBuilder, "V0", ECmd[0], ref LastECmd[0]);
-            var a0 = AppendIfChanged(_stringBuilder, "A0", ECmd[1], ref LastECmd[1]);
-            var a1 = AppendIfChanged(_stringBuilder, "A1", ECmd[2], ref LastECmd[2]);
-            var a2 = AppendIfChanged(_stringBuilder, "A2", ECmd[3], ref LastECmd[3]);
+            AppendIfChanged(_stringBuilder, "L0", XCmd[0], LastXCmd[0]);
+            AppendIfChanged(_stringBuilder, "L1", XCmd[1], LastXCmd[1]);
+            AppendIfChanged(_stringBuilder, "L2", XCmd[2], LastXCmd[2]);
+            AppendIfChanged(_stringBuilder, "R0", RCmd[0], LastRCmd[0]);
+            AppendIfChanged(_stringBuilder, "R1", RCmd[1], LastRCmd[1]);
+            AppendIfChanged(_stringBuilder, "R2", RCmd[2], LastRCmd[2]);
+            AppendIfChanged(_stringBuilder, "V0", ECmd[0], LastECmd[0]);
+            AppendIfChanged(_stringBuilder, "A0", ECmd[1], LastECmd[1]);
+            AppendIfChanged(_stringBuilder, "A1", ECmd[2], LastECmd[2]);
+            AppendIfChanged(_stringBuilder, "A2", ECmd[3], LastECmd[3]);
 
-            var data = $"{_stringBuilder}\n";
-            if (!string.IsNullOrEmpty(data.Trim()))
-                outputTarget?.Write(data);
+            XCmd.CopyTo(LastXCmd, 0);
+            RCmd.CopyTo(LastRCmd, 0);
+            ECmd.CopyTo(LastECmd, 0);
 
-            _stringBuilder.Length = 0;
-            _stringBuilder.Append("    Target    Cmd    Output\n");
-            _stringBuilder.Append("L0\t").AppendFormat("{0,5:0.00}", XTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[0]).Append(",\t").AppendLine(l0);
-            _stringBuilder.Append("L1\t").AppendFormat("{0,5:0.00}", XTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[1]).Append(",\t").AppendLine(l1);
-            _stringBuilder.Append("L2\t").AppendFormat("{0,5:0.00}", XTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", XCmd[2]).Append(",\t").AppendLine(l2);
-            _stringBuilder.Append("R0\t").AppendFormat("{0,5:0.00}", RTarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[0]).Append(",\t").AppendLine(r0);
-            _stringBuilder.Append("R1\t").AppendFormat("{0,5:0.00}", RTarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[1]).Append(",\t").AppendLine(r1);
-            _stringBuilder.Append("R2\t").AppendFormat("{0,5:0.00}", RTarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", RCmd[2]).Append(",\t").AppendLine(r2);
-            _stringBuilder.Append("V0\t").AppendFormat("{0,5:0.00}", ETarget[0]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[0]).Append(",\t").AppendLine(v0);
-            _stringBuilder.Append("A0\t").AppendFormat("{0,5:0.00}", ETarget[1]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[1]).Append(",\t").AppendLine(a0);
-            _stringBuilder.Append("A1\t").AppendFormat("{0,5:0.00}", ETarget[2]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[2]).Append(",\t").AppendLine(a1);
-            _stringBuilder.Append("A2\t").AppendFormat("{0,5:0.00}", ETarget[3]).Append(",\t").AppendFormat("{0,5:0.00}", ECmd[3]).Append(",\t").Append(a2);
-            DeviceReport = _stringBuilder.ToString();
+            if (_stringBuilder.Length > 0)
+                outputTarget?.Write(_stringBuilder.AppendLine().ToString());
         }
 
         public void UpdateL0()
