@@ -64,7 +64,7 @@ namespace ToySerialController
             var visible = false;
             DebugTitle = _group.CreateButton("Debug", () => debugGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
 
-            DebugDrawEnableToggle = debugGroup.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false);
+            DebugDrawEnableToggle = debugGroup.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false, _ => DeviceReportText.val = string.Empty);
             DeviceReportText = debugGroup.CreateTextField("Device Report", "", 320);
             DeviceReportText.text.font = Font.CreateDynamicFontFromOSFont("Consolas", 24);
             DeviceReportText.text.fontSize = 24;
@@ -72,7 +72,14 @@ namespace ToySerialController
             debugGroup.SetVisible(false);
 
             MotionSourceTitle = _group.CreateDisabledButton("Motion Source", new Color(0.3f, 0.3f, 0.3f), Color.white);
-            MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", new List<string> { "Male + Female", "Asset + Female", "Dildo + Female", "Animation Pattern", "Range Test" }, "Male + Female", MotionSourceChooserCallback);
+
+            var motionSources = new List<string>
+            {
+                "Male + Female", "Asset + Female", "Dildo + Female",
+                "Male + Male", "Asset + Male", "Dildo + Male",
+                "Animation Pattern", "Range Test"
+            };
+            MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", motionSources, "Male + Female", MotionSourceChooserCallback);
 
             DeviceChooserCallback("T-code");
             MotionSourceChooserCallback("Male + Female");
@@ -142,11 +149,17 @@ namespace ToySerialController
             _motionSource = null;
 
             if (s == "Male + Female")
-                _motionSource = new MaleFemaleMotionSource();
+                _motionSource = new CompositeMotionSource<MaleActor, FemaleTarget>();
             else if (s == "Asset + Female")
-                _motionSource = new AssetFemaleMotionSource();
+                _motionSource = new CompositeMotionSource<AssetActor, FemaleTarget>();
             else if (s == "Dildo + Female")
-                _motionSource = new DildoFemaleMotionSource();
+                _motionSource = new CompositeMotionSource<DildoActor, FemaleTarget>();
+            else if (s == "Male + Male")
+                _motionSource = new CompositeMotionSource<MaleActor, MaleTarget>();
+            else if (s == "Asset + Male")
+                _motionSource = new CompositeMotionSource<AssetActor, MaleTarget>();
+            else if (s == "Dildo + Male")
+                _motionSource = new CompositeMotionSource<DildoActor, MaleTarget>();
             else if (s == "Animation Pattern")
                 _motionSource = new AnimationMotionSource();
             else if (s == "Range Test")

@@ -8,7 +8,7 @@ using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {
-    public class AssetFemaleMotionSource : AbstractFemaleMotionSource
+    public class AssetActor : IMotionSourceActor
     {
         private Atom _assetAtom;
         private Component _assetComponent;
@@ -23,15 +23,15 @@ namespace ToySerialController.MotionSource
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 ReferencePosition => _assetPosition;
-        public override Vector3 ReferenceUp => _assetUp;
-        public override Vector3 ReferenceRight => _assetRight;
-        public override Vector3 ReferenceForward => _assetForward;
-        public override float ReferenceLength => _assetLength;
-        public override float ReferenceRadius => _assetRadius;
-        public override Vector3 ReferencePlaneNormal => _assetUp;
+        public Vector3 ReferencePosition => _assetPosition;
+        public Vector3 ReferenceUp => _assetUp;
+        public Vector3 ReferenceRight => _assetRight;
+        public Vector3 ReferenceForward => _assetForward;
+        public float ReferenceLength => _assetLength;
+        public float ReferenceRadius => _assetRadius;
+        public Vector3 ReferencePlaneNormal => _assetUp;
 
-        public override void CreateUI(IUIBuilder builder)
+        public void CreateUI(IUIBuilder builder)
         {
             AssetChooser = builder.CreateScrollablePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
             ComponentChooser = builder.CreateScrollablePopup("MotionSource:Component", "Select Component", null, null, ComponentChooserCallback);
@@ -39,14 +39,11 @@ namespace ToySerialController.MotionSource
             PositionOffsetSlider = builder.CreateSlider("MotionSource:PositionOffset", "Position Offset", 0, 0, 1, true, true);
             LengthScaleSlider = builder.CreateSlider("MotionSource:LengthScale", "Length Scale", 1, 0, 1, true, true);
 
-            base.CreateUI(builder);
-
             FindAssets();
         }
 
-        public override void DestroyUI(IUIBuilder builder)
+        public void DestroyUI(IUIBuilder builder)
         {
-            base.DestroyUI(builder);
             builder.Destroy(AssetChooser);
             builder.Destroy(ComponentChooser);
             builder.Destroy(UpDirectionChooser);
@@ -54,9 +51,8 @@ namespace ToySerialController.MotionSource
             builder.Destroy(LengthScaleSlider);
         }
 
-        public override void StoreConfig(JSONNode config)
+        public void StoreConfig(JSONNode config)
         {
-            base.StoreConfig(config);
             config.Store(AssetChooser);
             config.Store(ComponentChooser);
             config.Store(UpDirectionChooser);
@@ -64,9 +60,8 @@ namespace ToySerialController.MotionSource
             config.Store(LengthScaleSlider);
         }
 
-        public override void RestoreConfig(JSONNode config)
+        public void RestoreConfig(JSONNode config)
         {
-            base.RestoreConfig(config);
             config.Restore(AssetChooser);
             config.Restore(ComponentChooser);
             config.Restore(UpDirectionChooser);
@@ -77,9 +72,7 @@ namespace ToySerialController.MotionSource
             ComponentChooserCallback(ComponentChooser.val);
         }
 
-        public override bool Update() => UpdateAsset() && base.Update();
-
-        private bool UpdateAsset()
+        public bool Update()
         {
             if (_assetAtom == null || _assetComponent == null || !_assetAtom.on)
                 return false;
@@ -126,10 +119,6 @@ namespace ToySerialController.MotionSource
             _assetForward = upRotation * transform.forward;
 
             _assetRadius = Vector3.Project(transform.rotation * bounds.extents, _assetRight).magnitude;
-
-            DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
-            DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
-            DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
 
             return true;
         }
@@ -183,9 +172,8 @@ namespace ToySerialController.MotionSource
             ComponentChooser.valNoCallback = _assetComponent == null ? "None" : s;
         }
 
-        protected override void RefreshButtonCallback()
+        public void RefreshButtonCallback()
         {
-            base.RefreshButtonCallback();
             FindAssets(AssetChooser.val);
         }
     }

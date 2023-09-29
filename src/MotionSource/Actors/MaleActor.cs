@@ -1,16 +1,12 @@
 ﻿using SimpleJSON;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
-using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {
-    //TODO: support futa
-    public class MaleFemaleMotionSource : AbstractFemaleMotionSource
+    public class MaleActor : IMotionSourceActor
     {
         private float _penisLength;
         private float _penisRadius;
@@ -27,41 +23,36 @@ namespace ToySerialController.MotionSource
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 ReferencePosition => _penisPosition;
-        public override Vector3 ReferenceUp => _penisUp;
-        public override Vector3 ReferenceRight => _penisRight;
-        public override Vector3 ReferenceForward => _penisForward;
-        public override float ReferenceLength => _penisLength;
-        public override float ReferenceRadius => _penisRadius;
-        public override Vector3 ReferencePlaneNormal => _planeNormal;
+        public Vector3 ReferencePosition => _penisPosition;
+        public Vector3 ReferenceUp => _penisUp;
+        public Vector3 ReferenceRight => _penisRight;
+        public Vector3 ReferenceForward => _penisForward;
+        public float ReferenceLength => _penisLength;
+        public float ReferenceRadius => _penisRadius;
+        public Vector3 ReferencePlaneNormal => _planeNormal;
 
-        public override void CreateUI(IUIBuilder builder)
+        public void CreateUI(IUIBuilder builder)
         {
             MaleChooser = builder.CreatePopup("MotionSource:Male", "Select Male", null, null, MaleChooserCallback);
             PenisBaseOffset = builder.CreateSlider("MotionSource:PenisBaseOffset", "Penis base offset", 0, -0.05f, 0.05f, true, true);
 
-            base.CreateUI(builder);
-
             FindMales();
         }
 
-        public override void DestroyUI(IUIBuilder builder)
+        public void DestroyUI(IUIBuilder builder)
         {
-            base.DestroyUI(builder);
             builder.Destroy(MaleChooser);
             builder.Destroy(PenisBaseOffset);
         }
 
-        public override void StoreConfig(JSONNode config)
+        public void StoreConfig(JSONNode config)
         {
-            base.StoreConfig(config);
             config.Store(MaleChooser);
             config.Store(PenisBaseOffset);
         }
 
-        public override void RestoreConfig(JSONNode config)
+        public void RestoreConfig(JSONNode config)
         {
-            base.RestoreConfig(config);
             config.Restore(MaleChooser);
             config.Restore(PenisBaseOffset);
 
@@ -69,7 +60,7 @@ namespace ToySerialController.MotionSource
         }
 
 
-        public override bool Update() => UpdateMale() && base.Update();
+        public bool Update() => UpdateMale();
 
         private bool UpdateMale()
         {
@@ -106,17 +97,12 @@ namespace ToySerialController.MotionSource
             else
                 _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
-            DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferenceRight, Color.white, 0.33f);
-            DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
-            DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
-            DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
-
             return true;
         }
 
         private void FindMales(string defaultUid = null)
         {
-            var people = Controller.GetAtoms().Where(a => a.type == "Person");
+            var people = Controller.GetAtoms().Where(a => a.enabled && a.type == "Person");
             var maleUids = people
                 .Where(a => a.GetComponentInChildren<DAZCharacterSelector>()?.gender == DAZCharacterSelector.Gender.Male)
                 .Select(a => a.uid)
@@ -137,9 +123,8 @@ namespace ToySerialController.MotionSource
             MaleChooser.valNoCallback = _maleAtom == null ? "None" : s;
         }
 
-        protected override void RefreshButtonCallback()
+        public void RefreshButtonCallback()
         {
-            base.RefreshButtonCallback();
             FindMales(MaleChooser.val);
         }
     }
