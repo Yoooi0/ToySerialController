@@ -24,42 +24,20 @@ namespace ToySerialController
 
         public string GetDeviceReport()
         {
-            const string format = "{0,5:0.00}";
-            const string separator = ",\t";
+            const string format = "{0,5:0.00},\t";
 
             _deviceReportBuilder.Length = 0;
-
             return _deviceReportBuilder.Append("    Target    Cmd    Output\n")
-                .Append("L0\t").AppendFormat(format, XTarget[0])
-                .Append(separator).AppendFormat(format, XCmd[0])
-                .Append(separator).AppendCommand("L0", XCmd[0]).AppendLine()
-                .Append("L1\t").AppendFormat(format, XTarget[1])
-                .Append(separator).AppendFormat(format, XCmd[1])
-                .Append(separator).AppendCommand("L1", XCmd[1]).AppendLine()
-                .Append("L2\t").AppendFormat(format, XTarget[2])
-                .Append(separator).AppendFormat(format, XCmd[2])
-                .Append(separator).AppendCommand("L2", XCmd[2]).AppendLine()
-                .Append("R0\t").AppendFormat(format, RTarget[0])
-                .Append(separator).AppendFormat(format, RCmd[0])
-                .Append(separator).AppendCommand("R0", RCmd[0]).AppendLine()
-                .Append("R1\t").AppendFormat(format, RTarget[1])
-                .Append(separator).AppendFormat(format, RCmd[1])
-                .Append(separator).AppendCommand("R1", RCmd[1]).AppendLine()
-                .Append("R2\t").AppendFormat(format, RTarget[2])
-                .Append(separator).AppendFormat(format, RCmd[2])
-                .Append(separator).AppendCommand("R2", RCmd[2]).AppendLine()
-                .Append("V0\t").AppendFormat(format, ETarget[0])
-                .Append(separator).AppendFormat(format, ECmd[0])
-                .Append(separator).AppendCommand("V0", ECmd[0]).AppendLine()
-                .Append("A0\t").AppendFormat(format, ETarget[1])
-                .Append(separator).AppendFormat(format, ECmd[1])
-                .Append(separator).AppendCommand("A0", ECmd[1]).AppendLine()
-                .Append("A1\t").AppendFormat(format, ETarget[2])
-                .Append(separator).AppendFormat(format, ECmd[2])
-                .Append(separator).AppendCommand("A1", ECmd[2]).AppendLine()
-                .Append("A2\t").AppendFormat(format, ETarget[3])
-                .Append(separator).AppendFormat(format, ECmd[3])
-                .Append(separator).AppendCommand("A2", ECmd[3])
+                .Append("L0\t").AppendFormat(format, XTarget[0]).AppendFormat(format, XCmd[0]).AppendTCode("L0", XCmd[0]).AppendLine()
+                .Append("L1\t").AppendFormat(format, XTarget[1]).AppendFormat(format, XCmd[1]).AppendTCode("L1", XCmd[1]).AppendLine()
+                .Append("L2\t").AppendFormat(format, XTarget[2]).AppendFormat(format, XCmd[2]).AppendTCode("L2", XCmd[2]).AppendLine()
+                .Append("R0\t").AppendFormat(format, RTarget[0]).AppendFormat(format, RCmd[0]).AppendTCode("R0", RCmd[0]).AppendLine()
+                .Append("R1\t").AppendFormat(format, RTarget[1]).AppendFormat(format, RCmd[1]).AppendTCode("R1", RCmd[1]).AppendLine()
+                .Append("R2\t").AppendFormat(format, RTarget[2]).AppendFormat(format, RCmd[2]).AppendTCode("R2", RCmd[2]).AppendLine()
+                .Append("V0\t").AppendFormat(format, ETarget[0]).AppendFormat(format, ECmd[0]).AppendTCode("V0", ECmd[0]).AppendLine()
+                .Append("A0\t").AppendFormat(format, ETarget[1]).AppendFormat(format, ECmd[1]).AppendTCode("A0", ECmd[1]).AppendLine()
+                .Append("A1\t").AppendFormat(format, ETarget[2]).AppendFormat(format, ECmd[2]).AppendTCode("A1", ECmd[2]).AppendLine()
+                .Append("A2\t").AppendFormat(format, ETarget[3]).AppendFormat(format, ECmd[3]).AppendTCode("A2", ECmd[3])
                 .ToString();
         }
 
@@ -85,9 +63,7 @@ namespace ToySerialController
         private static void AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, float lastCmd)
         {
             if (float.IsNaN(lastCmd) || Mathf.Abs(lastCmd - cmd) * 999 >= 1)
-            {
-                stringBuilder.AppendCommand(axisName, cmd);
-            }
+                stringBuilder.AppendTCode(axisName, cmd).Append(" ");
         }
 
         public bool Update(IMotionSource motionSource, IOutputTarget outputTarget)
