@@ -20,10 +20,10 @@ src\Device\OutputTarget\SerialOutputTarget.cs
 src\Device\OutputTarget\UdpOutputTarget.cs
 src\Device\TCodeDevice.UI.cs
 src\Device\TCodeDevice.cs
-src\MotionSource\Actors\AssetActor.cs
-src\MotionSource\Actors\DildoActor.cs
-src\MotionSource\Actors\IMotionSourceActor.cs
-src\MotionSource\Actors\MaleActor.cs
+src\MotionSource\References\AssetReference.cs
+src\MotionSource\References\DildoReference.cs
+src\MotionSource\References\IMotionSourceReference.cs
+src\MotionSource\References\MaleReference.cs
 src\MotionSource\Targets\AbstractPersonTarget.cs
 src\MotionSource\Targets\FemaleTarget.cs
 src\MotionSource\Targets\IMotionSourceTarget.cs
