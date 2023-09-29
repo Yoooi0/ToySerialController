@@ -69,7 +69,7 @@ namespace ToySerialController.MotionSource
 
         public bool Update()
         {
-            if (Atom == null || _assetComponent == null || !_assetAtom.on)
+            if (_assetAtom == null || _assetComponent == null || !_assetAtom.on)
                 return false;
 
             if (DebugDraw.Enabled)

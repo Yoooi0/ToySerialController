@@ -60,7 +60,7 @@ namespace ToySerialController.MotionSource
 
             var basePosition = baseCollider.transform.position - baseCollider.transform.up * baseCollider.radius / 2;
             var midPosition = midCollider.transform.position;
-            var tipPosition = tipCollider.transform.position + tipCollider.transform.up * tipCollider.height;7
+            var tipPosition = tipCollider.transform.position + tipCollider.transform.up * tipCollider.height;
 
             Position = basePosition;
             Length = Vector3.Distance(basePosition, midPosition) + Vector3.Distance(midPosition, tipPosition);

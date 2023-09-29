@@ -6,19 +6,19 @@ using UnityEngine;
 namespace ToySerialController.MotionSource
 {
     public class CompositeMotionSource<TActor, TTarget> : AbstractRefreshableMotionSource, IMotionSource
-        where TActor : IMotionSourceActor, new()
+        where TActor : IMotionSourceReference, new()
         where TTarget : IMotionSourceTarget, new()
     {
-        protected IMotionSourceActor Actor { get; } = new TActor();
+        protected IMotionSourceReference Actor { get; } = new TActor();
         protected IMotionSourceTarget Target { get; } = new TTarget();
 
-        public override Vector3 ReferencePosition => Actor.ReferencePosition;
-        public override Vector3 ReferenceUp => Actor.ReferenceUp;
-        public override Vector3 ReferenceRight => Actor.ReferenceRight;
-        public override Vector3 ReferenceForward => Actor.ReferenceForward;
-        public override float ReferenceLength => Actor.ReferenceLength;
-        public override float ReferenceRadius => Actor.ReferenceRadius;
-        public override Vector3 ReferencePlaneNormal => Actor.ReferencePlaneNormal;
+        public override Vector3 ReferencePosition => Actor.Position;
+        public override Vector3 ReferenceUp => Actor.Up;
+        public override Vector3 ReferenceRight => Actor.Right;
+        public override Vector3 ReferenceForward => Actor.Forward;
+        public override float ReferenceLength => Actor.Length;
+        public override float ReferenceRadius => Actor.Radius;
+        public override Vector3 ReferencePlaneNormal => Actor.PlaneNormal;
         public override Vector3 TargetPosition => Target.TargetPosition;
         public override Vector3 TargetUp => Target.TargetUp;
         public override Vector3 TargetRight => Target.TargetRight;

@@ -6,7 +6,7 @@ namespace ToySerialController.MotionSource
     {
         protected override DAZCharacterSelector.Gender TargetGender => DAZCharacterSelector.Gender.Male;
 
-        protected override IEnumerable<string> Targets => new List<string>
+        protected override IEnumerable<string> Targets { get; } = new List<string>
         {
             "Auto", "Anus", "Mouth", "Left Hand", "Right Hand", "Left Foot", "Right Foot", "Feet"
         };
@@ -15,6 +15,7 @@ namespace ToySerialController.MotionSource
 
         public MaleTarget() : base()
         {
+            RegisterAutoUpdater("Anus");
         }
     }
 }

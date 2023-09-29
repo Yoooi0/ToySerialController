@@ -23,16 +23,16 @@ namespace ToySerialController.MotionSource
         
         protected SuperController Controller => SuperController.singleton;
 
-        public IMotionSourceActor Actor { get; set; }
+        public IMotionSourceReference Actor { get; set; }
 
         public Vector3 TargetPosition => _targetPosition + _targetUp * TargetOffsetSlider.val;
         public Vector3 TargetUp => _targetUp;
         public Vector3 TargetRight => _targetRight;
         public Vector3 TargetForward => _targetForward;
 
-        protected IDictionary<string, Func<bool>> TargetUpdaters { get; } = new Dictionary<string, Func<bool>>();
+        private IDictionary<string, Func<bool>> TargetUpdaters { get; }
 
-        protected IList<Func<bool>> AutoUpdaters { get; }
+        private IList<Func<bool>> AutoUpdaters { get; }
 
         protected abstract IEnumerable<string> Targets { get; }
 
@@ -48,14 +48,17 @@ namespace ToySerialController.MotionSource
 
         protected AbstractPersonTarget()
         {
-            TargetUpdaters["Auto"] = UpdateAutoTarget;
-            TargetUpdaters["Anus"] = UpdateAnusTarget;
-            TargetUpdaters["Mouth"] = UpdateMouthTarget;
-            TargetUpdaters["Left Hand"] = UpdateLeftHandTarget;
-            TargetUpdaters["Right Hand"] = UpdateRightHandTarget;
-            TargetUpdaters["Left Foot"] = UpdateLeftFootTarget;
-            TargetUpdaters["Right Foot"] = UpdateRightFootTarget;
-            TargetUpdaters["Feet"] = UpdateFeetTarget;
+            TargetUpdaters = new Dictionary<string, Func<bool>>
+            {
+                { "Auto",  UpdateAutoTarget },
+                { "Anus",  UpdateAnusTarget },
+                { "Mouth",  UpdateMouthTarget },
+                { "Left Hand",  UpdateLeftHandTarget },
+                { "Right Hand",  UpdateRightHandTarget },
+                { "Left Foot",  UpdateLeftFootTarget },
+                { "Right Foot",  UpdateRightFootTarget },
+                { "Feet",  UpdateFeetTarget }
+            };
 
             AutoUpdaters = new List<Func<bool>>
             {
@@ -63,6 +66,26 @@ namespace ToySerialController.MotionSource
                 UpdateLeftHandTarget,
                 UpdateRightHandTarget
             };
+        }
+
+        protected void RegisterUpdater(string key, Func<bool> updater)
+        {
+            TargetUpdaters[key] = updater;
+        }
+
+        protected void RegisterAutoUpdater(Func<bool> updater)
+        {
+            AutoUpdaters.Add(updater);
+        }
+
+        protected void RegisterAutoUpdater(string key)
+        {
+            if (!TargetUpdaters.ContainsKey(key))
+            {
+                throw new ArgumentException("No matching updater found. Did you call RegisterUpdater?", key);
+            }
+
+            RegisterAutoUpdater(TargetUpdaters[key]);
         }
 
         public void CreateUI(IUIBuilder builder)
@@ -124,7 +147,7 @@ namespace ToySerialController.MotionSource
             {
                 if (target())
                 {
-                    var distance = Vector3.Distance(Actor.ReferencePosition, TargetPosition);
+                    var distance = Vector3.Distance(Actor.Position, TargetPosition);
                     if (distance < bestDistance)
                     {
                         bestPick = target;

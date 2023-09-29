@@ -149,17 +149,17 @@ namespace ToySerialController
             _motionSource = null;
 
             if (s == "Male + Female")
-                _motionSource = new CompositeMotionSource<MaleActor, FemaleTarget>();
+                _motionSource = new CompositeMotionSource<MaleReference, FemaleTarget>();
             else if (s == "Asset + Female")
-                _motionSource = new CompositeMotionSource<AssetActor, FemaleTarget>();
+                _motionSource = new CompositeMotionSource<AssetReference, FemaleTarget>();
             else if (s == "Dildo + Female")
-                _motionSource = new CompositeMotionSource<DildoActor, FemaleTarget>();
+                _motionSource = new CompositeMotionSource<DildoReference, FemaleTarget>();
             else if (s == "Male + Male")
-                _motionSource = new CompositeMotionSource<MaleActor, MaleTarget>();
+                _motionSource = new CompositeMotionSource<MaleReference, MaleTarget>();
             else if (s == "Asset + Male")
-                _motionSource = new CompositeMotionSource<AssetActor, MaleTarget>();
+                _motionSource = new CompositeMotionSource<AssetReference, MaleTarget>();
             else if (s == "Dildo + Male")
-                _motionSource = new CompositeMotionSource<DildoActor, MaleTarget>();
+                _motionSource = new CompositeMotionSource<DildoReference, MaleTarget>();
             else if (s == "Animation Pattern")
                 _motionSource = new AnimationMotionSource();
             else if (s == "Range Test")

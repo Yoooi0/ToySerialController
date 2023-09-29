@@ -10,25 +10,23 @@ namespace ToySerialController.MotionSource
     {
         protected override DAZCharacterSelector.Gender TargetGender => DAZCharacterSelector.Gender.Female;
 
-        protected override IEnumerable<string> Targets => new List<string>
+        protected override IEnumerable<string> Targets { get; } = new List<string>
         {
             "Auto", "Vagina", "Pelvis", "Hips", "Anus", "Mouth", "Left Hand", "Right Hand", "Chest", "Left Foot", "Right Foot", "Feet"
         };
 
         protected override string DefaultTarget => "Vagina";
-
         protected override string TargetPersonStorageKey => "Female";
-
         protected override string TargetPointStorageKey => "FemaleTarget";
 
         public FemaleTarget() : base()
         {
-            TargetUpdaters["Vagina"] = UpdateVaginaTarget;
-            TargetUpdaters["Pelvis"] = () => UpdateFreeControllerTarget("pelvisControl");
-            TargetUpdaters["Hips"] = () => UpdateFreeControllerTarget("hipControl");
-            TargetUpdaters["Chest"] = UpdateChestTarget;
+            RegisterUpdater("Vagina", UpdateVaginaTarget);
+            RegisterUpdater("Pelvis", () => UpdateFreeControllerTarget("pelvisControl"));
+            RegisterUpdater("Hips", () => UpdateFreeControllerTarget("hipControl"));
+            RegisterUpdater("Chest", UpdateChestTarget);
 
-            AutoUpdaters.Insert(0, UpdateVaginaTarget);
+            RegisterAutoUpdater(UpdateVaginaTarget);
         }
 
         private bool UpdateVaginaTarget()
@@ -78,7 +76,7 @@ namespace ToySerialController.MotionSource
             vaginaPosition += vaginaUp * Vector3.Dot(positionOffset - vaginaPosition, vaginaUp);
 
             var controlToBody = control.control.position - followBody.position;
-            var referenceToVagina = vaginaPosition - Actor.ReferencePosition;
+            var referenceToVagina = vaginaPosition - Actor.Position;
 
             var controlToBodyRotation = Quaternion.Slerp(control.control.rotation, followBody.rotation, 0.5f).ToNormalized();
             var vaginaRotation = Quaternion.LookRotation(vaginaForward, vaginaUp);
