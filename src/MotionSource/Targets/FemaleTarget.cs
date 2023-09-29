@@ -16,9 +16,6 @@ namespace ToySerialController.MotionSource
         };
 
         protected override string DefaultTarget => "Vagina";
-        protected override string TargetPersonStorageKey => "Female";
-        protected override string TargetPointStorageKey => "FemaleTarget";
-        protected override string TargetPersonChooserLabel => "Select Female";
 
         public FemaleTarget() : base()
         {

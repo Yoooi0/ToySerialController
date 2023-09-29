@@ -35,12 +35,6 @@ namespace ToySerialController.MotionSource
 
         protected abstract string DefaultTarget { get; }
 
-        protected virtual string TargetPersonStorageKey => "Target";
-
-        protected virtual string TargetPointStorageKey => "TargetPoint";
-
-        protected virtual string TargetPersonChooserLabel => "Select Target";
-
         protected abstract DAZCharacterSelector.Gender TargetGender { get; }
 
         protected AbstractPersonTarget()
@@ -87,8 +81,8 @@ namespace ToySerialController.MotionSource
 
         public void CreateUI(IUIBuilder builder)
         {
-            PersonChooser = builder.CreatePopup($"MotionSource:{TargetPersonStorageKey}", TargetPersonChooserLabel, null, null, TargetPersonChooserCallback);
-            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetPointStorageKey}", "Select Target Point", Targets.ToList(), DefaultTarget, null);
+            PersonChooser = builder.CreatePopup($"MotionSource:{TargetGender}", $"Select {TargetGender}", null, null, TargetPersonChooserCallback);
+            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetGender}Target", "Select Target Point", Targets.ToList(), DefaultTarget, null);
             TargetOffsetSlider = builder.CreateSlider("MotionSource:TargetOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, true, true, valueFormat: "P2");
 
             FindTargets();
