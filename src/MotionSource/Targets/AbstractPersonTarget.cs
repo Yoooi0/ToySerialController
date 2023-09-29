@@ -23,7 +23,7 @@ namespace ToySerialController.MotionSource
         
         protected SuperController Controller => SuperController.singleton;
 
-        public IMotionSourceReference Actor { get; set; }
+        public IMotionSourceReference Reference { get; set; }
 
         public Vector3 TargetPosition => _targetPosition + _targetUp * TargetOffsetSlider.val;
         public Vector3 TargetUp => _targetUp;
@@ -147,7 +147,7 @@ namespace ToySerialController.MotionSource
             {
                 if (target())
                 {
-                    var distance = Vector3.Distance(Actor.Position, TargetPosition);
+                    var distance = Vector3.Distance(Reference.Position, TargetPosition);
                     if (distance < bestDistance)
                     {
                         bestPick = target;

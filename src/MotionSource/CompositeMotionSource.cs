@@ -9,16 +9,16 @@ namespace ToySerialController.MotionSource
         where TActor : IMotionSourceReference, new()
         where TTarget : IMotionSourceTarget, new()
     {
-        protected IMotionSourceReference Actor { get; } = new TActor();
+        protected IMotionSourceReference Reference { get; } = new TActor();
         protected IMotionSourceTarget Target { get; } = new TTarget();
 
-        public override Vector3 ReferencePosition => Actor.Position;
-        public override Vector3 ReferenceUp => Actor.Up;
-        public override Vector3 ReferenceRight => Actor.Right;
-        public override Vector3 ReferenceForward => Actor.Forward;
-        public override float ReferenceLength => Actor.Length;
-        public override float ReferenceRadius => Actor.Radius;
-        public override Vector3 ReferencePlaneNormal => Actor.PlaneNormal;
+        public override Vector3 ReferencePosition => Reference.Position;
+        public override Vector3 ReferenceUp => Reference.Up;
+        public override Vector3 ReferenceRight => Reference.Right;
+        public override Vector3 ReferenceForward => Reference.Forward;
+        public override float ReferenceLength => Reference.Length;
+        public override float ReferenceRadius => Reference.Radius;
+        public override Vector3 ReferencePlaneNormal => Reference.PlaneNormal;
         public override Vector3 TargetPosition => Target.TargetPosition;
         public override Vector3 TargetUp => Target.TargetUp;
         public override Vector3 TargetRight => Target.TargetRight;
@@ -27,24 +27,24 @@ namespace ToySerialController.MotionSource
         public CompositeMotionSource() : base()
         {
             //only required by auto target /shrug
-            Target.Actor = Actor;
+            Target.Reference = Reference;
         }
 
         public override void RestoreConfig(JSONNode config)
         {
-            Actor.RestoreConfig(config);
+            Reference.RestoreConfig(config);
             Target.RestoreConfig(config);
         }
 
         public override void StoreConfig(JSONNode config)
         {
-            Actor.StoreConfig(config);
+            Reference.StoreConfig(config);
             Target.StoreConfig(config);
         }
 
         public override bool Update()
         {
-            if (Actor.Update() && Target.Update())
+            if (Reference.Update() && Target.Update())
             {
                 DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferenceRight, Color.white, 0.33f);
                 DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
@@ -61,7 +61,7 @@ namespace ToySerialController.MotionSource
         public override void CreateUI(IUIBuilder builder)
         {
             Target.CreateUI(builder);
-            Actor.CreateUI(builder);
+            Reference.CreateUI(builder);
             base.CreateUI(builder);
         }
 
@@ -69,12 +69,12 @@ namespace ToySerialController.MotionSource
         {
             base.DestroyUI(builder);
             Target.DestroyUI(builder);
-            Actor.DestroyUI(builder);
+            Reference.DestroyUI(builder);
         }
 
         protected override void RefreshButtonCallback()
         {
-            Actor.RefreshButtonCallback();
+            Reference.RefreshButtonCallback();
             Target.RefreshButtonCallback();
         }
     }

@@ -76,7 +76,7 @@ namespace ToySerialController.MotionSource
             vaginaPosition += vaginaUp * Vector3.Dot(positionOffset - vaginaPosition, vaginaUp);
 
             var controlToBody = control.control.position - followBody.position;
-            var referenceToVagina = vaginaPosition - Actor.Position;
+            var referenceToVagina = vaginaPosition - Reference.Position;
 
             var controlToBodyRotation = Quaternion.Slerp(control.control.rotation, followBody.rotation, 0.5f).ToNormalized();
             var vaginaRotation = Quaternion.LookRotation(vaginaForward, vaginaUp);

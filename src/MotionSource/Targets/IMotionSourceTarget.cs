@@ -6,7 +6,7 @@ namespace ToySerialController.MotionSource
 {
     public interface IMotionSourceTarget
     {
-        IMotionSourceReference Actor { get; set; }
+        IMotionSourceReference Reference { get; set; }
 
         Vector3 TargetPosition { get; }
         Vector3 TargetUp { get; }
