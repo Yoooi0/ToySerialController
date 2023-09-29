@@ -153,9 +153,8 @@ namespace ToySerialController
             RCmd.CopyTo(LastRCmd, 0);
             ECmd.CopyTo(LastECmd, 0);
 
-            var data = $"{_stringBuilder}\n";
-            if (!string.IsNullOrEmpty(data.Trim()))
-                outputTarget?.Write(data);
+            if (_stringBuilder.Length > 0)
+                outputTarget?.Write(_stringBuilder.AppendLine().ToString());
         }
 
         public void UpdateL0()
