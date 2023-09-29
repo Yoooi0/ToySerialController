@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -20,16 +20,14 @@ namespace ToySerialController.MotionSource
         
         protected SuperController Controller => SuperController.singleton;
 
-        public IMotionSourceReference Reference { get; set; }
-
         public Vector3 Position => _position + Up * TargetOffsetSlider.val;
         public Vector3 Up { get; protected set; }
         public Vector3 Right { get; protected set; }
         public Vector3 Forward { get; protected set; }
 
-        private IDictionary<string, Func<bool>> TargetUpdaters { get; }
+        private IDictionary<string, Func<IMotionSourceReference, bool>> TargetUpdaters { get; }
 
-        private IList<Func<bool>> AutoUpdaters { get; }
+        private IList<Func<IMotionSourceReference, bool>> AutoUpdaters { get; }
 
         protected abstract IList<string> Targets { get; }
 
@@ -39,7 +37,7 @@ namespace ToySerialController.MotionSource
 
         protected AbstractPersonTarget()
         {
-            TargetUpdaters = new Dictionary<string, Func<bool>>
+            TargetUpdaters = new Dictionary<string, Func<IMotionSourceReference, bool>>
             {
                 { "Auto",  UpdateAutoTarget },
                 { "Anus",  UpdateAnusTarget },
@@ -51,7 +49,7 @@ namespace ToySerialController.MotionSource
                 { "Feet",  UpdateFeetTarget }
             };
 
-            AutoUpdaters = new List<Func<bool>>
+            AutoUpdaters = new List<Func<IMotionSourceReference, bool>>
             {
                 UpdateMouthTarget,
                 UpdateLeftHandTarget,
@@ -59,12 +57,12 @@ namespace ToySerialController.MotionSource
             };
         }
 
-        protected void RegisterUpdater(string key, Func<bool> updater)
+        protected void RegisterUpdater(string key, Func<IMotionSourceReference, bool> updater)
         {
             TargetUpdaters[key] = updater;
         }
 
-        protected void RegisterAutoUpdater(Func<bool> updater)
+        protected void RegisterAutoUpdater(Func<IMotionSourceReference, bool> updater)
         {
             AutoUpdaters.Add(updater);
         }
@@ -111,31 +109,24 @@ namespace ToySerialController.MotionSource
             FindTargets(PersonChooser.val);
         }
 
-        public bool Update()
+        public bool Update(IMotionSourceReference reference)
         {
             if (_personAtom == null || !_personAtom.on)
                 return false;
 
-            if (UpdateTarget())
-            {
-                return true;
-            }
-
-            return false;
+            return TargetUpdaters.ContainsKey(TargetChooser.val) && TargetUpdaters[TargetChooser.val](reference);
         }
 
-        private bool UpdateTarget() => TargetUpdaters.ContainsKey(TargetChooser.val) && TargetUpdaters[TargetChooser.val]();
-
-        private bool UpdateAutoTarget()
+        private bool UpdateAutoTarget(IMotionSourceReference reference)
         {
             var bestPick = AutoUpdaters.First();
             var bestDistance = float.MaxValue;
 
             foreach (var target in AutoUpdaters)
             {
-                if (target())
+                if (target(reference))
                 {
-                    var distance = Vector3.Distance(Reference.Position, Position);
+                    var distance = Vector3.Distance(reference.Position, Position);
                     if (distance < bestDistance)
                     {
                         bestPick = target;
@@ -144,10 +135,10 @@ namespace ToySerialController.MotionSource
                 }
             }
 
-            return bestPick();
+            return bestPick(reference);
         }
 
-        private bool UpdateAnusTarget()
+        private bool UpdateAnusTarget(IMotionSourceReference reference)
         {
             var anusLeft = _personAtom.GetComponentByName<CapsuleCollider>("_JointAl");
             var anusRight = _personAtom.GetComponentByName<CapsuleCollider>("_JointAr");
@@ -163,7 +154,7 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private bool UpdateMouthTarget()
+        private bool UpdateMouthTarget(IMotionSourceReference reference)
         {
             var bottomLip = _personAtom.GetComponentByName<Transform>("lowerJawStandardColliders")?.GetComponentByName<CapsuleCollider>("_ColliderLipM");
             var topLip = _personAtom.GetComponentByName<Transform>("AutoCollidersTongueUpperLip")?.GetComponentByName<Transform>("AutoColliderAutoCollidersFaceCentral2Hard");
@@ -183,11 +174,11 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private bool UpdateLeftHandTarget() => UpdateHandTarget("l");
+        private bool UpdateLeftHandTarget(IMotionSourceReference reference) => UpdateHandTarget("l", reference);
 
-        private bool UpdateRightHandTarget() => UpdateHandTarget("r");
+        private bool UpdateRightHandTarget(IMotionSourceReference reference) => UpdateHandTarget("r", reference);
 
-        private bool UpdateHandTarget(string side)
+        private bool UpdateHandTarget(string side, IMotionSourceReference reference)
         {
             var carpal = _personAtom.GetRigidBodyByName($"{side}Carpal2");
             var fingerBase = carpal?.GetComponentByName<CapsuleCollider>("_Collider3");
@@ -217,11 +208,11 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private bool UpdateLeftFootTarget() => UpdateFootTarget("l");
+        private bool UpdateLeftFootTarget(IMotionSourceReference reference) => UpdateFootTarget("l", reference);
 
-        private bool UpdateRightFootTarget() => UpdateFootTarget("r");
+        private bool UpdateRightFootTarget(IMotionSourceReference reference) => UpdateFootTarget("r", reference);
 
-        private bool UpdateFootTarget(string side)
+        private bool UpdateFootTarget(string side, IMotionSourceReference reference)
         {
             var footBase = _personAtom.GetRigidBodyByName($"{side}Foot")?.GetComponentByName<CapsuleCollider>("_Collider6");
 
@@ -241,7 +232,7 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private bool UpdateFeetTarget()
+        private bool UpdateFeetTarget(IMotionSourceReference reference)
         {
             var leftFootBase = _personAtom.GetRigidBodyByName("lFoot")?.GetComponentByName<CapsuleCollider>("_Collider6");
             var rightFootBase = _personAtom.GetRigidBodyByName("rFoot")?.GetComponentByName<CapsuleCollider>("_Collider6");

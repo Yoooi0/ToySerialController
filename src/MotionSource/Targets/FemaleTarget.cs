@@ -20,14 +20,14 @@ namespace ToySerialController.MotionSource
         public FemaleTarget() : base()
         {
             RegisterUpdater("Vagina", UpdateVaginaTarget);
-            RegisterUpdater("Pelvis", () => UpdateFreeControllerTarget("pelvisControl"));
-            RegisterUpdater("Hips", () => UpdateFreeControllerTarget("hipControl"));
+            RegisterUpdater("Pelvis", r => UpdateFreeControllerTarget("pelvisControl", r));
+            RegisterUpdater("Hips", r => UpdateFreeControllerTarget("hipControl", r));
             RegisterUpdater("Chest", UpdateChestTarget);
 
             RegisterAutoUpdater(UpdateVaginaTarget);
         }
 
-        private bool UpdateVaginaTarget()
+        private bool UpdateVaginaTarget(IMotionSourceReference reference)
         {
             var labiaTrigger = _personAtom.GetRigidBodyByName("LabiaTrigger");
             var vaginaTrigger = _personAtom.GetRigidBodyByName("VaginaTrigger");
@@ -49,7 +49,7 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private bool UpdateFreeControllerTarget(string id)
+        private bool UpdateFreeControllerTarget(string id, IMotionSourceReference reference)
         {
             var control = _personAtom.GetStorableByID(id) as FreeControllerV3;
             if (control == null)
@@ -74,7 +74,7 @@ namespace ToySerialController.MotionSource
             vaginaPosition += vaginaUp * Vector3.Dot(positionOffset - vaginaPosition, vaginaUp);
 
             var controlToBody = control.control.position - followBody.position;
-            var referenceToVagina = vaginaPosition - Reference.Position;
+            var referenceToVagina = vaginaPosition - reference.Position;
 
             var controlToBodyRotation = Quaternion.Slerp(control.control.rotation, followBody.rotation, 0.5f).ToNormalized();
             var vaginaRotation = Quaternion.LookRotation(vaginaForward, vaginaUp);
@@ -98,7 +98,7 @@ namespace ToySerialController.MotionSource
             return true;
         }
 
-        private bool UpdateChestTarget()
+        private bool UpdateChestTarget(IMotionSourceReference reference)
         {
             var left = _personAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoColliderslNipple1")?.jointCollider as CapsuleCollider;
             var right = _personAtom.GetComponentByName<AutoCollider>("AutoColliderFemaleAutoCollidersrNipple1")?.jointCollider as CapsuleCollider;

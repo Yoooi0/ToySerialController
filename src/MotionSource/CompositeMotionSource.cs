@@ -26,9 +26,6 @@ namespace ToySerialController.MotionSource
         {
             Reference = reference;
             Target = target;
-            
-            //only required by auto target /shrug
-            Target.Reference = reference;
         }
 
         public override void RestoreConfig(JSONNode config)
@@ -45,7 +42,7 @@ namespace ToySerialController.MotionSource
 
         public override bool Update()
         {
-            if (Reference.Update() && Target.Update())
+            if (Reference.Update() && Target.Update(Reference))
             {
                 DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferenceRight, Color.white, 0.33f);
                 DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
