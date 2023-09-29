@@ -5,12 +5,10 @@ using UnityEngine;
 
 namespace ToySerialController.MotionSource
 {
-    public class CompositeMotionSource<TActor, TTarget> : AbstractRefreshableMotionSource, IMotionSource
-        where TActor : IMotionSourceReference, new()
-        where TTarget : IMotionSourceTarget, new()
+    public class CompositeMotionSource : AbstractRefreshableMotionSource, IMotionSource
     {
-        protected IMotionSourceReference Reference { get; } = new TActor();
-        protected IMotionSourceTarget Target { get; } = new TTarget();
+        protected IMotionSourceReference Reference { get; }
+        protected IMotionSourceTarget Target { get; }
 
         public override Vector3 ReferencePosition => Reference.Position;
         public override Vector3 ReferenceUp => Reference.Up;
@@ -24,10 +22,13 @@ namespace ToySerialController.MotionSource
         public override Vector3 TargetRight => Target.Right;
         public override Vector3 TargetForward => Target.Forward;
 
-        public CompositeMotionSource() : base()
+        public CompositeMotionSource(IMotionSourceReference reference, IMotionSourceTarget target) : base()
         {
+            Reference = reference;
+            Target = target;
+            
             //only required by auto target /shrug
-            Target.Reference = Reference;
+            Target.Reference = reference;
         }
 
         public override void RestoreConfig(JSONNode config)
