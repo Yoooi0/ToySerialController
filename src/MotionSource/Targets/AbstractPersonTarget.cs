@@ -118,8 +118,11 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateAnusTarget(IMotionSourceReference reference)
         {
-            var anusLeft = _personAtom.GetComponentByName<CapsuleCollider>("_JointAl");
-            var anusRight = _personAtom.GetComponentByName<CapsuleCollider>("_JointAr");
+            var anusLeftName = TargetGender == DAZCharacterSelector.Gender.Female ? "_JointAl" : "_JointAlMale";
+            var anusRightName = TargetGender == DAZCharacterSelector.Gender.Female ? "_JointAr" : "_JointArMale";
+
+            var anusLeft = _personAtom.GetComponentByName<CapsuleCollider>(anusLeftName);
+            var anusRight = _personAtom.GetComponentByName<CapsuleCollider>(anusRightName);
 
             if (anusLeft == null || anusRight == null)
                 return false;
