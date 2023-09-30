@@ -97,7 +97,7 @@ namespace ToySerialController.MotionSource
             else if (UpDirectionChooser.val == "-Up") newUp = -transform.up;
             else if (UpDirectionChooser.val == "-Right") newUp = -transform.right;
             else if (UpDirectionChooser.val == "-Forward") newUp = -transform.forward;
-            
+
             var obbCenter = transform.position + transform.rotation * (bounds.max + bounds.min) / 2;
             var projectedExtents = Vector3.Project(transform.rotation * bounds.extents, newUp);
             var projectedDiff = Vector3.Project(obbCenter - transform.position, newUp);
@@ -167,9 +167,6 @@ namespace ToySerialController.MotionSource
             ComponentChooser.valNoCallback = _assetComponent == null ? "None" : s;
         }
 
-        public void Refresh()
-        {
-            FindAssets(AssetChooser.val);
-        }
+        public void Refresh() => FindAssets(AssetChooser.val);
     }
 }

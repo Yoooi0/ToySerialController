@@ -22,7 +22,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 TargetRight => Target.Right;
         public override Vector3 TargetForward => Target.Forward;
 
-        public CompositeMotionSource(IMotionSourceReference reference, IMotionSourceTarget target) : base()
+        public CompositeMotionSource(IMotionSourceReference reference, IMotionSourceTarget target)
         {
             Reference = reference;
             Target = target;
@@ -66,8 +66,8 @@ namespace ToySerialController.MotionSource
         public override void DestroyUI(IUIBuilder builder)
         {
             base.DestroyUI(builder);
-            Target.DestroyUI(builder);
             Reference.DestroyUI(builder);
+            Target.DestroyUI(builder);
         }
 
         protected override void RefreshButtonCallback()

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ToySerialController.Utils;
+﻿using ToySerialController.Utils;
 using UnityEngine;
 using Leap.Unity.Infix;
 using Leap.Unity;

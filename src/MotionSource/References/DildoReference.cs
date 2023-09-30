@@ -96,9 +96,6 @@ namespace ToySerialController.MotionSource
             DildoChooser.valNoCallback = _dildoAtom == null ? "None" : s;
         }
 
-        public void Refresh()
-        {
-            FindDildos(DildoChooser.val);
-        }
+        public void Refresh() => FindDildos(DildoChooser.val);
     }
 }

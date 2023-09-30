@@ -51,10 +51,7 @@ namespace ToySerialController.MotionSource
             FindMales(MaleChooser.val);
         }
 
-
-        public bool Update() => UpdateMale();
-
-        private bool UpdateMale()
+        public bool Update()
         {
             if (_maleAtom == null || !_maleAtom.on)
                 return false;
@@ -115,9 +112,6 @@ namespace ToySerialController.MotionSource
             MaleChooser.valNoCallback = _maleAtom == null ? "None" : s;
         }
 
-        public void Refresh()
-        {
-            FindMales(MaleChooser.val);
-        }
+        public void Refresh() => FindMales(MaleChooser.val);
     }
 }

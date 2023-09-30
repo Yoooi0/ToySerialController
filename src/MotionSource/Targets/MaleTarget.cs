@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ToySerialController.MotionSource
+﻿namespace ToySerialController.MotionSource
 {
     public class MaleTarget : AbstractPersonTarget
     {
