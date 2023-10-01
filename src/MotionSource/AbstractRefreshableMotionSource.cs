@@ -30,7 +30,7 @@ namespace ToySerialController.MotionSource
 
         public virtual void CreateUI(IUIBuilder builder)
         {
-            RefreshButton = builder.CreateButton("Refresh", () => 
+            RefreshButton = builder.CreateButton("Refresh", () =>
             {
                 ComponentCache.Clear();
                 RefreshButtonCallback();
@@ -40,7 +40,7 @@ namespace ToySerialController.MotionSource
 
             Spacer = builder.CreateSpacer(200);
 
-            RefreshAction = UIManager.CreateAction("Refresh Motion Source", () => 
+            RefreshAction = UIManager.CreateAction("Refresh Motion Source", () =>
             {
                 ComponentCache.Clear();
                 RefreshButtonCallback();

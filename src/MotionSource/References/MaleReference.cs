@@ -1,25 +1,13 @@
 ﻿using SimpleJSON;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
-using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {
-    //TODO: support futa
-    public class MaleFemaleMotionSource : AbstractFemaleMotionSource
+    public class MaleReference : IMotionSourceReference
     {
-        private float _penisLength;
-        private float _penisRadius;
-        private Vector3 _penisUp;
-        private Vector3 _penisRight;
-        private Vector3 _penisForward;
-        private Vector3 _planeNormal;
-        private Vector3 _penisPosition;
-
         private Atom _maleAtom;
 
         private JSONStorableStringChooser MaleChooser;
@@ -27,51 +15,43 @@ namespace ToySerialController.MotionSource
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 ReferencePosition => _penisPosition;
-        public override Vector3 ReferenceUp => _penisUp;
-        public override Vector3 ReferenceRight => _penisRight;
-        public override Vector3 ReferenceForward => _penisForward;
-        public override float ReferenceLength => _penisLength;
-        public override float ReferenceRadius => _penisRadius;
-        public override Vector3 ReferencePlaneNormal => _planeNormal;
+        public Vector3 Position { get;private set; }
+        public Vector3 Up { get; private set; }
+        public Vector3 Right { get; private set; }
+        public Vector3 Forward { get; private set; }
+        public float Length { get; private set; }
+        public float Radius { get; private set; }
+        public Vector3 PlaneNormal { get; private set; }
 
-        public override void CreateUI(IUIBuilder builder)
+        public void CreateUI(IUIBuilder builder)
         {
             MaleChooser = builder.CreatePopup("MotionSource:Male", "Select Male", null, null, MaleChooserCallback);
             PenisBaseOffset = builder.CreateSlider("MotionSource:PenisBaseOffset", "Penis base offset", 0, -0.05f, 0.05f, true, true);
 
-            base.CreateUI(builder);
-
             FindMales();
         }
 
-        public override void DestroyUI(IUIBuilder builder)
+        public void DestroyUI(IUIBuilder builder)
         {
-            base.DestroyUI(builder);
             builder.Destroy(MaleChooser);
             builder.Destroy(PenisBaseOffset);
         }
 
-        public override void StoreConfig(JSONNode config)
+        public void StoreConfig(JSONNode config)
         {
-            base.StoreConfig(config);
             config.Store(MaleChooser);
             config.Store(PenisBaseOffset);
         }
 
-        public override void RestoreConfig(JSONNode config)
+        public void RestoreConfig(JSONNode config)
         {
-            base.RestoreConfig(config);
             config.Restore(MaleChooser);
             config.Restore(PenisBaseOffset);
 
             FindMales(MaleChooser.val);
         }
 
-
-        public override bool Update() => UpdateMale() && base.Update();
-
-        private bool UpdateMale()
+        public bool Update()
         {
             if (_maleAtom == null || !_maleAtom.on)
                 return false;
@@ -90,26 +70,21 @@ namespace ToySerialController.MotionSource
             var gen3aPosition = gen3aCollider.transform.position;
             var gen3bPosition = gen3bCollider.transform.position + gen3bCollider.transform.right * gen3bCollider.radius;
 
-            _penisUp = gen1Transform.up;
-            _penisRight = -gen1Transform.forward;
-            _penisForward = gen1Transform.right;
-            _penisPosition = gen1Position;
-            _penisRadius = gen2Collider.radius;
-            _penisLength = Vector3.Distance(gen1Position, gen2Position) + Vector3.Distance(gen2Position, gen3aPosition) + Vector3.Distance(gen3aPosition, gen3bPosition);
+            Up = gen1Transform.up;
+            Right = -gen1Transform.forward;
+            Forward = gen1Transform.right;
+            Position = gen1Position;
+            Radius = gen2Collider.radius;
+            Length = Vector3.Distance(gen1Position, gen2Position) + Vector3.Distance(gen2Position, gen3aPosition) + Vector3.Distance(gen3aPosition, gen3bPosition);
 
             var pelvisRight = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFR3Joint")?.transform;
             var pelvidLeft = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFL3Joint")?.transform;
             var pelvisMid = _maleAtom.GetComponentByName<Transform>("AutoColliderpelvisF1")?.GetComponentByName<Collider>("AutoColliderpelvisF4Joint")?.transform;
 
             if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
-                _planeNormal = _penisUp;
+                PlaneNormal = Up;
             else
-                _planeNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
-
-            DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferenceRight, Color.white, 0.33f);
-            DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
-            DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
-            DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
+                PlaneNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
 
             return true;
         }
@@ -137,10 +112,6 @@ namespace ToySerialController.MotionSource
             MaleChooser.valNoCallback = _maleAtom == null ? "None" : s;
         }
 
-        protected override void RefreshButtonCallback()
-        {
-            base.RefreshButtonCallback();
-            FindMales(MaleChooser.val);
-        }
+        public void Refresh() => FindMales(MaleChooser.val);
     }
 }

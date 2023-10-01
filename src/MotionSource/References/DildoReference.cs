@@ -3,63 +3,50 @@ using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
-using DebugUtils;
 
 namespace ToySerialController.MotionSource
 {
-    public class DildoFemaleMotionSource : AbstractFemaleMotionSource
+    public class DildoReference : IMotionSourceReference
     {
         private Atom _dildoAtom;
-
-        private float _dildoLength;
-        private float _dildoRadius;
-        private Vector3 _dildoPosition;
-        private Vector3 _dildoUp, _dildoRight, _dildoForward, _dildoPlaneNormal;
 
         private JSONStorableStringChooser DildoChooser;
 
         private SuperController Controller => SuperController.singleton;
 
-        public override Vector3 ReferencePosition => _dildoPosition;
-        public override Vector3 ReferenceUp => _dildoUp;
-        public override Vector3 ReferenceRight => _dildoRight;
-        public override Vector3 ReferenceForward => _dildoForward;
-        public override float ReferenceLength => _dildoLength;
-        public override float ReferenceRadius => _dildoRadius;
-        public override Vector3 ReferencePlaneNormal => _dildoPlaneNormal;
+        public Vector3 Position { get; private set; }
+        public Vector3 Up { get; private set; }
+        public Vector3 Right { get; private set; }
+        public Vector3 Forward { get; private set; }
+        public float Length { get; private set; }
+        public float Radius { get; private set; }
+        public Vector3 PlaneNormal { get; private set; }
 
-        public override void CreateUI(IUIBuilder builder)
+        public void CreateUI(IUIBuilder builder)
         {
             DildoChooser = builder.CreatePopup("MotionSource:Dildo", "Select Dildo", null, null, DildoChooserCallback);
-
-            base.CreateUI(builder);
 
             FindDildos();
         }
 
-        public override void DestroyUI(IUIBuilder builder)
+        public void DestroyUI(IUIBuilder builder)
         {
-            base.DestroyUI(builder);
             builder.Destroy(DildoChooser);
         }
 
-        public override void StoreConfig(JSONNode config)
+        public void StoreConfig(JSONNode config)
         {
-            base.StoreConfig(config);
             config.Store(DildoChooser);
         }
 
-        public override void RestoreConfig(JSONNode config)
+        public void RestoreConfig(JSONNode config)
         {
-            base.RestoreConfig(config);
             config.Restore(DildoChooser);
 
             FindDildos(DildoChooser.val);
         }
 
-        public override bool Update() => UpdateDildo() && base.Update();
-
-        private bool UpdateDildo()
+        public bool Update()
         {
             if (_dildoAtom == null || !_dildoAtom.on)
                 return false;
@@ -75,18 +62,14 @@ namespace ToySerialController.MotionSource
             var midPosition = midCollider.transform.position;
             var tipPosition = tipCollider.transform.position + tipCollider.transform.up * tipCollider.height;
 
-            _dildoPosition = basePosition;
-            _dildoLength = Vector3.Distance(basePosition, midPosition) + Vector3.Distance(midPosition, tipPosition);
-            _dildoRadius = midCollider.radius;
+            Position = basePosition;
+            Length = Vector3.Distance(basePosition, midPosition) + Vector3.Distance(midPosition, tipPosition);
+            Radius = midCollider.radius;
 
-            _dildoUp = (tipPosition - midPosition).normalized;
-            _dildoRight = -baseCollider.transform.right;
-            _dildoForward = Vector3.Cross(_dildoUp, _dildoRight);
-            _dildoPlaneNormal = baseCollider.transform.up;
-
-            DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
-            DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
-            DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
+            Up = (tipPosition - midPosition).normalized;
+            Right = -baseCollider.transform.right;
+            Forward = Vector3.Cross(Up, Right);
+            PlaneNormal = baseCollider.transform.up;
 
             return true;
         }
@@ -113,10 +96,6 @@ namespace ToySerialController.MotionSource
             DildoChooser.valNoCallback = _dildoAtom == null ? "None" : s;
         }
 
-        protected override void RefreshButtonCallback()
-        {
-            base.RefreshButtonCallback();
-            FindDildos(DildoChooser.val);
-        }
+        public void Refresh() => FindDildos(DildoChooser.val);
     }
 }
