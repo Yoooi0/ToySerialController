@@ -7,6 +7,8 @@ namespace ToySerialController.MotionSource
 {
     public class CompositeMotionSource : AbstractRefreshableMotionSource
     {
+        private UIDynamicButton TargetTitle, ReferenceTitle;
+
         protected IMotionSourceReference Reference { get; }
         protected IMotionSourceTarget Target { get; }
 
@@ -58,7 +60,14 @@ namespace ToySerialController.MotionSource
 
         public override void CreateUI(IUIBuilder builder)
         {
+            TargetTitle = builder.CreateDisabledButton("Target", new Color(1.0f, 1.0f, 1.0f, 0.075f), Color.white);
+            TargetTitle.buttonText.fontStyle = FontStyle.Bold;
+
             Target.CreateUI(builder);
+
+            ReferenceTitle = builder.CreateDisabledButton("Reference", new Color(1.0f, 1.0f, 1.0f, 0.075f), Color.white);
+            ReferenceTitle.buttonText.fontStyle = FontStyle.Bold;
+
             Reference.CreateUI(builder);
             base.CreateUI(builder);
         }
@@ -67,7 +76,10 @@ namespace ToySerialController.MotionSource
         {
             base.DestroyUI(builder);
             Reference.DestroyUI(builder);
+            builder.Destroy(ReferenceTitle);
+
             Target.DestroyUI(builder);
+            builder.Destroy(TargetTitle);
         }
 
         protected override void RefreshButtonCallback()
