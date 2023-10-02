@@ -76,6 +76,7 @@ namespace ToySerialController
             var motionSources = new List<string>
             {
                 "Male + Female", "Asset + Female", "Dildo + Female",
+                "Male + Asset",
                 "Male + Male", "Asset + Male", "Dildo + Male",
                 "Animation Pattern", "Range Test"
             };
@@ -154,6 +155,8 @@ namespace ToySerialController
                 _motionSource = new CompositeMotionSource(new AssetReference(), new FemaleTarget());
             else if (s == "Dildo + Female")
                 _motionSource = new CompositeMotionSource(new DildoReference(), new FemaleTarget());
+            else if (s == "Male + Asset")
+                _motionSource = new CompositeMotionSource(new MaleReference(), new AssetTarget());
             else if (s == "Male + Male")
                 _motionSource = new CompositeMotionSource(new MaleReference(), new MaleTarget());
             else if (s == "Asset + Male")
