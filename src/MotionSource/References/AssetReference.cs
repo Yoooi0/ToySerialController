@@ -14,7 +14,7 @@ namespace ToySerialController.MotionSource
         private Component _assetComponent;
 
         private JSONStorableStringChooser AssetChooser, ComponentChooser, UpDirectionChooser;
-        private JSONStorableFloat PositionOffsetSlider, LengthScaleSlider;
+        private JSONStorableFloat UpOffsetSlider, RightOffsetSlider, ForwardOffsetSlider, LengthScaleSlider;
 
         private SuperController Controller => SuperController.singleton;
 
@@ -31,8 +31,10 @@ namespace ToySerialController.MotionSource
             AssetChooser = builder.CreateScrollablePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
             ComponentChooser = builder.CreateScrollablePopup("MotionSource:Component", "Select Component", null, null, ComponentChooserCallback);
             UpDirectionChooser = builder.CreateScrollablePopup("MotionSource:UpDirection", "Select Up Direction", new List<string> { "+Up", "+Right", "+Forward", "-Up", "-Right", "-Forward" }, "+Up", null);
-            PositionOffsetSlider = builder.CreateSlider("MotionSource:PositionOffset", "Position Offset", 0, 0, 1, true, true);
-            LengthScaleSlider = builder.CreateSlider("MotionSource:LengthScale", "Length Scale", 1, 0, 1, true, true);
+            UpOffsetSlider = builder.CreateSlider("MotionSource:UpOffset", "Up Offset", -0.5f, -1, 1, true, true);
+            RightOffsetSlider = builder.CreateSlider("MotionSource:RightOffset", "Right Offset", 0, -1, 1, true, true);
+            ForwardOffsetSlider = builder.CreateSlider("MotionSource:ForwardOffset", "Forward Offset", 0, -1, 1, true, true);
+            LengthScaleSlider = builder.CreateSlider("MotionSource:LengthScale", "Length Scale", 1, 0, 2, true, true);
 
             FindAssets();
         }
@@ -42,7 +44,9 @@ namespace ToySerialController.MotionSource
             builder.Destroy(AssetChooser);
             builder.Destroy(ComponentChooser);
             builder.Destroy(UpDirectionChooser);
-            builder.Destroy(PositionOffsetSlider);
+            builder.Destroy(UpOffsetSlider);
+            builder.Destroy(RightOffsetSlider);
+            builder.Destroy(ForwardOffsetSlider);
             builder.Destroy(LengthScaleSlider);
         }
 
@@ -51,7 +55,9 @@ namespace ToySerialController.MotionSource
             config.Store(AssetChooser);
             config.Store(ComponentChooser);
             config.Store(UpDirectionChooser);
-            config.Store(PositionOffsetSlider);
+            config.Store(UpOffsetSlider);
+            config.Store(RightOffsetSlider);
+            config.Store(ForwardOffsetSlider);
             config.Store(LengthScaleSlider);
         }
 
@@ -60,7 +66,9 @@ namespace ToySerialController.MotionSource
             config.Restore(AssetChooser);
             config.Restore(ComponentChooser);
             config.Restore(UpDirectionChooser);
-            config.Restore(PositionOffsetSlider);
+            config.Restore(UpOffsetSlider);
+            config.Restore(RightOffsetSlider);
+            config.Restore(ForwardOffsetSlider);
             config.Restore(LengthScaleSlider);
 
             FindAssets(AssetChooser.val);
@@ -90,23 +98,6 @@ namespace ToySerialController.MotionSource
                 return false;
 
             var transform = _assetComponent.transform;
-            var newUp = transform.up;
-            if (UpDirectionChooser.val == "+Up") newUp = transform.up;
-            else if (UpDirectionChooser.val == "+Right") newUp = transform.right;
-            else if (UpDirectionChooser.val == "+Forward") newUp = transform.forward;
-            else if (UpDirectionChooser.val == "-Up") newUp = -transform.up;
-            else if (UpDirectionChooser.val == "-Right") newUp = -transform.right;
-            else if (UpDirectionChooser.val == "-Forward") newUp = -transform.forward;
-
-            var worldExtents = transform.rotation * bounds.extents;
-            var obbCenter = transform.position + transform.rotation * (bounds.max + bounds.min) / 2;
-            var projectedExtents = Vector3.Project(worldExtents, newUp);
-            var projectedDiff = Vector3.Project(obbCenter - transform.position, newUp);
-
-            var endPoint = transform.position + projectedDiff + projectedExtents * Mathf.Sign(Vector3.Dot(projectedExtents, newUp));
-            var origin = Vector3.Lerp(transform.position, endPoint, PositionOffsetSlider.val);
-
-
             if (UpDirectionChooser.val == "-Up")
             {
                 Up = -transform.up;
@@ -115,15 +106,24 @@ namespace ToySerialController.MotionSource
             }
             else
             {
-                var upRotation = Quaternion.FromToRotation(transform.up, newUp);
+                if (UpDirectionChooser.val == "+Up") Up = transform.up;
+                else if (UpDirectionChooser.val == "+Right") Up = transform.right;
+                else if (UpDirectionChooser.val == "+Forward") Up = transform.forward;
+                else if (UpDirectionChooser.val == "-Right") Up = -transform.right;
+                else if (UpDirectionChooser.val == "-Forward") Up = -transform.forward;
 
-                Up = upRotation * transform.up;
+                var upRotation = Quaternion.FromToRotation(transform.up, Up);
                 Right = upRotation * transform.right;
                 Forward = upRotation * transform.forward;
             }
 
-            Position = origin;
-            Length = LengthScaleSlider.val * Vector3.Distance(origin, endPoint);
+            var worldExtents = transform.rotation * bounds.extents;
+            var offsetUp = Up * Vector3.Project(worldExtents, Up).magnitude * UpOffsetSlider.val * 2;
+            var offsetRight = Right * Vector3.Project(worldExtents, Right).magnitude * RightOffsetSlider.val * 2;
+            var offsetForward = Forward * Vector3.Project(worldExtents, Forward).magnitude * ForwardOffsetSlider.val * 2;
+
+            Position = transform.position + transform.rotation * bounds.center + offsetUp + offsetRight + offsetForward;
+            Length = LengthScaleSlider.val * Vector3.Project(worldExtents, Up).magnitude * 2;
             Radius = Mathf.Min(Vector3.Project(worldExtents, Right).magnitude, Vector3.Project(worldExtents, Forward).magnitude);
 
             return true;
