@@ -122,9 +122,9 @@ namespace ToySerialController.MotionSource
                 Forward = upRotation * transform.forward;
             }
 
-            Radius = Vector3.Project(transform.rotation * bounds.extents, Right).magnitude;
             Position = origin;
             Length = LengthScaleSlider.val * Vector3.Distance(origin, endPoint);
+            Radius = Mathf.Min(Vector3.Project(worldExtents, Right).magnitude, Vector3.Project(worldExtents, Forward).magnitude);
 
             return true;
         }
