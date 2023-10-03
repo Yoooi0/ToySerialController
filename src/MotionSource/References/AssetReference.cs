@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using ToySerialController.UI;
@@ -98,22 +98,33 @@ namespace ToySerialController.MotionSource
             else if (UpDirectionChooser.val == "-Right") newUp = -transform.right;
             else if (UpDirectionChooser.val == "-Forward") newUp = -transform.forward;
 
+            var worldExtents = transform.rotation * bounds.extents;
             var obbCenter = transform.position + transform.rotation * (bounds.max + bounds.min) / 2;
-            var projectedExtents = Vector3.Project(transform.rotation * bounds.extents, newUp);
+            var projectedExtents = Vector3.Project(worldExtents, newUp);
             var projectedDiff = Vector3.Project(obbCenter - transform.position, newUp);
 
             var endPoint = transform.position + projectedDiff + projectedExtents * Mathf.Sign(Vector3.Dot(projectedExtents, newUp));
             var origin = Vector3.Lerp(transform.position, endPoint, PositionOffsetSlider.val);
 
-            Length = LengthScaleSlider.val * Vector3.Distance(origin, endPoint);
 
-            var upRotation = Quaternion.FromToRotation(transform.up, newUp);
-            Position = origin;
-            Up = upRotation * transform.up;
-            Right = upRotation * transform.right;
-            Forward = upRotation * transform.forward;
+            if (UpDirectionChooser.val == "-Up")
+            {
+                Up = -transform.up;
+                Right = -transform.right;
+                Forward = -transform.forward;
+            }
+            else
+            {
+                var upRotation = Quaternion.FromToRotation(transform.up, newUp);
+
+                Up = upRotation * transform.up;
+                Right = upRotation * transform.right;
+                Forward = upRotation * transform.forward;
+            }
 
             Radius = Vector3.Project(transform.rotation * bounds.extents, Right).magnitude;
+            Position = origin;
+            Length = LengthScaleSlider.val * Vector3.Distance(origin, endPoint);
 
             return true;
         }
