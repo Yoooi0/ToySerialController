@@ -1,7 +1,7 @@
 ﻿
 namespace ToySerialController.MotionSource
 {
-    public class AssetTarget : AbstractAssetMotion, IMotionSourceTarget
+    public class AssetTarget : AbstractAssetBase, IMotionSourceTarget
     {
         public bool Update(IMotionSourceReference reference) => Update();
     }

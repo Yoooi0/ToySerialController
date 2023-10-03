@@ -76,8 +76,7 @@ namespace ToySerialController
             var motionSources = new List<string>
             {
                 "Male + Female", "Asset + Female", "Dildo + Female",
-                "Male + Asset",
-                "Male + Male", "Asset + Male", "Dildo + Male",
+                "Male + Asset", "Male + Male", "Asset + Male", "Dildo + Male",
                 "Animation Pattern", "Range Test"
             };
             MotionSourceChooser = _group.CreatePopup("Plugin:MotionSourceChooser", "Select motion source", motionSources, "Male + Female", MotionSourceChooserCallback);

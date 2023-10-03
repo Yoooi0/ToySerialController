@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ToySerialController.MotionSource
 {
-    public class AssetReference : AbstractAssetMotion, IMotionSourceReference
+    public class AssetReference : AbstractAssetBase, IMotionSourceReference
     {
         private JSONStorableFloat LengthScaleSlider;
 

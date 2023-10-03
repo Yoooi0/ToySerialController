@@ -9,7 +9,7 @@ using ToySerialController.Config;
 
 namespace ToySerialController.MotionSource
 {
-    public abstract class AbstractAssetMotion : IUIProvider, IConfigProvider
+    public abstract class AbstractAssetBase : IUIProvider, IConfigProvider
     {
         private Atom _assetAtom;
         private Component _assetComponent;
@@ -20,6 +20,7 @@ namespace ToySerialController.MotionSource
         private SuperController Controller => SuperController.singleton;
 
         protected Vector3 Extents { get; private set; }
+
         public Vector3 Position { get; private set; }
         public Vector3 Up { get; private set; }
         public Vector3 Right { get; private set; }
