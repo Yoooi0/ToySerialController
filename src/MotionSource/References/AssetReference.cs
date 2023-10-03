@@ -90,29 +90,20 @@ namespace ToySerialController.MotionSource
                 return false;
 
             var transform = _assetComponent.transform;
-            var newUp = transform.up;
-            if (UpDirectionChooser.val == "+Up") newUp = transform.up;
-            else if (UpDirectionChooser.val == "+Right") newUp = transform.right;
-            else if (UpDirectionChooser.val == "+Forward") newUp = transform.forward;
-            else if (UpDirectionChooser.val == "-Up") newUp = -transform.up;
-            else if (UpDirectionChooser.val == "-Right") newUp = -transform.right;
-            else if (UpDirectionChooser.val == "-Forward") newUp = -transform.forward;
+            if (UpDirectionChooser.val == "+Up") Up = transform.up;
+            else if (UpDirectionChooser.val == "+Right") Up = transform.right;
+            else if (UpDirectionChooser.val == "+Forward") Up = transform.forward;
+            else if (UpDirectionChooser.val == "-Up") Up = -transform.up;
+            else if (UpDirectionChooser.val == "-Right") Up = -transform.right;
+            else if (UpDirectionChooser.val == "-Forward") Up = -transform.forward;
 
-            var obbCenter = transform.position + transform.rotation * (bounds.max + bounds.min) / 2;
-            var projectedExtents = Vector3.Project(transform.rotation * bounds.extents, newUp);
-            var projectedDiff = Vector3.Project(obbCenter - transform.position, newUp);
-
-            var endPoint = transform.position + projectedDiff + projectedExtents * Mathf.Sign(Vector3.Dot(projectedExtents, newUp));
-            var origin = Vector3.Lerp(transform.position, endPoint, PositionOffsetSlider.val);
-
-            Length = LengthScaleSlider.val * Vector3.Distance(origin, endPoint);
-
-            var upRotation = Quaternion.FromToRotation(transform.up, newUp);
-            Position = origin;
-            Up = upRotation * transform.up;
+            var upRotation = Quaternion.FromToRotation(transform.up, Up);
             Right = upRotation * transform.right;
             Forward = upRotation * transform.forward;
-
+            var extents = transform.rotation * bounds.extents;
+            var offset = Up * Vector3.Project(extents, Up).magnitude;
+            Position = transform.position + transform.rotation * bounds.center + offset * PositionOffsetSlider.val * 2 - offset;
+            Length = LengthScaleSlider.val * Vector3.Project(extents, Up).magnitude * 2;
             Radius = Vector3.Project(transform.rotation * bounds.extents, Right).magnitude;
 
             return true;
