@@ -12,7 +12,7 @@ namespace ToySerialController.MotionSource
     public abstract class AbstractPersonTarget : IMotionSourceTarget
     {
         private readonly Dictionary<string, Func<IMotionSourceReference, bool>> _targets;
-        private readonly List<Func<IMotionSourceReference, bool>> _autoUpdaters;
+        private readonly List<Func<IMotionSourceReference, bool>> _autoTargets;
 
         protected Atom _personAtom;
         protected Vector3 _position;
@@ -35,7 +35,7 @@ namespace ToySerialController.MotionSource
         protected AbstractPersonTarget()
         {
             _targets = new Dictionary<string, Func<IMotionSourceReference, bool>>();
-            _autoUpdaters = new List<Func<IMotionSourceReference, bool>>();
+            _autoTargets = new List<Func<IMotionSourceReference, bool>>();
 
             RegisterTarget("Auto",  UpdateAutoTarget);
             RegisterTarget("Anus",  UpdateAnusTarget);
@@ -46,14 +46,14 @@ namespace ToySerialController.MotionSource
             RegisterTarget("Right Foot",  UpdateRightFootTarget);
             RegisterTarget("Feet", UpdateFeetTarget);
 
-            RegisterAutoUpdater("Mouth");
-            RegisterAutoUpdater("Left Hand");
-            RegisterAutoUpdater("Right Hand");
+            RegisterAutoTarget("Mouth");
+            RegisterAutoTarget("Left Hand");
+            RegisterAutoTarget("Right Hand");
         }
 
         protected void RegisterTarget(string key, Func<IMotionSourceReference, bool> updater) => _targets.Add(key, updater);
-        protected void RegisterAutoUpdater(Func<IMotionSourceReference, bool> updater) => _autoUpdaters.Add(updater);
-        protected void RegisterAutoUpdater(string key) => RegisterAutoUpdater(_targets[key]);
+        protected void RegisterAutoTarget(Func<IMotionSourceReference, bool> updater) => _autoTargets.Add(updater);
+        protected void RegisterAutoTarget(string key) => RegisterAutoTarget(_targets[key]);
 
         public void CreateUI(IUIBuilder builder)
         {
@@ -97,10 +97,10 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateAutoTarget(IMotionSourceReference reference)
         {
-            var bestPick = _autoUpdaters[0];
+            var bestPick = _autoTargets[0];
             var bestDistance = float.MaxValue;
 
-            foreach (var target in _autoUpdaters)
+            foreach (var target in _autoTargets)
             {
                 if (target(reference))
                 {

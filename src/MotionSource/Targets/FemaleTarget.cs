@@ -18,7 +18,7 @@ namespace ToySerialController.MotionSource
             RegisterTarget("Hips", r => UpdateFreeControllerTarget("hipControl", r));
             RegisterTarget("Chest", UpdateChestTarget);
 
-            RegisterAutoUpdater("Vagina");
+            RegisterAutoTarget("Vagina");
         }
 
         private bool UpdateVaginaTarget(IMotionSourceReference reference)

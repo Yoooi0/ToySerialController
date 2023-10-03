@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
@@ -9,8 +9,8 @@ namespace ToySerialController.MotionSource
     {
         private JSONStorableFloat LengthScaleSlider;
 
-        public float Length => LengthScaleSlider.val * Vector3.Project(Extents, Up).magnitude * 2;
-        public float Radius => Vector3.ProjectOnPlane(Extents, Up).magnitude;
+        public float Length { get; private set; }
+        public float Radius { get; private set; }
         public Vector3 PlaneNormal => Up;
 
         public override void CreateUI(IUIBuilder builder)
@@ -35,6 +35,19 @@ namespace ToySerialController.MotionSource
         {
             base.RestoreConfig(config);
             config.Restore(LengthScaleSlider);
+        }
+
+        public override bool Update()
+        {
+            if (!base.Update())
+            {
+                return false;
+            }
+
+            Length = LengthScaleSlider.val * Vector3.Project(Extents, Up).magnitude * 2;
+            Radius = Mathf.Min(Vector3.Project(Extents, Right).magnitude, Vector3.Project(Extents, Forward).magnitude);
+
+            return true;
         }
     }
 }

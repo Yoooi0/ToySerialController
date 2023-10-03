@@ -15,7 +15,7 @@ namespace ToySerialController.MotionSource
         private Component _assetComponent;
 
         private JSONStorableStringChooser AssetChooser, ComponentChooser, UpDirectionChooser;
-        private JSONStorableFloat PositionOffsetSlider;
+        private JSONStorableFloat UpOffsetSlider, RightOffsetSlider, ForwardOffsetSlider;
 
         private SuperController Controller => SuperController.singleton;
 
@@ -30,7 +30,9 @@ namespace ToySerialController.MotionSource
             AssetChooser = builder.CreateScrollablePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
             ComponentChooser = builder.CreateScrollablePopup("MotionSource:Component", "Select Component", null, null, ComponentChooserCallback);
             UpDirectionChooser = builder.CreateScrollablePopup("MotionSource:UpDirection", "Select Up Direction", new List<string> { "+Up", "+Right", "+Forward", "-Up", "-Right", "-Forward" }, "+Up", null);
-            PositionOffsetSlider = builder.CreateSlider("MotionSource:PositionOffset", "Position Offset", 0, -1, 1, true, true);
+            UpOffsetSlider = builder.CreateSlider("MotionSource:UpOffset", "Up Offset", -0.5f, -1, 1, true, true);
+            RightOffsetSlider = builder.CreateSlider("MotionSource:RightOffset", "Right Offset", 0, -1, 1, true, true);
+            ForwardOffsetSlider = builder.CreateSlider("MotionSource:ForwardOffset", "Forward Offset", 0, -1, 1, true, true);
 
             FindAssets();
         }
@@ -40,7 +42,9 @@ namespace ToySerialController.MotionSource
             builder.Destroy(AssetChooser);
             builder.Destroy(ComponentChooser);
             builder.Destroy(UpDirectionChooser);
-            builder.Destroy(PositionOffsetSlider);
+            builder.Destroy(UpOffsetSlider);
+            builder.Destroy(RightOffsetSlider);
+            builder.Destroy(ForwardOffsetSlider);
         }
 
         public virtual void StoreConfig(JSONNode config)
@@ -48,7 +52,9 @@ namespace ToySerialController.MotionSource
             config.Store(AssetChooser);
             config.Store(ComponentChooser);
             config.Store(UpDirectionChooser);
-            config.Store(PositionOffsetSlider);
+            config.Store(UpOffsetSlider);
+            config.Store(RightOffsetSlider);
+            config.Store(ForwardOffsetSlider);
         }
 
         public virtual void RestoreConfig(JSONNode config)
@@ -56,13 +62,15 @@ namespace ToySerialController.MotionSource
             config.Restore(AssetChooser);
             config.Restore(ComponentChooser);
             config.Restore(UpDirectionChooser);
-            config.Restore(PositionOffsetSlider);
+            config.Restore(UpOffsetSlider);
+            config.Restore(RightOffsetSlider);
+            config.Restore(ForwardOffsetSlider);
 
             FindAssets(AssetChooser.val);
             ComponentChooserCallback(ComponentChooser.val);
         }
 
-        public bool Update()
+        public virtual bool Update()
         {
             if (_assetAtom == null || _assetComponent == null || !_assetAtom.on)
                 return false;
@@ -85,29 +93,33 @@ namespace ToySerialController.MotionSource
                 return false;
 
             var transform = _assetComponent.transform;
-            Up = GetUpDirection(transform);
-            var upRotation = Quaternion.FromToRotation(transform.up, Up);
-            Right = upRotation * transform.right;
-            Forward = upRotation * transform.forward;
+            if (UpDirectionChooser.val == "-Up")
+            {
+                Up = -transform.up;
+                Right = -transform.right;
+                Forward = -transform.forward;
+            }
+            else
+            {
+                if (UpDirectionChooser.val == "+Up") Up = transform.up;
+                else if (UpDirectionChooser.val == "+Right") Up = transform.right;
+                else if (UpDirectionChooser.val == "+Forward") Up = transform.forward;
+                else if (UpDirectionChooser.val == "-Right") Up = -transform.right;
+                else if (UpDirectionChooser.val == "-Forward") Up = -transform.forward;
+
+                var upRotation = Quaternion.FromToRotation(transform.up, Up);
+                Right = upRotation * transform.right;
+                Forward = upRotation * transform.forward;
+            }
+
             Extents = transform.rotation * bounds.extents;
-            var offset = Up * Vector3.Project(Extents, Up).magnitude;
-            Position = transform.position + transform.rotation * bounds.center + offset * PositionOffsetSlider.val * 2 - offset;
+            var offsetUp = Up * Vector3.Project(Extents, Up).magnitude * UpOffsetSlider.val * 2;
+            var offsetRight = Right * Vector3.Project(Extents, Right).magnitude * RightOffsetSlider.val * 2;
+            var offsetForward = Forward * Vector3.Project(Extents, Forward).magnitude * ForwardOffsetSlider.val * 2;
+
+            Position = transform.position + transform.rotation * bounds.center + offsetUp + offsetRight + offsetForward;
 
             return true;
-        }
-
-        private Vector3 GetUpDirection(Transform transform)
-        {
-            switch (UpDirectionChooser.val)
-            {
-                case "+Up": return transform.up;
-                case "+Right": return transform.right;
-                case "+Forward": return transform.forward;
-                case "-Up": return -transform.up;
-                case "-Right": return -transform.right;
-                case "-Forward": return -transform.forward;
-                default: return Vector3.up;
-            }
         }
 
         private void FindAssets(string defaultUid = null)
