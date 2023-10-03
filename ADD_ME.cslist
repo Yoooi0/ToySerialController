@@ -25,9 +25,11 @@ src\MotionSource\References\DildoReference.cs
 src\MotionSource\References\IMotionSourceReference.cs
 src\MotionSource\References\MaleReference.cs
 src\MotionSource\Targets\AbstractPersonTarget.cs
+src\MotionSource\Targets\AssetTarget.cs
 src\MotionSource\Targets\FemaleTarget.cs
 src\MotionSource\Targets\IMotionSourceTarget.cs
 src\MotionSource\Targets\MaleTarget.cs
+src\MotionSource\AbstractAssetBase.cs
 src\MotionSource\AbstractRefreshableMotionSource.cs
 src\MotionSource\AnimationMotionSource.cs
 src\MotionSource\CompositeMotionSource.cs
