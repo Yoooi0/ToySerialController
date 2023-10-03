@@ -113,7 +113,7 @@ namespace ToySerialController.MotionSource
             Right = upRotation * transform.right;
             Forward = upRotation * transform.forward;
 
-            Radius = Vector3.Project(transform.rotation * bounds.extents, Right).magnitude;
+            Radius = Vector3.ProjectOnPlane(transform.rotation * bounds.extents, Up).magnitude;
 
             return true;
         }
