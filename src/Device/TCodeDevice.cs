@@ -62,7 +62,7 @@ namespace ToySerialController
 
         private static void AppendIfChanged(StringBuilder stringBuilder, string axisName, float cmd, float lastCmd)
         {
-            if (float.IsNaN(lastCmd) || Mathf.Abs(lastCmd - cmd) * 999 >= 1)
+            if (float.IsNaN(lastCmd) || Mathf.Abs(lastCmd - cmd) * 9999 >= 1)
                 stringBuilder.AppendTCode(axisName, cmd).Append(" ");
         }
 
