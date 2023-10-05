@@ -18,6 +18,10 @@ ToySerialController is a VaM (Virt-a-Mate) plugin that synchronizes your [OSR](h
     * "Male + Female"
     * "Asset + Female"
     * "Toy + Female"
+    * "Male + Asset"
+    * "Male + Male"
+    * "Asset + Male"
+    * "Toy + Male"
     * "Animation Pattern"
 * Supports TCode v0.3
 * Custom curve editor for V0, A0, A1, A2
