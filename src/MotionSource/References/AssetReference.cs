@@ -16,7 +16,7 @@ namespace ToySerialController.MotionSource
         public override void CreateUI(IUIBuilder builder)
         {
             base.CreateUI(builder);
-            LengthScaleSlider = builder.CreateSlider("MotionSource:LengthScale", "Length Scale", 1, 0, 2, true, true);
+            LengthScaleSlider = builder.CreateSlider("MotionSource:LengthScale", "Length Scale (%)", 1, 0, 2, true, true, valueFormat: "P0");
         }
 
         public override void DestroyUI(IUIBuilder builder)

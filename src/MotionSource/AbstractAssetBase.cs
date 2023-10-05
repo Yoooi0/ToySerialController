@@ -31,9 +31,9 @@ namespace ToySerialController.MotionSource
             AssetChooser = builder.CreateScrollablePopup("MotionSource:Asset", "Select Asset", null, null, AssetChooserCallback);
             ComponentChooser = builder.CreateScrollablePopup("MotionSource:Component", "Select Component", null, null, ComponentChooserCallback);
             UpDirectionChooser = builder.CreateScrollablePopup("MotionSource:UpDirection", "Select Up Direction", new List<string> { "+Up", "+Right", "+Forward", "-Up", "-Right", "-Forward" }, "+Up", null);
-            UpOffsetSlider = builder.CreateSlider("MotionSource:UpOffset", "Up Offset", -0.5f, -1, 1, true, true);
-            RightOffsetSlider = builder.CreateSlider("MotionSource:RightOffset", "Right Offset", 0, -1, 1, true, true);
-            ForwardOffsetSlider = builder.CreateSlider("MotionSource:ForwardOffset", "Forward Offset", 0, -1, 1, true, true);
+            UpOffsetSlider = builder.CreateSlider("MotionSource:UpOffset", "Up Offset (%)", -0.5f, -1, 1, true, true, valueFormat: "P0");
+            RightOffsetSlider = builder.CreateSlider("MotionSource:RightOffset", "Right Offset (%)", 0, -1, 1, true, true, valueFormat: "P0");
+            ForwardOffsetSlider = builder.CreateSlider("MotionSource:ForwardOffset", "Forward Offset (%)", 0, -1, 1, true, true, valueFormat: "P0");
 
             FindAssets();
         }
@@ -114,10 +114,10 @@ namespace ToySerialController.MotionSource
             }
 
             Extents = transform.rotation * bounds.extents;
-            var offsetUp = Up * Vector3.Project(Extents, Up).magnitude * UpOffsetSlider.val * 2;
-            var offsetRight = Right * Vector3.Project(Extents, Right).magnitude * RightOffsetSlider.val * 2;
-            var offsetForward = Forward * Vector3.Project(Extents, Forward).magnitude * ForwardOffsetSlider.val * 2;
 
+            var offsetUp = Vector3.Project(Extents, Up) * UpOffsetSlider.val * 2;
+            var offsetRight = Vector3.Project(Extents, Right) * RightOffsetSlider.val * 2;
+            var offsetForward = Vector3.Project(Extents, Forward) * ForwardOffsetSlider.val * 2;
             Position = transform.position + transform.rotation * bounds.center + offsetUp + offsetRight + offsetForward;
 
             return true;
