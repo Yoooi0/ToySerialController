@@ -12,7 +12,8 @@ namespace ToySerialController.MotionSource
     public abstract class AbstractPersonTarget : IMotionSourceTarget
     {
         private readonly Dictionary<string, Func<IMotionSourceReference, bool>> _targets;
-        private readonly List<Func<IMotionSourceReference, bool>> _autoTargets;
+        private readonly Dictionary<string, Func<IMotionSourceReference, bool>> _autoTargets;
+        private readonly HashSet<string> _enabledAutoTargets;
 
         protected Atom _personAtom;
         protected Vector3 _position;
@@ -20,6 +21,8 @@ namespace ToySerialController.MotionSource
         private JSONStorableStringChooser PersonChooser;
         private JSONStorableStringChooser TargetChooser;
         private JSONStorableFloat TargetOffsetSlider;
+        private UIDynamicButton AutoTargetsTitle;
+        private List<JSONStorableBool> AutoTargetToggles;
 
         protected SuperController Controller => SuperController.singleton;
 
@@ -35,7 +38,8 @@ namespace ToySerialController.MotionSource
         protected AbstractPersonTarget()
         {
             _targets = new Dictionary<string, Func<IMotionSourceReference, bool>>();
-            _autoTargets = new List<Func<IMotionSourceReference, bool>>();
+            _autoTargets = new Dictionary<string, Func<IMotionSourceReference, bool>>();
+            _enabledAutoTargets = new HashSet<string>();
 
             RegisterTarget("Auto",  UpdateAutoTarget);
             RegisterTarget("Anus",  UpdateAnusTarget);
@@ -52,13 +56,46 @@ namespace ToySerialController.MotionSource
         }
 
         protected void RegisterTarget(string key, Func<IMotionSourceReference, bool> updater) => _targets.Add(key, updater);
-        protected void RegisterAutoTarget(Func<IMotionSourceReference, bool> updater) => _autoTargets.Add(updater);
-        protected void RegisterAutoTarget(string key) => RegisterAutoTarget(_targets[key]);
+
+        protected void RegisterAutoTarget(string key, bool enabled = true) => RegisterAutoTarget(key, _targets[key]);
+        protected void RegisterAutoTarget(string key, Func<IMotionSourceReference, bool> updater, bool enabled = true)
+        {
+            _autoTargets.Add(key, updater);
+
+            if (enabled)
+                _enabledAutoTargets.Add(key);
+        }
 
         public void CreateUI(IUIBuilder builder)
         {
+            var autoGroup = new UIGroup(builder);
+            var autoTargetsGroup = new UIGroup(builder);
+            var autoTargetsGroupVisible = false;
+
+            AutoTargetToggles = new List<JSONStorableBool>();
             PersonChooser = builder.CreatePopup($"MotionSource:{TargetGender}", $"Select {TargetGender}", null, null, TargetPersonChooserCallback);
-            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetGender}Target", "Select Target Point", _targets.Keys.ToList(), DefaultTarget, null);
+            TargetChooser = builder.CreateScrollablePopup($"MotionSource:{TargetGender}Target", "Select Target Point", _targets.Keys.ToList(), DefaultTarget, v =>
+            {
+                var isAuto = v == "Auto";
+                autoGroup.SetVisible(isAuto);
+                autoTargetsGroup.SetVisible(isAuto && autoTargetsGroupVisible);
+            });
+
+            AutoTargetsTitle = autoGroup.CreateButton("Auto Targets", () => autoTargetsGroup.SetVisible(autoTargetsGroupVisible = !autoTargetsGroupVisible), Color.white, Color.black);
+            foreach(var pair in _autoTargets)
+            {
+                var toggle = autoTargetsGroup.CreateToggle($"MotionSource:{TargetGender}EnabledAutoTargets:{pair.Key.Replace(" ", "")}", $"Enable {pair.Key}", _enabledAutoTargets.Contains(pair.Key), v =>
+                {
+                    if (v) _enabledAutoTargets.Add(pair.Key);
+                    else _enabledAutoTargets.Remove(pair.Key);
+                }, false);
+
+                AutoTargetToggles.Add(toggle);
+            }
+
+            autoTargetsGroup.SetVisible(false);
+            autoGroup.SetVisible(false);
+
             TargetOffsetSlider = builder.CreateSlider("MotionSource:TargetOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, true, true, valueFormat: "P2");
 
             FindTargets();
@@ -69,6 +106,10 @@ namespace ToySerialController.MotionSource
             builder.Destroy(PersonChooser);
             builder.Destroy(TargetChooser);
             builder.Destroy(TargetOffsetSlider);
+            builder.Destroy(AutoTargetsTitle);
+
+            foreach (var toggle in AutoTargetToggles)
+                builder.Destroy(toggle);
         }
 
         public void StoreConfig(JSONNode config)
@@ -76,6 +117,9 @@ namespace ToySerialController.MotionSource
             config.Store(PersonChooser);
             config.Store(TargetChooser);
             config.Store(TargetOffsetSlider);
+
+            foreach (var toggle in AutoTargetToggles)
+                config.Store(toggle);
         }
 
         public void RestoreConfig(JSONNode config)
@@ -83,6 +127,9 @@ namespace ToySerialController.MotionSource
             config.Restore(PersonChooser);
             config.Restore(TargetChooser);
             config.Restore(TargetOffsetSlider);
+
+            foreach (var toggle in AutoTargetToggles)
+                config.Restore(toggle);
 
             FindTargets(PersonChooser.val);
         }
@@ -97,11 +144,12 @@ namespace ToySerialController.MotionSource
 
         private bool UpdateAutoTarget(IMotionSourceReference reference)
         {
-            var bestPick = _autoTargets[0];
+            var bestPick = default(Func<IMotionSourceReference, bool>);
             var bestDistance = float.MaxValue;
 
-            foreach (var target in _autoTargets)
+            foreach (var targetName in _enabledAutoTargets)
             {
+                var target = _autoTargets[targetName];
                 if (target(reference))
                 {
                     var distance = Vector3.Distance(reference.Position, Position);
@@ -112,6 +160,9 @@ namespace ToySerialController.MotionSource
                     }
                 }
             }
+
+            if (bestPick == null)
+                return false;
 
             return bestPick(reference);
         }
