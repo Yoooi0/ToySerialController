@@ -118,6 +118,8 @@ namespace ToySerialController
         {
             _device?.OnSceneChanging();
             _motionSource?.OnSceneChanging();
+
+            DebugDraw.Reset();
         }
 
         protected void OnSceneChanged()
