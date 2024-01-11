@@ -5,6 +5,7 @@ using ToySerialController.MotionSource;
 using ToySerialController.Device.OutputTarget;
 using UnityEngine;
 using ToySerialController.Utils;
+using ToySerialController.UI;
 
 namespace ToySerialController
 {
@@ -13,6 +14,8 @@ namespace ToySerialController
         protected readonly float[] XTarget, RTarget, ETarget;
         protected readonly float[] XCmd, RCmd, ECmd;
         protected readonly float[] LastXCmd, LastRCmd, LastECmd;
+        protected readonly JSONStorableFloat[] XParam, RParam, EParam;
+
         private readonly StringBuilder _stringBuilder;
         private readonly StringBuilder _deviceReportBuilder;
 
@@ -54,6 +57,19 @@ namespace ToySerialController
             LastXCmd = new float[] { float.NaN, float.NaN, float.NaN };
             LastRCmd = new float[] { float.NaN, float.NaN, float.NaN };
             LastECmd = Enumerable.Range(0, 9).Select(_ => float.NaN).ToArray();
+
+            XParam = new JSONStorableFloat[3];
+            RParam = new JSONStorableFloat[3];
+            EParam = new JSONStorableFloat[4];
+
+            for (var i = 0; i < XCmd.Length; i++)
+                XParam[i] = UIManager.CreateFloat($"Device:L{i}:Value", XCmd[i], 0, 1);
+            for (var i = 0; i < RCmd.Length; i++)
+                RParam[i] = UIManager.CreateFloat($"Device:R{i}:Value", RCmd[i], 0, 1);
+
+            var eNames = new string[] { "V0", "A0", "A1", "A2" };
+            for(var i = 0; i < eNames.Length; i++)
+                EParam[i] = UIManager.CreateFloat($"Device:{eNames[i]}:Value", ECmd[i], 0, 1);
 
             _lastNoCollisionTime = Time.time;
             _stringBuilder = new StringBuilder();
@@ -124,6 +140,10 @@ namespace ToySerialController
             XCmd.CopyTo(LastXCmd, 0);
             RCmd.CopyTo(LastRCmd, 0);
             ECmd.CopyTo(LastECmd, 0);
+
+            for (var i = 0; i < XCmd.Length; i++) XParam[i].valNoCallback = XCmd[i];
+            for (var i = 0; i < RCmd.Length; i++) RParam[i].valNoCallback = RCmd[i];
+            for (var i = 0; i < ECmd.Length; i++) EParam[i].valNoCallback = ECmd[i];
 
             if (_stringBuilder.Length > 0)
                 outputTarget?.Write(_stringBuilder.AppendLine().ToString());
@@ -321,7 +341,15 @@ namespace ToySerialController
         }
 
         public void Dispose() => Dispose(true);
-        protected virtual void Dispose(bool disposing) { }
+        protected virtual void Dispose(bool disposing)
+        {
+            foreach (var storable in XParam)
+                UIManager.RemoveFloat(storable);
+            foreach (var storable in RParam)
+                UIManager.RemoveFloat(storable);
+            foreach (var storable in EParam)
+                UIManager.RemoveFloat(storable);
+        }
 
         public virtual void OnSceneChanging() => _isLoading = true;
         public virtual void OnSceneChanged()
