@@ -48,19 +48,19 @@ namespace ToySerialController
         {
             XTarget = new float[3];
             RTarget = new float[3];
-            ETarget = new float[9];
+            ETarget = new float[4];
 
-            XCmd = new float[] { 0.5f, 0.5f, 0.5f };
-            RCmd = new float[] { 0.5f, 0.5f, 0.5f };
-            ECmd = new float[9];
+            XCmd = Enumerable.Repeat(0.5f, XTarget.Length).ToArray();
+            RCmd = Enumerable.Repeat(0.5f, RTarget.Length).ToArray();
+            ECmd = Enumerable.Repeat(0f, ETarget.Length).ToArray();
 
-            LastXCmd = new float[] { float.NaN, float.NaN, float.NaN };
-            LastRCmd = new float[] { float.NaN, float.NaN, float.NaN };
-            LastECmd = Enumerable.Range(0, 9).Select(_ => float.NaN).ToArray();
+            LastXCmd = Enumerable.Repeat(float.NaN, XCmd.Length).ToArray();
+            LastRCmd = Enumerable.Repeat(float.NaN, RCmd.Length).ToArray();
+            LastECmd = Enumerable.Repeat(float.NaN, ECmd.Length).ToArray();
 
-            XParam = new JSONStorableFloat[3];
-            RParam = new JSONStorableFloat[3];
-            EParam = new JSONStorableFloat[4];
+            XParam = new JSONStorableFloat[XCmd.Length];
+            RParam = new JSONStorableFloat[RCmd.Length];
+            EParam = new JSONStorableFloat[ECmd.Length];
 
             for (var i = 0; i < XCmd.Length; i++)
                 XParam[i] = UIManager.CreateFloat($"Device:L{i}:Value", XCmd[i], 0, 1);
