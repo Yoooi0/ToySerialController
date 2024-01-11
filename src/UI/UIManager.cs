@@ -40,6 +40,22 @@ namespace ToySerialController.UI
 
         public static void RemoveAction(JSONStorableAction action) => Instance.plugin.DeregisterAction(action);
 
+        public static JSONStorableFloat CreateFloat(string paramName, float startingValue, float minValue, float maxValue, bool constrain = true, bool interactable = true)
+        {
+            var storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue, constrain, interactable);
+            Instance.plugin.RegisterFloat(storable);
+            return storable;
+        }
+
+        public static JSONStorableFloat CreateFloat(string paramName, float startingValue, JSONStorableFloat.SetFloatCallback callback, float minValue, float maxValue, bool constrain = true, bool interactable = true)
+        {
+            var storable = new JSONStorableFloat(paramName, startingValue, callback, minValue, maxValue, constrain, interactable);
+            Instance.plugin.RegisterFloat(storable);
+            return storable;
+        }
+
+        public static void RemoveFloat(JSONStorableFloat storable) => Instance.plugin.DeregisterFloat(storable);
+
         public static void RemoveSpacer(UIDynamic o) => Instance.plugin.RemoveSpacer(o);
         public static void RemoveButton(UIDynamicButton o) => Instance.plugin.RemoveButton(o);
 
