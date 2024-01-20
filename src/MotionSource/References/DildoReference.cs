@@ -11,6 +11,7 @@ namespace ToySerialController.MotionSource
         private Atom _dildoAtom;
 
         private JSONStorableStringChooser DildoChooser;
+        private JSONStorableFloat DildoBaseOffset;
 
         private SuperController Controller => SuperController.singleton;
 
@@ -25,6 +26,7 @@ namespace ToySerialController.MotionSource
         public void CreateUI(IUIBuilder builder)
         {
             DildoChooser = builder.CreatePopup("MotionSource:Dildo", "Select Dildo", null, null, DildoChooserCallback);
+            DildoBaseOffset = builder.CreateSlider("MotionSource:DildoBaseOffset", "Dildo base offset", 0, -0.05f, 0.05f, true, true);
 
             FindDildos();
         }
@@ -32,16 +34,19 @@ namespace ToySerialController.MotionSource
         public void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(DildoChooser);
+            builder.Destroy(DildoBaseOffset);
         }
 
         public void StoreConfig(JSONNode config)
         {
             config.Store(DildoChooser);
+            config.Store(DildoBaseOffset);
         }
 
         public void RestoreConfig(JSONNode config)
         {
             config.Restore(DildoChooser);
+            config.Restore(DildoBaseOffset);
 
             FindDildos(DildoChooser.val);
         }
@@ -58,7 +63,7 @@ namespace ToySerialController.MotionSource
             if (baseCollider == null || midCollider == null || tipCollider == null)
                 return false;
 
-            var basePosition = baseCollider.transform.position - baseCollider.transform.up * baseCollider.radius / 2;
+            var basePosition = baseCollider.transform.position - baseCollider.transform.up * (baseCollider.radius / 2 - DildoBaseOffset.val);
             var midPosition = midCollider.transform.position;
             var tipPosition = tipCollider.transform.position + tipCollider.transform.up * tipCollider.height;
 
