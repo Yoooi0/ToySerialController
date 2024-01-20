@@ -65,7 +65,7 @@ namespace ToySerialController.MotionSource
                 return false;
 
             var gen1Transform = gen1Collider.transform;
-            var gen1Position = gen1Transform.position - gen1Transform.up * (gen1Collider.height / 2 - gen1Collider.radius + PenisBaseOffset.val);
+            var gen1Position = gen1Transform.position - gen1Transform.up * (gen1Collider.height / 2 - gen1Collider.radius - PenisBaseOffset.val);
             var gen2Position = gen2Collider.transform.position;
             var gen3aPosition = gen3aCollider.transform.position;
             var gen3bPosition = gen3bCollider.transform.position + gen3bCollider.transform.right * gen3bCollider.radius;
