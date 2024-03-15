@@ -20,13 +20,14 @@ namespace ToySerialController.MotionSource
 
         private JSONStorableStringChooser PersonChooser;
         private JSONStorableStringChooser TargetChooser;
-        private JSONStorableFloat TargetOffsetSlider;
+        private JSONStorableFloat TargetUpOffsetSlider;
+        private JSONStorableFloat TargetForwardOffsetSlider;
         private UIDynamicButton AutoTargetsTitle;
         private List<JSONStorableBool> AutoTargetToggles;
 
         protected SuperController Controller => SuperController.singleton;
 
-        public Vector3 Position => _position + Up * TargetOffsetSlider.val;
+        public Vector3 Position => _position + Up * TargetUpOffsetSlider.val + Forward * TargetForwardOffsetSlider.val;
         public Vector3 Up { get; protected set; }
         public Vector3 Right { get; protected set; }
         public Vector3 Forward { get; protected set; }
@@ -96,7 +97,8 @@ namespace ToySerialController.MotionSource
             autoTargetsGroup.SetVisible(false);
             autoGroup.SetVisible(false);
 
-            TargetOffsetSlider = builder.CreateSlider("MotionSource:TargetOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, true, true, valueFormat: "P2");
+            TargetUpOffsetSlider = builder.CreateSlider("MotionSource:TargetUpOffset", "Target Offset (cm)", 0.0f, -0.15f, 0.15f, false, true, valueFormat: "P2");
+            TargetForwardOffsetSlider = builder.CreateSlider("MotionSource:TargetForwardOffset", "Target Forward Offset", 0.0f, -0.05f, 0.05f, false, true, valueFormat: "P2");
 
             FindTargets();
         }
@@ -105,7 +107,8 @@ namespace ToySerialController.MotionSource
         {
             builder.Destroy(PersonChooser);
             builder.Destroy(TargetChooser);
-            builder.Destroy(TargetOffsetSlider);
+            builder.Destroy(TargetUpOffsetSlider);
+            builder.Destroy(TargetForwardOffsetSlider);
             builder.Destroy(AutoTargetsTitle);
 
             foreach (var toggle in AutoTargetToggles)
@@ -116,7 +119,8 @@ namespace ToySerialController.MotionSource
         {
             config.Store(PersonChooser);
             config.Store(TargetChooser);
-            config.Store(TargetOffsetSlider);
+            config.Store(TargetUpOffsetSlider);
+            config.Store(TargetForwardOffsetSlider);
 
             foreach (var toggle in AutoTargetToggles)
                 config.Store(toggle);
@@ -126,7 +130,8 @@ namespace ToySerialController.MotionSource
         {
             config.Restore(PersonChooser);
             config.Restore(TargetChooser);
-            config.Restore(TargetOffsetSlider);
+            config.Restore(TargetUpOffsetSlider);
+            config.Restore(TargetForwardOffsetSlider);
 
             foreach (var toggle in AutoTargetToggles)
                 config.Restore(toggle);
