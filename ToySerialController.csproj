@@ -105,6 +105,8 @@
     <Compile Include="lib\vam-debug-utils\LineDrawer.cs" />
     <Compile Include="src\Config\ConfigManager.cs" />
     <Compile Include="src\Config\IConfigProvider.cs" />
+    <Compile Include="src\Device\BinaryDeviceRecorder.cs" />
+    <Compile Include="src\Device\IDeviceRecorder.cs" />
     <Compile Include="src\Device\OutputTarget\IOutputTarget.cs" />
     <Compile Include="src\Device\OutputTarget\UdpOutputTarget.cs" />
     <Compile Include="src\Device\OutputTarget\SerialOutputTarget.cs" />

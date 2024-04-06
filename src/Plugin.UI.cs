@@ -18,11 +18,10 @@ namespace ToySerialController
         private IOutputTarget _outputTarget;
 
         private OutputTargetSettings OutputTargetSettings;
-        private UIDynamicButton PluginTitle, MotionSourceTitle, DebugTitle;
+        private UIDynamicButton PluginTitle, MotionSourceTitle, DebugTitle, RecordTitle;
         private JSONStorableStringChooser MotionSourceChooser;
         private JSONStorableString DeviceReportText;
         private JSONStorableBool DebugDrawEnableToggle;
-
         private UIHorizontalGroup PresetButtonGroup;
 
         public void CreateUI()
@@ -61,8 +60,8 @@ namespace ToySerialController
             OutputTargetSettings.CreateUI(_group);
 
             var debugGroup = new UIGroup(_group);
-            var visible = false;
-            DebugTitle = _group.CreateButton("Debug", () => debugGroup.SetVisible(visible = !visible), new Color(0.3f, 0.3f, 0.3f), Color.white);
+            var debugVisible = false;
+            DebugTitle = _group.CreateButton("Debug", () => debugGroup.SetVisible(debugVisible = !debugVisible), new Color(0.3f, 0.3f, 0.3f), Color.white);
 
             DebugDrawEnableToggle = debugGroup.CreateToggle("Plugin:DebugDrawEnable", "Enable Debug", false, _ => DeviceReportText.val = string.Empty);
             DeviceReportText = debugGroup.CreateTextField("Device Report", "", 320);
@@ -70,6 +69,12 @@ namespace ToySerialController
             DeviceReportText.text.fontSize = 24;
 
             debugGroup.SetVisible(false);
+
+            var recordingGroup = new UIGroup(_group);
+            var recordingVisible = false;
+            RecordTitle = _group.CreateButton("Recording", () => recordingGroup.SetVisible(recordingVisible = !recordingVisible), new Color(0.3f, 0.3f, 0.3f), Color.white);
+            _recorder.CreateUI(recordingGroup);
+            recordingGroup.SetVisible(false);
 
             MotionSourceTitle = _group.CreateDisabledButton("Motion Source", new Color(0.3f, 0.3f, 0.3f), Color.white);
 

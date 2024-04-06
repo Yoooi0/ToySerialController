@@ -16,6 +16,7 @@ namespace ToySerialController
 
         private IDevice _device;
         private IMotionSource _motionSource;
+        private IDeviceRecorder _recorder;
         private bool _initialized;
         private bool _isLoading;
         private int _physicsIteration;
@@ -27,6 +28,8 @@ namespace ToySerialController
             base.Init();
 
             UIManager.Initialize(this);
+
+            _recorder = new BinaryDeviceRecorder();
 
             try
             {
@@ -101,7 +104,7 @@ namespace ToySerialController
             try
             {
                 var motionValid = _motionSource?.Update() == true;
-                _device?.Update(motionValid ? _motionSource : null, _outputTarget);
+                _device?.Update(motionValid ? _motionSource : null, _outputTarget, _recorder);
 
                 if (DebugDrawEnableToggle.val)
                 {
@@ -116,6 +119,8 @@ namespace ToySerialController
 
         protected void OnSceneChanging()
         {
+            _recorder?.StopRecording();
+
             _device?.OnSceneChanging();
             _motionSource?.OnSceneChanging();
 
@@ -135,6 +140,7 @@ namespace ToySerialController
                 DebugDraw.Clear();
                 _device?.Dispose();
                 _outputTarget?.Dispose();
+                _recorder?.Dispose();
             }
             catch (Exception e)
             {
