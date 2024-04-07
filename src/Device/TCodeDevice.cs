@@ -86,16 +86,11 @@ namespace ToySerialController
         {
             if (_isLoading)
             {
-                for (var i = 0; i < 9; i++)
-                    ETarget[i] = Mathf.Lerp(ETarget[i], 0f, 0.05f);
-
-                for (var i = 0; i < 3; i++)
-                {
-                    XTarget[i] = Mathf.Lerp(XTarget[i], 0.5f, 0.05f);
-                    RTarget[i] = Mathf.Lerp(RTarget[i], 0f, 0.05f);
-                }
+                for (var i = 0; i < ETarget.Length; i++) ETarget[i] = Mathf.Lerp(ETarget[i], 0f, 0.05f);
+                for (var i = 0; i < XTarget.Length; i++) XTarget[i] = Mathf.Lerp(XTarget[i], 0.5f, 0.05f);
+                for (var i = 0; i < RTarget.Length; i++) RTarget[i] = Mathf.Lerp(RTarget[i], 0f, 0.05f);
             }
-            else if(motionSource != null)
+            else if (motionSource != null)
             {
                 UpdateMotion(motionSource);
 
