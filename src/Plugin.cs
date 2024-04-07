@@ -1,10 +1,10 @@
 using System;
-using System.Linq;
 using ToySerialController.Config;
 using ToySerialController.MotionSource;
 using DebugUtils;
 using ToySerialController.Utils;
 using ToySerialController.UI;
+using MVR.FileManagementSecure;
 
 namespace ToySerialController
 {
@@ -21,8 +21,6 @@ namespace ToySerialController
         private bool _isLoading;
         private int _physicsIteration;
 
-        private SuperController Controller => SuperController.singleton;
-
         public override void Init()
         {
             base.Init();
@@ -35,7 +33,7 @@ namespace ToySerialController
             {
                 try
                 {
-                    var defaultPath = Controller.GetFilesAtPath(PluginDir, "*.json").FirstOrDefault(s => s.EndsWith("default.json"));
+                    var defaultPath = Array.Find(FileManagerSecure.GetFiles(PluginDir, "*.json"), s => s.EndsWith("default.json"));
                     if (defaultPath != null)
                         ConfigManager.LoadConfig(defaultPath, this);
                 } catch { }
