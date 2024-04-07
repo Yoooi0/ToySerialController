@@ -61,6 +61,12 @@ namespace ToySerialController
             if (_isRecording)
                 return;
 
+            if (!FileManagerSecure.DirectoryExists(Plugin.PluginDir))
+            {
+                FileManagerSecure.CreateDirectory(Plugin.PluginDir, StartRecording, null, null);
+                return;
+            }
+
             _isRecording = true;
             _recordingPrefix = $"recording_{DateTime.Now:yyyyMMddTHHmmssfff}";
             InitializeBuffer();
