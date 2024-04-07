@@ -273,9 +273,6 @@ namespace ToySerialController
             var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
             var referenceEnding = motionSource.ReferencePosition + motionSource.ReferenceUp * length;
             var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
-            var diffEnding = motionSource.TargetPosition - referenceEnding;
-            var aboveTarget = (Vector3.Dot(diffPosition, motionSource.TargetUp) < 0 && Vector3.Dot(diffEnding, motionSource.TargetUp) < 0)
-                                || Vector3.Dot(diffPosition, motionSource.ReferenceUp) < 0;
 
             for (var i = 0; i < 5; i++)
                 DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, motionSource.ReferenceRight, Color.grey, radius);
@@ -288,8 +285,6 @@ namespace ToySerialController
                 if (diffPosition.magnitude > 0.0001f)
                 {
                     XTarget[0] = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
-                    if (aboveTarget)
-                        XTarget[0] = XTarget[0] > 0 ? 1 : 0;
 
                     var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
                     var rightOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
