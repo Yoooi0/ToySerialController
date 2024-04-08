@@ -24,8 +24,8 @@ namespace ToySerialController.Device.OutputTarget
 
         public void CreateUI(IUIBuilder builder)
         {
-            AddressInput = builder.CreateTextInput("OutputTarget:Udp:Address", "Address:", "127.0.0.1", 50);
-            PortInput = builder.CreateTextInput("OutputTarget:Udp:Port", "Port:", "8889", 50);
+            AddressInput = builder.CreateTextInput("OutputTarget:Udp:Address", "Address:", "tcode.local", 50);
+            PortInput = builder.CreateTextInput("OutputTarget:Udp:Port", "Port:", "8000", 50);
             IpText = AddressInput.storable;
             PortText = PortInput.storable;
 
