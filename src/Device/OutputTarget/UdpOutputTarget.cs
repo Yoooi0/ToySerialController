@@ -71,9 +71,6 @@ namespace ToySerialController.Device.OutputTarget
 
             try
             {
-                var address = IPAddress.Parse(IpText.val);
-                var port = int.Parse(PortText.val);
-                var endpoint = new IPEndPoint(address, port);
                 _client = new UdpClient
                 {
                     ExclusiveAddressUse = false
@@ -82,7 +79,13 @@ namespace ToySerialController.Device.OutputTarget
                 _client.Client.Blocking = false;
                 _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 _client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
-                _client.Connect(endpoint);
+
+                var ipAddress = default(IPAddress);
+                var port = int.Parse(PortText.val);
+                if (IPAddress.TryParse(IpText.val, out ipAddress))
+                    _client.Connect(ipAddress, port);
+                else
+                    _client.Connect(IpText.val, port);
 
                 SuperController.LogMessage($"Upd started on port: {port}");
             }
