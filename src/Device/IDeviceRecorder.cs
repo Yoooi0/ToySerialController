@@ -7,6 +7,6 @@ namespace ToySerialController
     {
         void StartRecording();
         void StopRecording();
-        void RecordValues(float time, float l0, float l1, float l2, float r0, float r1, float r2);
+        void RecordValues(float l0, float l1, float l2, float r0, float r1, float r2);
     }
 }

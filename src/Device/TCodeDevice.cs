@@ -82,7 +82,7 @@ namespace ToySerialController
                 stringBuilder.AppendTCode(axisName, cmd).Append(" ");
         }
 
-        public bool Update(IMotionSource motionSource, IOutputTarget outputTarget, IDeviceRecorder recorder)
+        public bool Update(IMotionSource motionSource, IOutputTarget outputTarget)
         {
             if (_isLoading)
             {
@@ -99,10 +99,11 @@ namespace ToySerialController
             }
 
             UpdateValues(outputTarget);
-
-            recorder?.RecordValues(Time.time, XCmd[0], XCmd[1], XCmd[2], RCmd[0], RCmd[1], RCmd[2]);
             return true;
         }
+
+        public void RecordValues(IDeviceRecorder recorder)
+            => recorder?.RecordValues(XCmd[0], XCmd[1], XCmd[2], RCmd[0], RCmd[1], RCmd[2]);
 
         public void UpdateValues(IOutputTarget outputTarget)
         {

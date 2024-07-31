@@ -71,7 +71,9 @@ namespace ToySerialController
 
             DebugDraw.Draw();
             DebugDraw.Enabled = DebugDrawEnableToggle.val;
+
             _physicsIteration = 0;
+            _device?.RecordValues(_recorder);
         }
 
         protected void FixedUpdate()
@@ -95,6 +97,7 @@ namespace ToySerialController
                 DebugDraw.Enabled = false;
 
             _physicsIteration++;
+            _device?.RecordValues(_recorder);
         }
 
         private void UpdateDevice()
@@ -102,7 +105,7 @@ namespace ToySerialController
             try
             {
                 var motionValid = _motionSource?.Update() == true;
-                _device?.Update(motionValid ? _motionSource : null, _outputTarget, _recorder);
+                _device?.Update(motionValid ? _motionSource : null, _outputTarget);
 
                 if (DebugDrawEnableToggle.val)
                 {

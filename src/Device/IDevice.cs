@@ -8,7 +8,8 @@ namespace ToySerialController
 {
     public interface IDevice : IUIProvider, IConfigProvider, IDisposable
     {
-        bool Update(IMotionSource motionSource, IOutputTarget outputTarget, IDeviceRecorder recorder);
+        bool Update(IMotionSource motionSource, IOutputTarget outputTarget);
+        void RecordValues(IDeviceRecorder deviceRecorder);
 
         string GetDeviceReport();
         void OnSceneChanging();

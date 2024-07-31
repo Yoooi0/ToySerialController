@@ -15,6 +15,8 @@ namespace ToySerialController
     {
         private JSONStorableFloat RecordingRDPEpsilon;
         private UIHorizontalGroup RecordButtonGroup;
+        private JSONStorableStringChooser RecordingTypePopup;
+        private JSONStorableStringChooser TimeSourcePopup;
 
         private const int _bytesPerTick = 7 * 4;
         private const int _maxTicksPerChunk = 16384;
@@ -26,6 +28,7 @@ namespace ToySerialController
         private int _bufferIndex;
         private int _chunkIndex;
         private string _recordingPrefix;
+        private float _startTime;
 
         public void CreateUI(IUIBuilder builder)
         {
@@ -44,12 +47,16 @@ namespace ToySerialController
             stopButton.textColor = Color.white;
             stopButton.button.onClick.AddListener(StopRecordingCallback);
 
+            RecordingTypePopup = builder.CreatePopup("Recording:RecordingType", "Recording Type", new List<string>() { "Per Frame", "Per Physics Tick" }, "Per Frame", null);
+            TimeSourcePopup = builder.CreatePopup("Recording:TimeSource", "Time Source", new List<string>() { "Game Time", "Real Time" }, "Game Time", null);
             RecordingRDPEpsilon = builder.CreateSlider("Recording:RamerDouglasPeucker:Epsilon", "RDP Epsilon", 0.001f, 0, 1, true, true, valueFormat: "F6");
         }
 
         public void DestroyUI(IUIBuilder builder)
         {
             builder.Destroy(RecordButtonGroup);
+            builder.Destroy(RecordingTypePopup);
+            builder.Destroy(TimeSourcePopup);
             builder.Destroy(RecordingRDPEpsilon);
         }
 
@@ -69,6 +76,8 @@ namespace ToySerialController
 
             _isRecording = true;
             _recordingPrefix = $"recording_{DateTime.Now:yyyyMMddTHHmmssfff}";
+            _startTime = CurrentTime();
+
             InitializeBuffer();
             SuperController.LogMessage($"Started recording: {_recordingPrefix}");
         }
@@ -99,13 +108,18 @@ namespace ToySerialController
             _recordingPrefix = null;
         }
 
-        public void RecordValues(float time, float l0, float l1, float l2, float r0, float r1, float r2)
+        public void RecordValues(float l0, float l1, float l2, float r0, float r1, float r2)
         {
             if (!_isRecording)
                 return;
 
+            if (Time.inFixedTimeStep && RecordingTypePopup.val != "Per Physics Tick")
+                return;
+            if (!Time.inFixedTimeStep && RecordingTypePopup.val != "Per Frame")
+                return;
+
             var buffer = _buffers[_writeBufferIndex];
-            BitConverterNonAlloc.GetBytes(time, buffer, ref _bufferIndex);
+            BitConverterNonAlloc.GetBytes(CurrentTime() - _startTime, buffer, ref _bufferIndex);
             BitConverterNonAlloc.GetBytes(l0,   buffer, ref _bufferIndex);
             BitConverterNonAlloc.GetBytes(l1,   buffer, ref _bufferIndex);
             BitConverterNonAlloc.GetBytes(l2,   buffer, ref _bufferIndex);
@@ -115,6 +129,15 @@ namespace ToySerialController
 
             if (_bufferIndex == buffer.Length)
                 SaveChunk();
+        }
+
+        private float CurrentTime()
+        {
+            if (TimeSourcePopup.val == "Real Time")
+                return Time.realtimeSinceStartup;
+            if (TimeSourcePopup.val == "Game Time")
+                return Time.time;
+            return 0;
         }
 
         private void InitializeBuffer()
