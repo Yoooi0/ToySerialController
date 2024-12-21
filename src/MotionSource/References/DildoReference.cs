@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
@@ -74,7 +74,7 @@ namespace ToySerialController.MotionSource
             Up = (tipPosition - midPosition).normalized;
             Right = -baseCollider.transform.right;
             Forward = Vector3.Cross(Up, Right);
-            PlaneNormal = baseCollider.transform.up;
+            PlaneNormal = _dildoAtom.GetComponentByName<Transform>("object").forward;
 
             return true;
         }
