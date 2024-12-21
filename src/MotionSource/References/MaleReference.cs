@@ -92,8 +92,19 @@ namespace ToySerialController.MotionSource
         private void FindMales(string defaultUid = null)
         {
             var people = Controller.GetAtoms().Where(a => a.type == "Person");
+
+            var penisColliderNames = new[] { "AutoColliderGen1Hard", "AutoColliderGen2Hard", "AutoColliderGen3aHard", "AutoColliderGen3bHard" };
             var maleUids = people
-                .Where(a => a.GetComponentInChildren<DAZCharacterSelector>()?.gender == DAZCharacterSelector.Gender.Male)
+                .Where(a => {
+                    var gender = a.GetComponentInChildren<DAZCharacterSelector>()?.gender;
+                    if (gender == null)
+                        return false;
+                    if (gender == DAZCharacterSelector.Gender.Male)
+                        return true;
+
+                    return a.GetComponentsInChildren<Collider>()
+                            .Count(c => penisColliderNames.Contains(c.name)) == penisColliderNames.Length;
+                })
                 .Select(a => a.uid)
                 .ToList();
 
