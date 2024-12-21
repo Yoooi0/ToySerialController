@@ -23,6 +23,7 @@ namespace ToySerialController.MotionSource
         public override Vector3 TargetUp => Target.Up;
         public override Vector3 TargetRight => Target.Right;
         public override Vector3 TargetForward => Target.Forward;
+        private Vector3 ReferencePlaneTangent => Reference.PlaneTangent;
 
         public CompositeMotionSource(IMotionSourceReference reference, IMotionSourceTarget target)
         {
@@ -46,7 +47,7 @@ namespace ToySerialController.MotionSource
         {
             if (Reference.Update() && Target.Update(Reference))
             {
-                DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferenceRight, Color.white, 0.33f);
+                DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferencePlaneTangent, Color.white, 0.33f);
                 DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
                 DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
                 DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);

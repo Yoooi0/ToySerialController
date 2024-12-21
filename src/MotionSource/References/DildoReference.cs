@@ -22,6 +22,7 @@ namespace ToySerialController.MotionSource
         public float Length { get; private set; }
         public float Radius { get; private set; }
         public Vector3 PlaneNormal { get; private set; }
+        public Vector3 PlaneTangent { get; private set; }
 
         public void CreateUI(IUIBuilder builder)
         {
@@ -75,6 +76,7 @@ namespace ToySerialController.MotionSource
             Right = -baseCollider.transform.right;
             Forward = Vector3.Cross(Up, Right);
             PlaneNormal = _dildoAtom.GetComponentByName<Transform>("object").forward;
+            PlaneTangent = _dildoAtom.GetComponentByName<Transform>("object").right;
 
             return true;
         }

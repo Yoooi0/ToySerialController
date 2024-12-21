@@ -13,6 +13,7 @@ namespace ToySerialController.MotionSource
         float Length { get; }
         float Radius { get; }
         Vector3 PlaneNormal { get; }
+        Vector3 PlaneTangent { get; }
 
         void Refresh();
         bool Update();

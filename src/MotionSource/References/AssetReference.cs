@@ -12,6 +12,7 @@ namespace ToySerialController.MotionSource
         public float Length { get; private set; }
         public float Radius { get; private set; }
         public Vector3 PlaneNormal => Up;
+        public Vector3 PlaneTangent => Right;
 
         public override void CreateUI(IUIBuilder builder)
         {

@@ -22,6 +22,7 @@ namespace ToySerialController.MotionSource
         public float Length { get; private set; }
         public float Radius { get; private set; }
         public Vector3 PlaneNormal { get; private set; }
+        public Vector3 PlaneTangent { get; private set; }
 
         public void CreateUI(IUIBuilder builder)
         {
@@ -82,9 +83,15 @@ namespace ToySerialController.MotionSource
             var pelvisMid = _maleAtom.GetComponentByName<Transform>("AutoColliderpelvisF1")?.GetComponentByName<Collider>("AutoColliderpelvisF4Joint")?.transform;
 
             if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
+            {
                 PlaneNormal = Up;
+                PlaneTangent = Right;
+            }
             else
+            {
                 PlaneNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
+                PlaneTangent = Vector3.Cross(PlaneNormal, pelvisMid.position - (pelvidLeft.position + pelvisRight.position) / 2).normalized;
+            }
 
             return true;
         }
