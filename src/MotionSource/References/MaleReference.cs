@@ -123,7 +123,7 @@ namespace ToySerialController.MotionSource
             }
             else
             {
-                PlaneNormal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
+                PlaneNormal = -Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
                 PlaneTangent = Vector3.Cross(PlaneNormal, pelvisMid.position - (pelvidLeft.position + pelvisRight.position) / 2).normalized;
             }
 
@@ -148,7 +148,7 @@ namespace ToySerialController.MotionSource
             if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
                 return;
 
-            var normal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
+            var normal = -Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
             var tangent = Vector3.Cross(normal, pelvisMid.position - (pelvidLeft.position + pelvisRight.position) / 2).normalized;
             var angles = Quaternion.LookRotation(normal, Vector3.Cross(normal, tangent)).eulerAngles;
 

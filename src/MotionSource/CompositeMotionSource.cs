@@ -48,6 +48,7 @@ namespace ToySerialController.MotionSource
             if (Reference.Update() && Target.Update(Reference))
             {
                 DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferencePlaneTangent, Color.white, 0.33f);
+                DebugDraw.DrawLine(ReferencePosition, ReferencePosition + ReferencePlaneNormal * 0.15f, Color.white);
                 DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
                 DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
                 DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
