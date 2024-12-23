@@ -9,9 +9,14 @@ namespace ToySerialController.MotionSource
     public class MaleReference : IMotionSourceReference
     {
         private Atom _maleAtom;
+        private Vector3 _staticPlaneNormal, _customPlaneTangent;
 
         private JSONStorableStringChooser MaleChooser;
         private JSONStorableFloat PenisBaseOffset;
+        private JSONStorableBool StaticPlaneNormalToggle;
+        private JSONStorableFloat StaticPlaneNormalPitchSlider, StaticPlaneNormalYawSlider, StaticPlaneNormalRollSlider;
+        private JSONStorableAction SetStaticPlaneNormalFromCurrentAction;
+        private UIDynamicButton StaticPlaneNormalSetFromCurrentButton;
 
         private SuperController Controller => SuperController.singleton;
 
@@ -27,7 +32,23 @@ namespace ToySerialController.MotionSource
         public void CreateUI(IUIBuilder builder)
         {
             MaleChooser = builder.CreatePopup("MotionSource:Male", "Select Male", null, null, MaleChooserCallback);
-            PenisBaseOffset = builder.CreateSlider("MotionSource:PenisBaseOffset", "Penis base offset", 0, -0.05f, 0.05f, true, true);
+            PenisBaseOffset = builder.CreateSlider("MotionSource:PenisBaseOffset", "Penis base offset", 0, -0.05f, 0.05f, true, true); 
+            
+            var group = new UIGroup(builder);
+            StaticPlaneNormalToggle = builder.CreateToggle("MotionSource:StaticPlaneNormal:Enabled", "Custom plane normal", false, v =>
+            {
+                group.SetVisible(v);
+                SetStaticPlaneNormalFromCurrent();
+                UpdateStaticPlaneNormal();
+            });
+
+            StaticPlaneNormalSetFromCurrentButton = group.CreateButton("Set From Current", SetStaticPlaneNormalFromCurrent, new Color(0, 0.75f, 1f) * 0.8f, Color.white);
+            StaticPlaneNormalPitchSlider = group.CreateSlider("MotionSource:StaticPlaneNormal:Pitch", "Pitch (\u00b0)", 0, 0, 360f, v => UpdateStaticPlaneNormal(), true, true);
+            StaticPlaneNormalYawSlider = group.CreateSlider("MotionSource:StaticPlaneNormal:Yaw", "Yaw (\u00b0)", 0, 0f, 360f, v => UpdateStaticPlaneNormal(), true, true);
+            StaticPlaneNormalRollSlider = group.CreateSlider("MotionSource:StaticPlaneNormal:Roll", "Roll (\u00b0)", 0, 0, 360f, v => UpdateStaticPlaneNormal(), true, true);
+            group.SetVisible(false);
+
+            SetStaticPlaneNormalFromCurrentAction = UIManager.CreateAction("Set StaticPlaneNormal From Current", SetStaticPlaneNormalFromCurrent);
 
             FindMales();
         }
@@ -36,6 +57,14 @@ namespace ToySerialController.MotionSource
         {
             builder.Destroy(MaleChooser);
             builder.Destroy(PenisBaseOffset);
+
+            builder.Destroy(StaticPlaneNormalToggle);
+            builder.Destroy(StaticPlaneNormalSetFromCurrentButton);
+            builder.Destroy(StaticPlaneNormalPitchSlider);
+            builder.Destroy(StaticPlaneNormalYawSlider);
+            builder.Destroy(StaticPlaneNormalRollSlider);
+
+            UIManager.RemoveAction(SetStaticPlaneNormalFromCurrentAction);
         }
 
         public void StoreConfig(JSONNode config)
@@ -82,7 +111,12 @@ namespace ToySerialController.MotionSource
             var pelvidLeft = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFL3Joint")?.transform;
             var pelvisMid = _maleAtom.GetComponentByName<Transform>("AutoColliderpelvisF1")?.GetComponentByName<Collider>("AutoColliderpelvisF4Joint")?.transform;
 
-            if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
+            if (StaticPlaneNormalToggle.val)
+            {
+                PlaneNormal = _staticPlaneNormal;
+                PlaneTangent = _customPlaneTangent;
+            }
+            else if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
             {
                 PlaneNormal = Up;
                 PlaneTangent = Right;
@@ -94,6 +128,36 @@ namespace ToySerialController.MotionSource
             }
 
             return true;
+        }
+
+        private void UpdateStaticPlaneNormal()
+        {
+            _staticPlaneNormal = Quaternion.Euler(StaticPlaneNormalPitchSlider.val, StaticPlaneNormalYawSlider.val, StaticPlaneNormalRollSlider.val) * Vector3.forward;
+            _customPlaneTangent = Quaternion.Euler(StaticPlaneNormalPitchSlider.val, StaticPlaneNormalYawSlider.val, StaticPlaneNormalRollSlider.val) * Vector3.right;
+        }
+
+        private void SetStaticPlaneNormalFromCurrent()
+        {
+            if (_maleAtom == null)
+                return;
+
+            var pelvisRight = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFR3Joint")?.transform;
+            var pelvidLeft = _maleAtom.GetComponentByName<Collider>("AutoColliderpelvisFL3Joint")?.transform;
+            var pelvisMid = _maleAtom.GetComponentByName<Transform>("AutoColliderpelvisF1")?.GetComponentByName<Collider>("AutoColliderpelvisF4Joint")?.transform;
+
+            if (pelvisRight == null || pelvidLeft == null || pelvisMid == null)
+                return;
+
+            var normal = Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
+            var tangent = Vector3.Cross(normal, pelvisMid.position - (pelvidLeft.position + pelvisRight.position) / 2).normalized;
+            var angles = Quaternion.LookRotation(normal, Vector3.Cross(normal, tangent)).eulerAngles;
+
+            StaticPlaneNormalPitchSlider.valNoCallback = angles.x;
+            StaticPlaneNormalYawSlider.valNoCallback = angles.y;
+            StaticPlaneNormalRollSlider.valNoCallback = angles.z;
+
+            _staticPlaneNormal = normal;
+            _customPlaneTangent = tangent;
         }
 
         private void FindMales(string defaultUid = null)
