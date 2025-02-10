@@ -18,6 +18,7 @@ namespace ToySerialController
         private JSONStorableFloat SmoothingSlider;
         private JSONStorableFloat ReferenceLengthScaleSlider;
         private JSONStorableFloat ReferenceRadiusScaleSlider;
+        private JSONStorableStringChooser RTargetCalculationMode;
 
         private UIDynamicButton L0AxisTitle;
         private JSONStorableBool InvertL0Toggle;
@@ -110,6 +111,7 @@ namespace ToySerialController
             SmoothingSlider = group.CreateSlider("Plugin:Smoothing", "Smoothing (%)", 0.1f, 0.0f, 0.99f, true, true, true, "P0");
             ReferenceLengthScaleSlider = group.CreateSlider("Device:ReferenceLengthScale", "Reference Length (%)", 1.0f, 0, 3, true, true, true, "P0");
             ReferenceRadiusScaleSlider = group.CreateSlider("Device:ReferenceRadiusScale", "Reference Radius (%)", 3.0f, 0, 5, true, true, true, "P0");
+            RTargetCalculationMode = group.CreatePopup("Device:RTargetCalculationMode", "Rotation Calculation Mode", new List<string>() { "Target-Reference", "Target-Plane" }, "Target-Reference", null, true);
 
             group.SetVisible(false);
 

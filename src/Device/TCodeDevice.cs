@@ -270,48 +270,14 @@ namespace ToySerialController
 
         public bool UpdateMotion(IMotionSource motionSource)
         {
-            var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
-            var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
-            var referenceEnding = motionSource.ReferencePosition + motionSource.ReferenceUp * length;
-            var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
+            Draw(motionSource);
 
-            for (var i = 0; i < 5; i++)
-                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, motionSource.ReferenceRight, Color.grey, radius);
-
-            var t = Mathf.Clamp(Vector3.Dot(motionSource.TargetPosition - motionSource.ReferencePosition, motionSource.ReferenceUp), 0f, length);
-            var closestPoint = motionSource.ReferencePosition + motionSource.ReferenceUp * t;
-
-            if (Vector3.Magnitude(closestPoint - motionSource.TargetPosition) <= radius)
+            var closestPoint = GetClosestPointOnReference(motionSource);
+            if (IsColliding(motionSource, closestPoint))
             {
-                if (diffPosition.magnitude > 0.0001f)
-                {
-                    XTarget[0] = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
-
-                    var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
-                    var rightOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
-                    var forwardOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
-                    XTarget[1] = forwardOffset.magnitude * Mathf.Sign(Vector3.Dot(forwardOffset, motionSource.ReferenceForward));
-                    XTarget[2] = rightOffset.magnitude * Mathf.Sign(Vector3.Dot(rightOffset, motionSource.ReferenceRight));
-                }
-                else
-                {
-                    XTarget[0] = 1;
-                    XTarget[1] = 0;
-                    XTarget[2] = 0;
-                }
-
-                var correctedRight = Vector3.ProjectOnPlane(motionSource.TargetRight, motionSource.ReferenceUp);
-                if (Vector3.Dot(correctedRight, motionSource.ReferenceRight) < 0)
-                    correctedRight -= 2 * Vector3.Project(correctedRight, motionSource.ReferenceRight);
-
-                RTarget[0] = Vector3.SignedAngle(motionSource.ReferenceRight, correctedRight, motionSource.ReferenceUp) / 180;
-                RTarget[1] = -Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceForward), motionSource.ReferenceForward) / 90;
-                RTarget[2] = Vector3.SignedAngle(motionSource.ReferenceUp, Vector3.ProjectOnPlane(motionSource.TargetUp, motionSource.ReferenceRight), motionSource.ReferenceRight) / 90;
-
-                ETarget[0] = OutputV0CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[1] = OutputA0CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[2] = OutputA1CurveEditorSettings.Evaluate(XTarget, RTarget);
-                ETarget[3] = OutputA2CurveEditorSettings.Evaluate(XTarget, RTarget);
+                UpdateXTarget(motionSource, closestPoint);
+                UpdateRTarget(motionSource);
+                UpdateETarget();
 
                 if (_lastNoCollisionTime != null)
                 {
@@ -330,6 +296,84 @@ namespace ToySerialController
 
                 return false;
             }
+        }
+
+        private void Draw(IMotionSource motionSource)
+        {
+            var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
+            var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
+            var referenceEnding = motionSource.ReferencePosition + motionSource.ReferenceUp * length;
+
+            for (var i = 0; i < 5; i++)
+                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, motionSource.ReferenceRight, Color.grey, radius);
+        }
+
+        private Vector3 GetClosestPointOnReference(IMotionSource motionSource)
+        {
+            var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
+            var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
+            var t = Mathf.Clamp(Vector3.Dot(diffPosition, motionSource.ReferenceUp), 0f, length);
+            return motionSource.ReferencePosition + motionSource.ReferenceUp * t;
+        }
+        
+        private bool IsColliding(IMotionSource motionSource, Vector3 closestPoint)
+        {
+            var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
+            return Vector3.Magnitude(closestPoint - motionSource.TargetPosition) <= radius;
+        }
+
+        private void UpdateXTarget(IMotionSource motionSource, Vector3 closestPoint)
+        {
+            var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
+            var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
+            if (diffPosition.magnitude > 0.0001f)
+            {
+                XTarget[0] = 1 - Mathf.Clamp01((closestPoint - motionSource.ReferencePosition).magnitude / length);
+
+                var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
+                var rightOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceRight);
+                var forwardOffset = Vector3.Project(diffOnPlane, motionSource.ReferenceForward);
+                XTarget[1] = forwardOffset.magnitude * Mathf.Sign(Vector3.Dot(forwardOffset, motionSource.ReferenceForward));
+                XTarget[2] = rightOffset.magnitude * Mathf.Sign(Vector3.Dot(rightOffset, motionSource.ReferenceRight));
+            }
+            else
+            {
+                XTarget[0] = 1;
+                XTarget[1] = 0;
+                XTarget[2] = 0;
+            }
+        }
+
+        private void UpdateRTarget(IMotionSource motionSource)
+        {
+            if (RTargetCalculationMode.val == "Target-Reference")
+            {
+                UpdateRTarget(motionSource.TargetUp, motionSource.TargetRight, motionSource.ReferenceUp, motionSource.ReferenceRight, motionSource.ReferenceForward);
+            }
+            else if (RTargetCalculationMode.val == "Target-Plane")
+            {
+                var referencePlaneForward = Vector3.Cross(motionSource.ReferencePlaneNormal, motionSource.ReferencePlaneTangent);
+                UpdateRTarget(motionSource.TargetUp, motionSource.TargetRight, motionSource.ReferencePlaneNormal, motionSource.ReferencePlaneTangent, referencePlaneForward);
+            }
+        }
+
+        private void UpdateRTarget(Vector3 targetUp, Vector3 targetRight, Vector3 up, Vector3 right, Vector3 forward)
+        {
+            var correctedRight = Vector3.ProjectOnPlane(targetRight, up);
+            if (Vector3.Dot(correctedRight, right) < 0)
+                correctedRight -= 2 * Vector3.Project(correctedRight, right);
+
+            RTarget[0] = Vector3.SignedAngle(right, correctedRight, up) / 180;
+            RTarget[1] = -Vector3.SignedAngle(up, Vector3.ProjectOnPlane(targetUp, forward), forward) / 90;
+            RTarget[2] = Vector3.SignedAngle(up, Vector3.ProjectOnPlane(targetUp, right), right) / 90;
+        }
+
+        private void UpdateETarget()
+        {
+            ETarget[0] = OutputV0CurveEditorSettings.Evaluate(XTarget, RTarget);
+            ETarget[1] = OutputA0CurveEditorSettings.Evaluate(XTarget, RTarget);
+            ETarget[2] = OutputA1CurveEditorSettings.Evaluate(XTarget, RTarget);
+            ETarget[3] = OutputA2CurveEditorSettings.Evaluate(XTarget, RTarget);
         }
 
         public void Dispose() => Dispose(true);
