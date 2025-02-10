@@ -43,22 +43,7 @@ namespace ToySerialController.MotionSource
             Target.StoreConfig(config);
         }
 
-        public override bool Update()
-        {
-            if (Reference.Update() && Target.Update(Reference))
-            {
-                DebugDraw.DrawSquare(ReferencePosition, ReferencePlaneNormal, ReferencePlaneTangent, Color.white, 0.33f);
-                DebugDraw.DrawLine(ReferencePosition, ReferencePosition + ReferencePlaneNormal * 0.15f, Color.white);
-                DebugDraw.DrawTransform(ReferencePosition, ReferenceUp, ReferenceRight, ReferenceForward, 0.15f);
-                DebugDraw.DrawRay(ReferencePosition, ReferenceUp, ReferenceLength, Color.white);
-                DebugDraw.DrawLine(ReferencePosition, TargetPosition, Color.yellow);
-                DebugDraw.DrawTransform(TargetPosition, TargetUp, TargetRight, TargetForward, 0.15f);
-
-                return true;
-            }
-
-            return false;
-        }
+        public override bool Update() => Reference.Update() && Target.Update(Reference);
 
         public override void CreateUI(IUIBuilder builder)
         {

@@ -93,9 +93,7 @@ namespace ToySerialController
             else if (motionSource != null)
             {
                 UpdateMotion(motionSource);
-
-                DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMinL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, motionSource.TargetRight, Color.white, 0.05f);
-                DebugDraw.DrawCircle(motionSource.TargetPosition + motionSource.TargetUp * RangeMaxL0Slider.val * motionSource.ReferenceLength, motionSource.TargetUp, motionSource.TargetRight, Color.white, 0.05f);
+                Draw(motionSource);
             }
 
             UpdateValues(outputTarget);
@@ -270,8 +268,6 @@ namespace ToySerialController
 
         public bool UpdateMotion(IMotionSource motionSource)
         {
-            Draw(motionSource);
-
             var closestPoint = GetClosestPointOnReference(motionSource);
             if (IsColliding(motionSource, closestPoint))
             {
@@ -300,12 +296,46 @@ namespace ToySerialController
 
         private void Draw(IMotionSource motionSource)
         {
+            if (!DebugDraw.Enabled)
+                return;
+
+            var referencePosition = motionSource.ReferencePosition;
+            var referenceUp = motionSource.ReferenceUp;
+            var referenceRight = motionSource.ReferenceRight;
+            var referenceForward = motionSource.ReferenceForward;
+
+            var targetPosition = motionSource.TargetPosition;
+            var targetUp = motionSource.TargetUp;
+            var targetRight = motionSource.TargetRight;
+            var targetForward = motionSource.TargetForward;
+
+            var referencePlaneNormal = motionSource.ReferencePlaneNormal;
+            var referencePlaneTangent = motionSource.ReferencePlaneTangent;
+            var referencePlaneForward = Vector3.Cross(referencePlaneNormal, referencePlaneTangent);
+
+            DebugDraw.DrawSquare(referencePosition, referencePlaneNormal, referencePlaneTangent, Color.white, 0.33f);
+            DebugDraw.DrawLine(referencePosition, referencePosition + referencePlaneNormal * 0.15f, Color.white);
+            DebugDraw.DrawRay(referencePosition, referenceUp, motionSource.ReferenceLength, Color.white);
+            DebugDraw.DrawLine(referencePosition, targetPosition, Color.yellow);
+
+            if (RTargetCalculationMode.val == "Target-Reference")
+                DebugDraw.DrawTransform(referencePosition, referenceUp, referenceRight, referenceForward, 0.15f);
+            else if (RTargetCalculationMode.val == "Target-Plane")
+                DebugDraw.DrawTransform(referencePosition, referencePlaneNormal, referencePlaneTangent, referencePlaneForward, 0.15f);
+
+            DebugDraw.DrawTransform(targetPosition, targetUp, targetRight, targetForward, 0.15f);
+
             var length = motionSource.ReferenceLength * ReferenceLengthScaleSlider.val;
             var radius = motionSource.ReferenceRadius * ReferenceRadiusScaleSlider.val;
-            var referenceEnding = motionSource.ReferencePosition + motionSource.ReferenceUp * length;
+            var referenceEnding = referencePosition + referenceUp * length;
+
+            DebugDraw.DrawCircle(targetPosition + targetUp * RangeMinL0Slider.val * length, targetUp, targetRight, Color.white, 0.05f);
+            DebugDraw.DrawCircle(targetPosition + targetUp * RangeMaxL0Slider.val * length, targetUp, targetRight, Color.white, 0.05f);
 
             for (var i = 0; i < 5; i++)
-                DebugDraw.DrawCircle(Vector3.Lerp(motionSource.ReferencePosition, referenceEnding, i / 4.0f), motionSource.ReferenceUp, motionSource.ReferenceRight, Color.grey, radius);
+                DebugDraw.DrawCircle(Vector3.Lerp(referencePosition, referenceEnding, i / 4.0f), referenceUp, referenceRight, Color.grey, radius);
+
+            DebugDraw.DrawRectangle(referencePosition, referencePlaneNormal, referencePlaneTangent, Color.yellow, RangeMaxL2Slider.val, RangeMaxL1Slider.val);
         }
 
         private Vector3 GetClosestPointOnReference(IMotionSource motionSource)
