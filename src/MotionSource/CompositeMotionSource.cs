@@ -1,5 +1,4 @@
-﻿using DebugUtils;
-using SimpleJSON;
+﻿using SimpleJSON;
 using ToySerialController.UI;
 using UnityEngine;
 

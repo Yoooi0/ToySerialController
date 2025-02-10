@@ -1,11 +1,8 @@
 using CurveEditor;
 using CurveEditor.UI;
 using SimpleJSON;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using ToySerialController.Config;
-using ToySerialController.Device.OutputTarget;
 using ToySerialController.UI;
 using ToySerialController.Utils;
 using UnityEngine;
