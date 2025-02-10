@@ -71,12 +71,22 @@ namespace ToySerialController.MotionSource
         {
             config.Store(MaleChooser);
             config.Store(PenisBaseOffset);
+
+            config.Store(StaticPlaneNormalToggle);
+            config.Store(StaticPlaneNormalPitchSlider);
+            config.Store(StaticPlaneNormalYawSlider);
+            config.Store(StaticPlaneNormalRollSlider);
         }
 
         public void RestoreConfig(JSONNode config)
         {
             config.Restore(MaleChooser);
             config.Restore(PenisBaseOffset);
+
+            config.Restore(StaticPlaneNormalToggle);
+            config.Restore(StaticPlaneNormalPitchSlider);
+            config.Restore(StaticPlaneNormalYawSlider);
+            config.Restore(StaticPlaneNormalRollSlider);
 
             FindMales(MaleChooser.val);
         }
