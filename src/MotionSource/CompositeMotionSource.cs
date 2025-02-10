@@ -19,11 +19,11 @@ namespace ToySerialController.MotionSource
         public override float ReferenceLength => Reference.Length;
         public override float ReferenceRadius => Reference.Radius;
         public override Vector3 ReferencePlaneNormal => Reference.PlaneNormal;
+        public override Vector3 ReferencePlaneTangent => Reference.PlaneTangent;
         public override Vector3 TargetPosition => Target.Position;
         public override Vector3 TargetUp => Target.Up;
         public override Vector3 TargetRight => Target.Right;
         public override Vector3 TargetForward => Target.Forward;
-        private Vector3 ReferencePlaneTangent => Reference.PlaneTangent;
 
         public CompositeMotionSource(IMotionSourceReference reference, IMotionSourceTarget target)
         {

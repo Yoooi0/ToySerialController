@@ -13,6 +13,7 @@ namespace ToySerialController.MotionSource
         float ReferenceLength { get; }
         float ReferenceRadius { get; }
         Vector3 ReferencePlaneNormal { get; }
+        Vector3 ReferencePlaneTangent { get; }
 
         Vector3 TargetPosition { get; }
         Vector3 TargetUp { get; }

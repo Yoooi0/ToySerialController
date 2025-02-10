@@ -15,6 +15,7 @@ namespace ToySerialController.MotionSource
         public float ReferenceLength { get; private set; }
         public float ReferenceRadius { get; private set; }
         public Vector3 ReferencePlaneNormal { get; private set; }
+        public Vector3 ReferencePlaneTangent { get; private set; }
         public Vector3 TargetPosition { get; private set; }
         public Vector3 TargetUp { get; private set; }
         public Vector3 TargetRight { get; private set; }
@@ -42,6 +43,7 @@ namespace ToySerialController.MotionSource
 
             ReferencePosition = _rangeStart;
             ReferencePlaneNormal = Vector3.up;
+            ReferencePlaneTangent = Vector3.right;
 
             _time = 0;
         }

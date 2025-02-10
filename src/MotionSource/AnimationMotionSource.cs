@@ -29,6 +29,7 @@ namespace ToySerialController.MotionSource
         public override float ReferenceLength => _referenceLength;
         public override float ReferenceRadius => _referenceRadius;
         public override Vector3 ReferencePlaneNormal => _targetUp;
+        public override Vector3 ReferencePlaneTangent => _targetRight;
 
         public override Vector3 TargetPosition => _targetPosition;
         public override Vector3 TargetUp => _targetUp;
