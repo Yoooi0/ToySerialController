@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+using SimpleJSON;
 using System.Linq;
 using ToySerialController.UI;
 using ToySerialController.Utils;
@@ -142,8 +142,10 @@ namespace ToySerialController.MotionSource
 
         private void UpdateStaticPlaneNormal()
         {
-            _staticPlaneNormal = Quaternion.Euler(StaticPlaneNormalPitchSlider.val, StaticPlaneNormalYawSlider.val, StaticPlaneNormalRollSlider.val) * Vector3.forward;
-            _customPlaneTangent = Quaternion.Euler(StaticPlaneNormalPitchSlider.val, StaticPlaneNormalYawSlider.val, StaticPlaneNormalRollSlider.val) * Vector3.right;
+            var planeRotation = Quaternion.Euler(StaticPlaneNormalPitchSlider.val, StaticPlaneNormalYawSlider.val, StaticPlaneNormalRollSlider.val);
+
+            _staticPlaneNormal = planeRotation * Vector3.up;
+            _customPlaneTangent = planeRotation * Vector3.right;
         }
 
         private void SetStaticPlaneNormalFromCurrent()
@@ -160,7 +162,7 @@ namespace ToySerialController.MotionSource
 
             var normal = -Vector3.Cross(pelvisMid.position - pelvidLeft.position, pelvisMid.position - pelvisRight.position).normalized;
             var tangent = Vector3.Cross(normal, pelvisMid.position - (pelvidLeft.position + pelvisRight.position) / 2).normalized;
-            var angles = Quaternion.LookRotation(normal, Vector3.Cross(normal, tangent)).eulerAngles;
+            var angles = Quaternion.LookRotation(Vector3.Cross(normal, tangent), normal).eulerAngles;
 
             StaticPlaneNormalPitchSlider.valNoCallback = angles.x;
             StaticPlaneNormalYawSlider.valNoCallback = angles.y;
