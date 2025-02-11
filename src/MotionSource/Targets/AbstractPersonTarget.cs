@@ -202,8 +202,8 @@ namespace ToySerialController.MotionSource
 
             var center = (topLip.transform.position + bottomLip.transform.position) / 2;
             Up = (mouthTrigger.transform.position - center).normalized;
-            Right = mouthTrigger.transform.right;
-            Forward = Vector3.Cross(Up, Right);
+            Right = -mouthTrigger.transform.right;
+            Forward = Vector3.Cross(Right, Up);
             _position = center - Up * Vector3.Distance(center, mouthTrigger.transform.position) * 0.2f;
 
             DebugDraw.DrawCircle(Position, Up, Right, Color.gray, (topLip.transform.position - bottomLip.transform.position).magnitude / 2);
@@ -256,13 +256,19 @@ namespace ToySerialController.MotionSource
             if (footBase == null)
                 return false;
 
-            Right = footBase.transform.forward;
-            Forward = -footBase.transform.up;
 
             if (side == "l")
+            {
                 Up = footBase.transform.right;
+                Right = -footBase.transform.forward;
+            }
             else if (side == "r")
+            {
                 Up = -footBase.transform.right;
+                Right = footBase.transform.forward;
+            }
+
+            Forward = -footBase.transform.up;
 
             _position = footBase.transform.position + Forward * footBase.radius;
 

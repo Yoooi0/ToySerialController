@@ -311,7 +311,7 @@ namespace ToySerialController
 
             var referencePlaneNormal = motionSource.ReferencePlaneNormal;
             var referencePlaneTangent = motionSource.ReferencePlaneTangent;
-            var referencePlaneForward = Vector3.Cross(referencePlaneNormal, referencePlaneTangent);
+            var referencePlaneForward = Vector3.Cross(referencePlaneTangent, referencePlaneNormal);
 
             DebugDraw.DrawLine(referencePosition, referencePosition + referencePlaneNormal * 0.15f, Color.white);
             DebugDraw.DrawRay(referencePosition, referenceUp, motionSource.ReferenceLength, Color.white);
@@ -386,7 +386,7 @@ namespace ToySerialController
             }
             else if (RTargetCalculationMode.val == "Target-Plane")
             {
-                var referencePlaneForward = Vector3.Cross(motionSource.ReferencePlaneNormal, motionSource.ReferencePlaneTangent);
+                var referencePlaneForward = Vector3.Cross(motionSource.ReferencePlaneTangent, motionSource.ReferencePlaneNormal);
                 UpdateRTarget(motionSource.TargetUp, motionSource.TargetRight, motionSource.ReferencePlaneNormal, motionSource.ReferencePlaneTangent, referencePlaneForward);
             }
         }

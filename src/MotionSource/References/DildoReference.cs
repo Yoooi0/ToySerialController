@@ -74,7 +74,7 @@ namespace ToySerialController.MotionSource
 
             Up = (tipPosition - midPosition).normalized;
             Right = -baseCollider.transform.right;
-            Forward = Vector3.Cross(Up, Right);
+            Forward = Vector3.Cross(Right, Up);
             PlaneNormal = _dildoAtom.GetComponentByName<Transform>("object").forward;
             PlaneTangent = _dildoAtom.GetComponentByName<Transform>("object").right;
 
