@@ -1,4 +1,4 @@
-using MVR.FileManagementSecure;
+﻿using MVR.FileManagementSecure;
 using SimpleJSON;
 using System.Linq;
 
@@ -54,8 +54,7 @@ namespace ToySerialController.Config
             if (!CheckPath(ref path))
                 return;
 
-            var directory = FileManagerSecure.GetDirectoryName(path);
-            if (!FileManagerSecure.DirectoryExists(directory))
+            if (!FileManagerSecure.FileExists(path))
                 return;
 
             var config = Controller.LoadJSON(path);
