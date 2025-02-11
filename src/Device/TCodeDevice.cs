@@ -313,7 +313,6 @@ namespace ToySerialController
             var referencePlaneTangent = motionSource.ReferencePlaneTangent;
             var referencePlaneForward = Vector3.Cross(referencePlaneNormal, referencePlaneTangent);
 
-            DebugDraw.DrawSquare(referencePosition, referencePlaneNormal, referencePlaneTangent, Color.white, 0.33f);
             DebugDraw.DrawLine(referencePosition, referencePosition + referencePlaneNormal * 0.15f, Color.white);
             DebugDraw.DrawRay(referencePosition, referenceUp, motionSource.ReferenceLength, Color.white);
             DebugDraw.DrawLine(referencePosition, targetPosition, Color.yellow);
@@ -335,7 +334,12 @@ namespace ToySerialController
             for (var i = 0; i < 5; i++)
                 DebugDraw.DrawCircle(Vector3.Lerp(referencePosition, referenceEnding, i / 4.0f), referenceUp, referenceRight, Color.grey, radius);
 
-            DebugDraw.DrawRectangle(referencePosition, referencePlaneNormal, referencePlaneTangent, Color.yellow, RangeMaxL2Slider.val, RangeMaxL1Slider.val);
+            var diffPosition = motionSource.TargetPosition - motionSource.ReferencePosition;
+            var diffOnPlane = Vector3.ProjectOnPlane(diffPosition, motionSource.ReferencePlaneNormal);
+
+            DebugDraw.DrawRectangle(referencePosition, referencePlaneNormal, referencePlaneTangent, Color.grey, RangeMaxL2Slider.val * 2, RangeMaxL1Slider.val * 2);
+            DebugDraw.DrawEllipse(referencePosition, referencePlaneNormal, referencePlaneTangent, Color.grey, RangeMaxL2Slider.val, RangeMaxL1Slider.val, 40);
+            DebugDraw.DrawLine(referencePosition, referencePosition + diffOnPlane, Color.white);
         }
 
         private Vector3 GetClosestPointOnReference(IMotionSource motionSource)
