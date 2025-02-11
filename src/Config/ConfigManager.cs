@@ -1,4 +1,4 @@
-﻿using MVR.FileManagementSecure;
+using MVR.FileManagementSecure;
 using SimpleJSON;
 using System.Linq;
 
@@ -17,7 +17,8 @@ namespace ToySerialController.Config
             if (parts.Length == 1)
                 path += ".json";
 
-            if (path?.EndsWith(".json") == false || parts.Last() == string.Empty) {
+            if (path?.EndsWith(".json") == false || parts.Last() == string.Empty)
+            {
                 SuperController.LogError($"Invalid config file path! \"{path}\"");
                 return false;
             }
