@@ -24,24 +24,9 @@ namespace ToySerialController
         public override void Init()
         {
             base.Init();
-
             UIManager.Initialize(this);
 
             _recorder = new BinaryDeviceRecorder();
-
-            try
-            {
-                try
-                {
-                    var defaultPath = Array.Find(FileManagerSecure.GetFiles(PluginDir, "*.json"), s => s.EndsWith("default.json"));
-                    if (defaultPath != null)
-                        ConfigManager.LoadConfig(defaultPath, this);
-                } catch { }
-            }
-            catch (Exception e)
-            {
-                SuperController.LogError("Exception caught: " + e);
-            }
         }
 
         public override void InitUI()
@@ -53,12 +38,14 @@ namespace ToySerialController
             try
             {
                 CreateUI();
-                _initialized = true;
+                ConfigManager.LoadConfig($@"{PluginDir}\default.json", this);
             }
             catch (Exception e)
             {
                 SuperController.LogError("Exception caught: " + e);
             }
+
+            _initialized = true;
         }
 
         protected void Update()
