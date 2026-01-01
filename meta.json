@@ -1,13 +1,13 @@
 { 
-   "licenseType" : "MIT", 
-   "creatorName" : "Yoooi", 
-   "packageName" : "ToySerialController", 
-   "includeVersionsInReferences" : "true", 
-   "description" : "", 
-   "credits" : "", 
-   "instructions" : "", 
-   "promotionalLink" : "https://github.com/Yoooi0/ToySerialController", 
-   "programVersion" : "1.20.77.9", 
-   "contentList" : [], 
-   "dependencies" : {}
+   "licenseType": "MIT", 
+   "creatorName": "Yoooi", 
+   "packageName": "ToySerialController", 
+   "includeVersionsInReferences": "true", 
+   "description": "Synchronizes T-Code devices with motion in the scene", 
+   "credits": "", 
+   "instructions": "", 
+   "promotionalLink": "https://github.com/Yoooi0/ToySerialController", 
+   "programVersion": "1.20.77.9", 
+   "contentList": [], 
+   "dependencies": {}
 }
