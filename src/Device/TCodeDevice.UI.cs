@@ -150,10 +150,10 @@ namespace ToySerialController
             var group = new UIGroup(builder);
             var visible = false;
             L0AxisTitle = builder.CreateButton("Up/Down | L0", () => group.SetVisible(visible = !visible), Color.red * 0.8f, Color.white, true);
-            RangeMaxL0Slider = group.CreateSlider("Device:L0:RangeMax", "Range Max (%)", 1f, 0.01f, 1f, v => RangeMinL0Slider.max = v - 0.01f, true, true, true, "P0");
-            RangeMinL0Slider = group.CreateSlider("Device:L0:RangeMin", "Range Min (%)", 0f, 0f, 0.99f, v => RangeMaxL0Slider.min = v + 0.01f, true, true, true, "P0");
-            OutputMaxL0Slider = group.CreateSlider("Device:L0:OutputMax", "Output Max (%)", 1f, 0f, 1f, v => OutputMinL0Slider.max = v, true, true, true, "P0");
-            OutputMinL0Slider = group.CreateSlider("Device:L0:OutputMin", "Output Min (%)", 0, 0f, 1f, v => OutputMaxL0Slider.min = v, true, true, true, "P0");
+            RangeMaxL0Slider = group.CreateSlider("Device:L0:RangeMax", "Range Max (%)", 1f, 0.01f, 1f, v => RangeMinL0Slider.val = Mathf.Clamp(RangeMinL0Slider.val, 0f, v - 0.01f), true, true, true, "P0");
+            RangeMinL0Slider = group.CreateSlider("Device:L0:RangeMin", "Range Min (%)", 0f, 0f, 0.99f, v => RangeMaxL0Slider.val = Mathf.Clamp(RangeMaxL0Slider.val, v + 0.01f, 1f), true, true, true, "P0");
+            OutputMaxL0Slider = group.CreateSlider("Device:L0:OutputMax", "Output Max (%)", 1f, 0.01f, 1f, v => OutputMinL0Slider.val = Mathf.Clamp(OutputMinL0Slider.val, 0f, v - 0.01f), true, true, true, "P0");
+            OutputMinL0Slider = group.CreateSlider("Device:L0:OutputMin", "Output Min (%)", 0f, 0f, 0.99f, v => OutputMaxL0Slider.val = Mathf.Clamp(OutputMaxL0Slider.val, v + 0.01f, 1f), true, true, true, "P0");
             InvertL0Toggle = group.CreateToggle("Device:L0:Invert", "Invert", true, true);
             EnableOverrideL0Toggle = group.CreateToggle("Device:L0:EnableOverride", "Enable Override", false, true);
             OverrideL0Slider = group.CreateSlider("Device:L0:Override", "Override Value (%)", 0.5f, 0f, 1f, true, true, true, "P0");
