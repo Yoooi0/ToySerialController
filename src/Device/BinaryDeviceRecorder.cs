@@ -18,6 +18,9 @@ namespace ToySerialController
         private JSONStorableStringChooser RecordingTypePopup;
         private JSONStorableStringChooser TimeSourcePopup;
 
+        private JSONStorableAction StartRecordingAction;
+        private JSONStorableAction StopRecordingAction;
+
         private const int _bytesPerTick = 7 * 4;
         private const int _maxTicksPerChunk = 16384;
         private const int _bufferSize = _bytesPerTick * _maxTicksPerChunk;
@@ -50,6 +53,9 @@ namespace ToySerialController
             RecordingTypePopup = builder.CreatePopup("Recording:RecordingType", "Recording Type", new List<string>() { "Per Frame", "Per Physics Tick" }, "Per Frame", null);
             TimeSourcePopup = builder.CreatePopup("Recording:TimeSource", "Time Source", new List<string>() { "Game Time", "Real Time" }, "Game Time", null);
             RecordingRDPEpsilon = builder.CreateSlider("Recording:RamerDouglasPeucker:Epsilon", "RDP Epsilon", 0.001f, 0, 1, true, true, valueFormat: "F6");
+
+            StartRecordingAction = UIManager.CreateAction("Start Recording", StartRecording);
+            StopRecordingAction = UIManager.CreateAction("Stop Recording", StopRecording);
         }
 
         public void DestroyUI(IUIBuilder builder)
@@ -58,6 +64,9 @@ namespace ToySerialController
             builder.Destroy(RecordingTypePopup);
             builder.Destroy(TimeSourcePopup);
             builder.Destroy(RecordingRDPEpsilon);
+
+            UIManager.RemoveAction(StartRecordingAction);
+            UIManager.RemoveAction(StopRecordingAction);
         }
 
         protected void StartRecordingCallback() => StartRecording();
